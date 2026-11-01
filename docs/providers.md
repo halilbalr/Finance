@@ -5,6 +5,7 @@ extra. `YahooFinance.history(ticker, start, end, interval='1d')` returns one nor
 frame with a date index, lowercase columns, positive prices and nonnegative volume. End is
 exclusive. Intraday history has provider retention limits. `adjusted=True` is explicit;
 set it false for unadjusted OHLC. Timestamps preserve exchange timezone when available.
+`attrs['currency']` holds the quote currency Yahoo reports for the series.
 
 `company`, `earnings`, `dividends`, `news` and `insider_transactions` are current-provider
 adapters. Company ratios use fractional units; `analyst_rating` is the vendor's numeric

@@ -53,6 +53,7 @@ class YahooFinance:
         The sorted, unique DatetimeIndex retains the provider timezone. Missing or
         invalid OHLCV raises ProviderError. attrs['adjusted'] records the price basis;
         the default includes split and dividend adjustments in all OHLC prices.
+        attrs['currency'] is the quote currency Yahoo reports, or None.
         """
         if pd.Timestamp(start) >= pd.Timestamp(end):
             raise ValueError("start must precede end")
@@ -67,12 +68,17 @@ class YahooFinance:
                 timeout=self.timeout,
             )
             result = normalize_ohlcv(raw)
+            # Cached by the history call above; reading it makes no further request.
+            currency = (handle.history_metadata or {}).get("currency")
         except Exception as exc:
             # The optional provider has several transport/parser exception families.
             # Preserve the cause and fail explicitly at this external boundary.
             raise ProviderError(f"Yahoo history failed for {ticker} ({interval}): {exc}") from exc
         result.attrs.update(
-            provider="Yahoo Finance", ticker=normalize_ticker(ticker), adjusted=self.adjusted
+            provider="Yahoo Finance",
+            ticker=normalize_ticker(ticker),
+            adjusted=self.adjusted,
+            currency=currency,
         )
         return result
 
