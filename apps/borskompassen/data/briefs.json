@@ -1,0 +1,270 @@
+{
+  "_info": "Omvärldsanalyser. Lägg nya överst eller sist, appen sorterar på datum. Fältet sector i impacts ska matcha sector i instruments.json.",
+  "briefs": [
+    {
+      "date": "2026-11-01",
+      "title": "Oljan stiger, Fed avvaktar och teknikjättarna drog ner Nasdaq",
+      "mood": "forsiktig",
+      "moodText": "Försiktig stämning",
+      "summary": "Börserna i USA föll under veckan, främst för att flera stora teknikbolag gav svagare besked än väntat. Oljepriset har stigit kraftigt under oktober på grund av oro kring Iran, och den amerikanska centralbanken Fed lät räntan ligga kvar men kan höja i december. Den här veckan väntar USA:s mellanårsval (tisdag 3 nov) och Riksbankens räntebesked (onsdag 4 nov).",
+      "sourceNote": "Sammanställt av Claude från nyhetsbrev och marknadssammanfattningar. Siffrorna skiljer sig något mellan källorna, så de anges ungefärligt.",
+      "items": [
+        {
+          "id": "olja",
+          "title": "Oljepriset har stigit kraftigt – oro för konflikt med Iran",
+          "category": "Råvaror & geopolitik",
+          "region": "Mellanöstern",
+          "importance": 3,
+          "what": "Oljepriset steg för fjärde månaden i rad och gick upp ungefär 15 % under oktober. Nordsjöoljan Brent låg runt 115–118 dollar per fat i slutet av veckan, efter uppgifter om att USA bett Gulfstaterna förbereda sig på en möjlig insats mot Iran.",
+          "why": "När oljan blir dyrare stiger kostnaderna för transporter, flyg och tillverkning. Det kan ge högre inflation, och då väntar centralbankerna med att sänka räntan eller höjer den. Oljebolagen tjänar däremot mer på varje fat. Oro för krig brukar också öka intresset för försvarsbolag.",
+          "chain": [
+            "Risk för konflikt nära oljefälten",
+            "Färre fat olja kan nå marknaden",
+            "Oljepriset stiger",
+            "Dyrare frakt, el och bensin",
+            "Högre inflation och räntor längre"
+          ],
+          "impacts": [
+            {
+              "sector": "Energi",
+              "dir": 1,
+              "strength": 3,
+              "why": "Högre pris per fat ger mer vinst för oljebolag."
+            },
+            {
+              "sector": "Försvar",
+              "dir": 1,
+              "strength": 2,
+              "why": "Ökad oro brukar höja efterfrågan på försvarsmateriel."
+            },
+            {
+              "sector": "Handel",
+              "dir": -1,
+              "strength": 2,
+              "why": "Hushållen får mindre kvar att handla för när bensin och el blir dyrare."
+            },
+            {
+              "sector": "Industri",
+              "dir": -1,
+              "strength": 1,
+              "why": "Dyrare energi och frakt pressar marginalerna."
+            },
+            {
+              "sector": "Flyg & resor",
+              "dir": -1,
+              "strength": 3,
+              "why": "Flygbränsle är en av de största kostnaderna."
+            }
+          ],
+          "sources": [
+            {
+              "title": "Financial Market Review, 31 okt",
+              "url": "https://getleveraged.com/reviews/31-10-26/"
+            },
+            {
+              "title": "Macro Digest",
+              "url": "https://stephenkirchner.substack.com/p/macro-digest-dc5"
+            },
+            {
+              "title": "ShareTrader: veckan i råvaror",
+              "url": "https://sharetrader.com.au/news/2026-10-31-silver-below-us50-as-gold-and-brent-retreat-the-week-in-commodities"
+            }
+          ]
+        },
+        {
+          "id": "fed",
+          "title": "Fed lät räntan ligga kvar – men en höjning i december diskuteras",
+          "category": "Räntor",
+          "region": "USA",
+          "importance": 3,
+          "what": "Den amerikanska centralbanken Fed lämnade räntan oförändrad på onsdagen. Enligt rapporter ville två ledamöter i stället höja. Inflationsmåttet PCE har stigit, och flera bedömare ser nu en tydlig risk för en höjning vid nästa möte den 8–9 december.",
+          "why": "En högre ränta gör det dyrare att låna och gör räntesparande mer lockande jämfört med aktier. Bolag vars värde bygger på vinster långt fram i tiden, som många teknikbolag, påverkas mest. Banker kan tjäna på högre räntor. En starkare dollar gör amerikanska aktier mer värda räknat i kronor.",
+          "chain": [
+            "Inflationen stiger",
+            "Fed överväger högre ränta",
+            "Lån blir dyrare",
+            "Framtida vinster värderas lägre",
+            "Tillväxtbolag pressas mest"
+          ],
+          "impacts": [
+            {
+              "sector": "Teknik",
+              "dir": -1,
+              "strength": 2,
+              "why": "Vinster långt fram i tiden blir mindre värda när räntan stiger."
+            },
+            {
+              "sector": "Fastigheter",
+              "dir": -1,
+              "strength": 2,
+              "why": "Fastighetsbolag har stora lån som blir dyrare."
+            },
+            {
+              "sector": "Bank",
+              "dir": 1,
+              "strength": 1,
+              "why": "Banker kan tjäna mer på skillnaden mellan in- och utlåningsränta."
+            },
+            {
+              "sector": "Räntor",
+              "dir": 1,
+              "strength": 1,
+              "why": "Räntefonder får högre ränta på nya placeringar."
+            }
+          ],
+          "sources": [
+            {
+              "title": "Hurbra: Fed räntebesked 28 oktober",
+              "url": "https://hurbra.se/fed-rantebesked-28-oktober-2026/"
+            },
+            {
+              "title": "Week in Review 26–30 okt",
+              "url": "https://vanderbiltreport.com/week-in-review-october-26-30-2026/"
+            },
+            {
+              "title": "Admiral Markets: veckans kalender",
+              "url": "https://admiralmarkets.com/analytics/traders-blog/earnings-calendar-this-week-october-26-2026"
+            }
+          ]
+        },
+        {
+          "id": "tech",
+          "title": "Svaga besked från flera teknikjättar – Nasdaq föll cirka 2 % på veckan",
+          "category": "Bolagsrapporter",
+          "region": "USA",
+          "importance": 2,
+          "what": "Flera stora amerikanska teknikbolag rapporterade. Microsoft levererade över förväntan, medan Alphabet, Amazon och Intel föll efter sina rapporter, bland annat på grund av svagare framtidsutsikter. Nasdaq sjönk ungefär 2 % under veckan, varav nästan 3 % på fredagen. Mindre bolag klarade sig bättre.",
+          "why": "Aktiekurser bygger på förväntningar. När ett stort bolag säger att framtiden ser sämre ut än marknaden trott faller ofta hela sektorn, eftersom investerare undrar om samma sak gäller fler bolag. Globala indexfonder har mycket amerikansk teknik och påverkas därför också.",
+          "chain": [
+            "Stora bolag rapporterar",
+            "Framtidsutsikterna är svagare än väntat",
+            "Investerare sänker förväntningarna",
+            "Hela teknik-sektorn säljs av"
+          ],
+          "impacts": [
+            {
+              "sector": "Teknik",
+              "dir": -1,
+              "strength": 2,
+              "why": "Hela sektorn drogs ner av besvikna förväntningar."
+            },
+            {
+              "sector": "Globalfond",
+              "dir": -1,
+              "strength": 1,
+              "why": "En stor del av ett världsindex är amerikanska teknikbolag."
+            }
+          ],
+          "sources": [
+            {
+              "title": "Weekly Market Recap 26–30 okt",
+              "url": "https://myweeklystock.substack.com/p/weekly-market-recap-oct-26-30-tech"
+            },
+            {
+              "title": "Stock Market Recap 26–30 okt",
+              "url": "https://www.alainguillot.com/stock-market-recap-october-26-30-2026/"
+            },
+            {
+              "title": "Nasdaq Chartstopper 30 okt",
+              "url": "https://www.nasdaq.com/economic-institute/chartstopper-103026"
+            }
+          ]
+        },
+        {
+          "id": "guld",
+          "title": "Guldet föll till årets lägsta nivå när dollarn stärktes",
+          "category": "Råvaror & valutor",
+          "region": "Världen",
+          "importance": 1,
+          "what": "Guldpriset sjönk omkring 3 % under veckan, till runt 3 875 dollar per uns, enligt flera källor årets lägsta nivå. Dollarn har samtidigt stärkts, eftersom investerare söker sig till den när det känns oroligt.",
+          "why": "Guld ger ingen ränta. När räntorna väntas bli högre blir det mindre lockande att äga guld. En starkare dollar gör dessutom guld dyrare för köpare utanför USA. Gruvbolag påverkas av priset på metallerna de säljer. För svenska exportbolag är en stark dollar bra: de får fler kronor för varje vara de säljer i dollar.",
+          "chain": [
+            "Räntorna väntas stiga",
+            "Dollarn stärks",
+            "Guld blir mindre attraktivt",
+            "Lägre metallpriser"
+          ],
+          "impacts": [
+            {
+              "sector": "Gruvor & metaller",
+              "dir": -1,
+              "strength": 1,
+              "why": "Lägre metallpriser kan ge lägre intäkter."
+            },
+            {
+              "sector": "Industri",
+              "dir": 1,
+              "strength": 1,
+              "why": "Exportbolag får fler kronor när dollarn är stark."
+            }
+          ],
+          "sources": [
+            {
+              "title": "ShareTrader: veckan i råvaror",
+              "url": "https://sharetrader.com.au/news/2026-10-31-silver-below-us50-as-gold-and-brent-retreat-the-week-in-commodities"
+            },
+            {
+              "title": "The Gold Weekly, 31 okt",
+              "url": "https://thegoldinvestor.substack.com/p/the-gold-weekly-october-31-2026"
+            },
+            {
+              "title": "Trading Economics: guld",
+              "url": "https://tradingeconomics.com/commodity/gold"
+            }
+          ]
+        },
+        {
+          "id": "veckan",
+          "title": "Veckan som kommer: USA väljer (3 nov) och Riksbanken ger räntebesked (4 nov)",
+          "category": "Kalender",
+          "region": "USA & Sverige",
+          "importance": 2,
+          "what": "På tisdag håller USA mellanårsval, där kontrollen över kongressen avgörs. Utfallet kan påverka tullar, skatter och statens utgifter. På onsdag kl. 09.30 meddelar Riksbanken sitt räntebesked. Styrräntan är i dag 1,75 %.",
+          "why": "Val skapar osäkerhet, och då brukar kurserna svänga mer kring valdagen. Ett höjt räntebesked från Riksbanken gör lån dyrare för hushåll och fastighetsbolag, men kan stärka kronan. En starkare krona gör utländska aktier och fonder lite mindre värda räknat i kronor. Ofta är det Riksbankens besked om framtiden som rör marknaden mest, inte själva räntan.",
+          "chain": [
+            "Val och räntebesked",
+            "Osäkerhet inför beskeden",
+            "Större kurssvängningar",
+            "Marknaden anpassar sig efter utfallet"
+          ],
+          "impacts": [
+            {
+              "sector": "Bank",
+              "dir": 0,
+              "strength": 1,
+              "why": "Påverkas av räntebeskedet, åt vilket håll beror på utfallet."
+            },
+            {
+              "sector": "Fastigheter",
+              "dir": 0,
+              "strength": 2,
+              "why": "Mycket känsliga för räntan, både uppåt och nedåt."
+            },
+            {
+              "sector": "Globalfond",
+              "dir": 0,
+              "strength": 1,
+              "why": "Kronans rörelse ändrar fondens värde räknat i kronor."
+            }
+          ],
+          "sources": [
+            {
+              "title": "Ekonomival: datum för räntebesked",
+              "url": "https://ekonomival.se/ekonomifakta/rantebesked-riksbanken-fed-ecb"
+            },
+            {
+              "title": "Hurbra: ekonomikalender vecka 44",
+              "url": "https://hurbra.se/ekonomikalender-vecka-44-2026/"
+            },
+            {
+              "title": "Financial Market Review, 31 okt",
+              "url": "https://getleveraged.com/reviews/31-10-26/"
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-11-01T10:30:00+01:00",
+      "author": "Claude"
+    }
+  ]
+}

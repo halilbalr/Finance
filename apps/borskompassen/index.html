@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Håll koll på dina aktier och fonder, få signaler, larm och förklaringar av hur världshändelser påverkar dina innehav.">
+<meta name="theme-color" content="#7a2e6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Börskompassen">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Börskompassen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=Familjen+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: an app shell. Wide screens get a quiet inset sidebar plus a content column; phones get a sticky top bar and a bottom tab bar. Plum is the one accent; green/red only ever mean up/down. */
+:root{
+  --bg:#f1f2ee; --surface:#ffffff; --surface-2:#e8eae4; --ink:#16201b; --ink-2:#47524c; --muted:#6e7872; --line:#dcdfd8;
+  --accent:#7a2e6b; --accent-ink:#ffffff; --accent-soft:#f3e5ef; --accent-line:#e2c6da;
+  --up:#0b7a35; --up-soft:#e2f2e7; --down:#c2362f; --down-soft:#fae7e5; --warn:#8f5b00; --warn-soft:#faefd6;
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a; --grid:#e5e7e1; --ring:#ffffff;
+  --font-display:"Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-num:"Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --t-xs:.8125rem; --t-sm:.875rem; --t-md:1rem; --t-lg:1.1875rem; --t-xl:1.5rem; --t-2xl:2rem; --t-3xl:2.5rem;
+  --r:14px; --r-sm:9px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1311; --surface:#161c19; --surface-2:#202723; --ink:#edf0eb; --ink-2:#b8c0ba; --muted:#8c958f; --line:#2a322e;
+  --accent:#e29ad2; --accent-ink:#22121e; --accent-soft:#38202f; --accent-line:#5a3550;
+  --up:#45c46f; --up-soft:#14281b; --down:#f27d73; --down-soft:#341a18; --warn:#e3aa45; --warn-soft:#33270f;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --grid:#242b27; --ring:#161c19;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1311; --surface:#161c19; --surface-2:#202723; --ink:#edf0eb; --ink-2:#b8c0ba; --muted:#8c958f; --line:#2a322e;
+  --accent:#e29ad2; --accent-ink:#22121e; --accent-soft:#38202f; --accent-line:#5a3550;
+  --up:#45c46f; --up-soft:#14281b; --down:#f27d73; --down-soft:#341a18; --warn:#e3aa45; --warn-soft:#33270f;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --grid:#242b27; --ring:#161c19;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--font-body);font-size:var(--t-md);line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing:antialiased;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:30;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;letter-spacing:-.01em;line-height:1.15}
+h1{font-size:var(--t-2xl);font-weight:700}
+h2{font-size:var(--t-lg);font-weight:600}
+h3{font-size:var(--t-md);font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.muted{color:var(--muted)} .ink2{color:var(--ink-2)}
+.small{font-size:var(--t-sm)} .xs{font-size:var(--t-xs)}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink-2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.icon{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icon.sm{width:18px;height:18px}
+
+/* ---------- shell ---------- */
+.shell{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr)}
+.side{display:none}
+.topbar{position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:8px;padding-block:10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;font-size:var(--t-lg);color:var(--ink);text-decoration:none;letter-spacing:-.015em}
+.brand .mark{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.brand .mark svg{width:20px;height:20px}
+.topbar .brand{margin-right:auto}
+.iconbtn{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--ink);cursor:pointer}
+.iconbtn:hover{background:var(--surface-2)}
+.badge{position:absolute;top:5px;right:4px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--down);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;font-family:var(--font-body)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px max(10px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px))}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600}
+.tabbar a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+main{min-width:0;padding-block:20px 104px}
+@media (min-width:900px){
+  .shell{grid-template-columns:236px minmax(0,1fr);gap:32px}
+  .topbar,.tabbar{display:none}
+  .side{display:flex;flex-direction:column;gap:4px;position:sticky;top:calc(16px + env(safe-area-inset-top, 0px));align-self:start;
+    max-height:calc(100dvh - 32px);margin-block:16px;padding:18px 12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:auto}
+  .side .brand{padding:0 8px 16px}
+  .side nav{display:flex;flex-direction:column;gap:2px}
+  .side nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;color:var(--ink-2);text-decoration:none;font-weight:600}
+  .side nav a:hover{background:var(--surface-2);color:var(--ink)}
+  .side nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+  .side nav a .badge{position:static;margin-left:auto}
+  .side .foot{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:14px 4px 0;border-top:1px solid var(--line)}
+  main{padding-block:28px 64px}
+}
+.content{max-width:1080px}
+main:focus{outline:none}
+[data-act="ask"]{display:none!important}
+
+/* ---------- common blocks ---------- */
+.phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:18px}
+.phead .sub{color:var(--ink-2);margin-top:6px;max-width:62ch}
+.phead .actions{display:flex;flex-wrap:wrap;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.card > h2{margin-bottom:12px}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.card-head h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:16px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:1000px){.grid2{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}}
+@media (max-width:999px){.reflow > .stack{display:contents}}
+.eyebrow{font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:var(--down);border-color:var(--down-soft)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:var(--t-sm);border-radius:9px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.linkbtn{background:none;border:none;padding:0;color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-weight:600;font-size:var(--t-sm);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:var(--t-xs);font-weight:700;white-space:nowrap;line-height:1.5}
+.pill.buy,.pill.buy2,.pill.up{background:var(--up-soft);color:var(--up)}
+.pill.sell,.pill.sell2,.pill.down{background:var(--down-soft);color:var(--down)}
+.pill.hold,.pill.flat{background:var(--surface-2);color:var(--ink-2)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.pill.demo{background:var(--warn-soft);color:var(--warn)}
+.term{background:none;border:none;padding:0;font:inherit;color:inherit;text-decoration:underline dotted;text-decoration-color:var(--accent);text-underline-offset:3px;cursor:help}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:6px 0}
+.empty p{color:var(--ink-2);max-width:56ch}
+.note{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--surface-2);color:var(--ink-2);font-size:var(--t-sm)}
+.note strong{color:var(--ink)}
+.note.warn{background:var(--warn-soft)}
+.note.warn .icon{color:var(--warn)}
+.banner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px 14px;margin-bottom:18px;border-radius:12px;background:var(--warn-soft);color:var(--ink);font-size:var(--t-sm)}
+.banner b{color:var(--warn)}
+.skel{height:14px;border-radius:7px;background:var(--surface-2);margin:8px 0}
+.disclaimer{font-size:var(--t-xs);color:var(--muted);margin-top:12px}
+hr.sep{border:none;border-top:1px solid var(--line);margin:14px 0}
+
+/* ---------- numbers & summary ---------- */
+.big{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-3xl);font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (min-width:760px){.stats{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:759px){.stats > .stat:last-child:nth-child(odd){grid-column:1 / -1}}
+.stat{background:var(--surface);padding:14px 16px;min-width:0}
+.stat .v{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-lg);font-weight:600;margin-top:2px;overflow-wrap:anywhere}
+.stat .l{font-size:var(--t-xs);color:var(--muted);font-weight:600}
+.delta{display:inline-flex;align-items:baseline;gap:4px;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ---------- lists ---------- */
+.rows{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:12px 4px;border-top:1px solid var(--line);color:inherit;text-decoration:none}
+.rows > .row:first-child{border-top:none}
+a.row:hover{background:var(--surface-2);border-radius:10px}
+.row .nm{font-weight:600;overflow-wrap:anywhere}
+.row .meta{font-size:var(--t-xs);color:var(--muted)}
+.row .right{text-align:right}
+.mrow{grid-template-columns:28px minmax(0,1fr) auto}
+@media (min-width:640px){.mrow{grid-template-columns:28px minmax(0,1.4fr) 100px minmax(92px,auto) 84px 104px}}
+.mrow .scell,.mrow .pcell,.mrow .ccell{display:none}
+@media (min-width:640px){.mrow .scell,.mrow .pcell,.mrow .ccell{display:block}.mrow .mob{display:none}}
+.star{width:28px;height:28px;border:none;background:none;padding:0;cursor:pointer;color:var(--muted);display:grid;place-items:center}
+.star[aria-pressed="true"]{color:var(--accent)}
+.star[aria-pressed="true"] svg{fill:currentColor}
+.spark{width:100px;height:30px}
+.hrow{grid-template-columns:minmax(0,1fr) auto}
+@media (min-width:760px){.hrow{grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(80px,1fr)) 64px}}
+.hrow .dcell{display:none}
+@media (min-width:760px){.hrow .dcell{display:block;text-align:right}.hrow .mob{display:none}}
+.thead{font-size:var(--t-xs);color:var(--muted);font-weight:700;padding-block:4px 8px;border-top:none}
+@media (max-width:759px){.hrow.thead{display:none}}
+@media (max-width:639px){.mrow.thead{display:none}}
+.trow{grid-template-columns:auto minmax(0,1fr) auto;align-items:start}
+.trow .acts{display:flex;gap:2px}
+.side-pill{min-width:46px;justify-content:center}
+
+/* ideas / notifications */
+.idea{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.idea:first-child{border-top:none;padding-top:2px}
+.tone{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px}
+.tone.up{background:var(--up-soft);color:var(--up)}
+.tone.down{background:var(--down-soft);color:var(--down)}
+.tone.warn{background:var(--warn-soft);color:var(--warn)}
+.tone.info{background:var(--accent-soft);color:var(--accent)}
+.idea h3{font-family:var(--font-body);font-weight:700;font-size:var(--t-md);line-height:1.35}
+.idea p{color:var(--ink-2);font-size:var(--t-sm);margin-top:3px}
+.idea .unread{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:middle}
+
+/* signal meter */
+.meter{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:14px 0 6px}
+.meter span{height:10px;border-radius:5px;background:var(--surface-2)}
+.meter span.on.l-2,.meter span.on.l-1{background:var(--down)}
+.meter span.on.l0{background:var(--ink-2)}
+.meter span.on.l1,.meter span.on.l2{background:var(--up)}
+.meter-l{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)}
+.siglabel{font-family:var(--font-display);font-size:var(--t-xl);font-weight:700}
+.factor{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.factor .fi{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800}
+.factor .fi.p{background:var(--up-soft);color:var(--up)} .factor .fi.n{background:var(--down-soft);color:var(--down)} .factor .fi.z{background:var(--surface-2);color:var(--ink-2)}
+.factor b{display:block}
+.factor p{font-size:var(--t-sm);color:var(--ink-2)}
+.factor .det{font-family:var(--font-num);font-size:var(--t-xs);color:var(--muted);margin-top:2px}
+
+/* charts */
+.chart{position:relative;width:100%;min-height:120px;touch-action:pan-y;user-select:none}
+.chart svg{display:block;overflow:visible}
+.c-grid{stroke:var(--grid);stroke-width:1}
+.c-tick{fill:var(--muted);font-size:11.5px;font-family:var(--font-num)}
+.c-cross{stroke:var(--ink-2);stroke-width:1;stroke-dasharray:3 3}
+.c-dot{stroke:var(--ring);stroke-width:2}
+.c-tip{position:absolute;top:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:9px;padding:7px 10px;font-size:var(--t-xs);line-height:1.4;white-space:nowrap;z-index:3;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.c-tip .tv{font-family:var(--font-num);font-weight:600}
+.c-tip i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:var(--t-xs);color:var(--ink-2);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--ring);box-shadow:0 0 0 1px var(--line)}
+.ranges{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:2px}
+.ranges button{border:none;background:transparent;border-radius:8px;min-height:32px;padding:0 11px;font-weight:700;font-size:var(--t-sm);color:var(--ink-2);cursor:pointer}
+.ranges button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:var(--t-sm)}
+.bar .track{grid-column:1 / -1;height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.bar .fill{height:100%;border-radius:5px;background:var(--series-1)}
+
+/* world */
+.mood{display:inline-flex;align-items:center;gap:8px}
+.wi{border-top:1px solid var(--line)}
+.wi:first-of-type{border-top:none}
+.wi > summary{list-style:none;cursor:pointer;padding:14px 0;display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:12px;align-items:start}
+.wi > summary::-webkit-details-marker{display:none}
+.wi > summary h3{font-size:var(--t-lg);line-height:1.3}
+.wi > summary .chev{transition:transform .2s}
+.wi[open] > summary .chev{transform:rotate(180deg)}
+.wi .body{padding:0 0 18px;display:flex;flex-direction:column;gap:14px}
+.wi .body p{max-width:70ch}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.chain .st{padding:6px 11px;border-radius:9px;background:var(--surface-2);font-size:var(--t-sm);font-weight:600}
+.chain .ar{color:var(--muted);font-weight:700}
+.imp{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:baseline}
+.imp .pill{justify-self:start}
+.imp p{font-size:var(--t-sm);color:var(--ink-2)}
+.imp .mine{font-size:var(--t-xs);font-weight:700;color:var(--accent)}
+.srcs{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-xs)}
+.cal{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.cal:first-child{border-top:none}
+.cal .d{font-family:var(--font-num);text-align:center;border-radius:10px;background:var(--accent-soft);color:var(--accent);padding:5px 0;line-height:1.1;align-self:start}
+.cal .d b{display:block;font-size:var(--t-lg)}
+.cal .d span{font-size:11px;text-transform:uppercase;font-weight:700}
+
+/* simulator */
+.evchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.evchips .chip{flex:none}
+.simgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:760px){.simgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.simcol{border-radius:12px;padding:12px 14px;background:var(--surface-2)}
+.simcol h3{font-size:var(--t-sm);margin-bottom:6px;font-family:var(--font-body);font-weight:700}
+.simcol ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.simcol li{font-size:var(--t-sm)}
+.simcol li b{display:block;font-size:var(--t-md)}
+.simcol li span{color:var(--ink-2)}
+.rules{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:760px){.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rule{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.rule .tone{width:30px;height:30px;font-size:13px}
+.rule p{font-size:var(--t-sm);color:var(--ink-2)}
+.gl{padding:12px 0;border-top:1px solid var(--line)}
+.gl:first-child{border-top:none}
+.gl b{font-size:var(--t-md)}
+.gl p{color:var(--ink-2);font-size:var(--t-sm);max-width:70ch}
+
+/* forms & dialog */
+dialog{border:none;border-radius:18px;padding:0;width:min(560px, calc(100vw - 24px));max-height:calc(100dvh - 32px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:auto}
+dialog::backdrop{background:rgba(8,12,10,.5)}
+.form{display:flex;flex-direction:column;gap:14px;padding:22px}
+.form h2{font-size:var(--t-xl)}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld > span{font-size:var(--t-sm);font-weight:700;color:var(--ink-2)}
+.fld input,.fld select,.fld textarea,.inp{width:100%;min-height:46px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.fld textarea{min-height:70px;resize:vertical}
+.fld .hint{font-size:var(--t-xs);color:var(--muted)}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:12px;padding:4px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{display:grid;place-items:center;min-height:42px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--ink-2)}
+.seg input:checked + label{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg input:focus-visible + label{outline:3px solid var(--accent)}
+#side-kop:checked + label{color:var(--up)} #side-salj:checked + label{color:var(--down)}
+.f-sum{font-size:var(--t-sm);color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.f-err{font-size:var(--t-sm);color:var(--down);font-weight:600}
+.f-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:4px}
+.modesw{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:11px;padding:3px}
+.modesw button{border:none;background:transparent;min-height:36px;border-radius:8px;font-weight:700;font-size:var(--t-sm);color:var(--ink-2);cursor:pointer}
+.modesw button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* help drawer */
+.scrim{position:fixed;inset:0;background:rgba(8,12,10,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(460px, 100vw);background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top, 0px);padding-bottom:env(safe-area-inset-bottom, 0px);padding-right:env(safe-area-inset-right, 0px)}
+.dr-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.dr-head h2{font-size:var(--t-xl);margin-right:auto}
+.dr-tabs{display:flex;gap:4px;padding:0 12px 10px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.dr-tabs button{flex:none;border:none;background:transparent;min-height:38px;padding:0 12px;border-radius:9px;font-weight:700;font-size:var(--t-sm);color:var(--ink-2);cursor:pointer}
+.dr-tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.dr-body{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.dr-body ol,.dr-body ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--ink-2)}
+.faq{border-top:1px solid var(--line)}
+.faq:first-child{border-top:none}
+.faq summary{cursor:pointer;padding:12px 0;font-weight:700}
+.faq p{padding-bottom:12px;color:var(--ink-2);font-size:var(--t-sm)}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:92%;padding:10px 13px;border-radius:14px;font-size:var(--t-sm);line-height:1.5;overflow-wrap:anywhere}
+.msg.u{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.a{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
+.msg.a p + p,.msg.a ul{margin-top:8px}
+.msg.a ul{padding-left:18px}
+.msg .err{color:var(--down);font-weight:600;margin-top:6px}
+.chatbox{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.chatbox textarea{flex:1;min-height:46px;max-height:140px;resize:none;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.thinking{display:inline-flex;gap:4px;align-items:center;color:var(--ink-2)}
+.thinking i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+.thinking i:nth-child(2){animation-delay:.2s}.thinking i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.pop{position:fixed;z-index:60;max-width:min(320px, calc(100vw - 32px));background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:var(--t-sm);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.pop b{display:block;margin-bottom:3px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom, 0px));z-index:70;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:600;font-size:var(--t-sm);max-width:calc(100vw - 32px)}
+@media (min-width:900px){.toast{bottom:28px}}
+.tour{padding:26px 24px 22px;display:flex;flex-direction:column;gap:14px}
+.tour .ill{width:56px;height:56px;border-radius:16px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.tour .ill svg{width:30px;height:30px}
+.tour h2{font-size:var(--t-xl)}
+.tour p{color:var(--ink-2)}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent);width:22px;border-radius:4px}
+.choice{display:grid;grid-template-columns:1fr;gap:10px}
+.choice button{text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.choice button:hover{border-color:var(--accent)}
+.choice b{display:block;font-size:var(--t-md)}
+.choice span{font-size:var(--t-sm);color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="shell">
+  <aside class="side" aria-label="Huvudmeny">
+    <a class="brand" href="#hem"><span class="mark" id="mk1"></span>Börskompassen</a>
+    <nav id="sidenav"></nav>
+    <div class="foot">
+      <div>
+        <div class="eyebrow" style="margin:0 4px 6px">Visa</div>
+        <div class="modesw" id="modesw1"></div>
+      </div>
+      <button class="btn" data-act="help"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2-2.4 3.6"/><path d="M12 17.2v.1"/></svg>Hjälp och frågor</button>
+    </div>
+  </aside>
+  <div style="min-width:0">
+    <header class="topbar">
+      <a class="brand" href="#hem"><span class="mark" id="mk2"></span>Börskompassen</a>
+      <a class="iconbtn" href="#larm" aria-label="Larm och notiser" id="bell"></a>
+      <button class="iconbtn" data-act="help" aria-label="Hjälp"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2-2.4 3.6"/><path d="M12 17.2v.1"/></svg></button>
+    </header>
+    <main id="main" class="content" tabindex="-1"></main>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Huvudmeny"></nav>
+<dialog id="dlg"></dialog>
+<div id="helpwrap" hidden>
+  <div class="scrim" data-act="close-help"></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="help-title"></aside>
+</div>
+<div class="pop" id="pop" hidden role="tooltip"></div>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = {};
+const nf = d => NF[d] || (NF[d] = new Intl.NumberFormat('sv-SE', { minimumFractionDigits: d, maximumFractionDigits: d }));
+const fmt = (v, d = 2) => (v == null || !isFinite(v)) ? '–' : nf(d).format(v);
+const decFor = v => Math.abs(v) >= 1000 ? 0 : Math.abs(v) >= 100 ? 1 : 2;
+const fmtCur = (v, cur = 'SEK', d) => (v == null || !isFinite(v)) ? '–' : fmt(v, d ?? decFor(v)) + (cur === 'SEK' ? ' kr' : ' ' + cur);
+const fmtKr = (v, d = 0) => (v == null || !isFinite(v)) ? '–' : fmt(v, d) + ' kr';
+const fmtPct = (v, d = 1, sign = true) => (v == null || !isFinite(v)) ? '–' : (sign && v > 0 ? '+' : '') + nf(d).format(v) + ' %';
+const signKr = v => (v > 0 ? '+' : '') + fmtKr(v);
+const cls = v => v > 0.0001 ? 'up' : v < -0.0001 ? 'down' : 'flat';
+const arrow = v => v > 0.0001 ? '▲' : v < -0.0001 ? '▼' : '•';
+const sum = (a, f) => a.reduce((s, x) => s + (f ? f(x) : x), 0);
+const pad2 = n => String(n).padStart(2, '0');
+const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+const dt = iso => new Date(iso + 'T12:00:00');
+const fmtDate = iso => iso ? dt(iso).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' }) : '–';
+const fmtDateY = iso => iso ? dt(iso).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' }) : '–';
+const fmtDateLong = iso => dt(iso).toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const newId = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const parseNum = v => { if (v == null) return NaN; const s = String(v).replace(/\s| /g, '').replace(',', '.').replace('−', '-'); return s === '' ? NaN : Number(s); };
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const I = {
+  home: '<path d="M3.5 10.5 12 4l8.5 6.5V19a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>',
+  case: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3 13h18"/>',
+  chart: '<path d="M4 4v16h16"/><path d="m7.5 14.5 3.5-4 3 2.5 5-6"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/>',
+  bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 1.5H4.4z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>',
+  book: '<path d="M12 6.5C10 5 7 4.5 4 4.5v13c3 0 6 .5 8 2 2-1.5 5-2 8-2v-13c-3 0-6 .5-8 2z"/><path d="M12 6.5v13"/>',
+  star: '<path d="m12 3.8 2.5 5.2 5.6.7-4.1 3.9 1 5.6L12 16.5l-5 2.7 1-5.6-4.1-3.9 5.6-.7z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  trash: '<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  chat: '<path d="M4.5 5.5h15v10h-8l-4.5 3.5v-3.5H4.5z"/>',
+  back: '<path d="M15 5 8 12l7 7"/>',
+  chev: '<path d="m6 9 6 6 6-6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/>',
+  alert: '<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1z" fill="currentColor"/>',
+  send: '<path d="M4 12 20 4l-4 16-4-7z"/>',
+  stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>',
+};
+const ico = (n, c = 'icon') => `<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+
+/* =========================================================
+   Content: sectors, events, glossary, help
+   ========================================================= */
+const SECTORS = ['Bank', 'Industri', 'Försvar', 'Teknik', 'Handel', 'Läkemedel', 'Gruvor & metaller', 'Energi', 'Spel', 'Investmentbolag', 'Fastigheter', 'Globalfond', 'Sverigefond', 'Räntor', 'Annat'];
+
+// fx: sector -> [direction -2..2, why]. _utland: instruments priced in foreign currency. _bolag: applies to the company itself.
+const EVENTS = [
+  { id: 'ranta-upp', name: 'Räntan höjs', what: 'Centralbanken, i Sverige Riksbanken, höjer styrräntan för att bromsa inflationen.',
+    chain: ['Riksbanken höjer räntan', 'Lån blir dyrare', 'Hushåll och företag spenderar mindre', 'Vinsterna växer långsammare', 'Räntesparande lockar mer än aktier'],
+    fx: { 'Fastigheter': [-2, 'Har stora lån, så räntekostnaden ökar direkt.'], 'Teknik': [-2, 'Värdet bygger på vinster långt fram, som räknas ner hårdare när räntan är hög.'], 'Handel': [-1, 'Hushållen får mindre över när bolåneräntan stiger.'], 'Spel': [-1, 'Konsumenter drar ner på nöjen.'], 'Investmentbolag': [-1, 'Äger många bolag som påverkas av en svagare ekonomi.'], 'Sverigefond': [-1, 'Hela börsen påverkas av dyrare lån.'], 'Globalfond': [-1, 'Kronan kan stärkas, så utländska aktier blir mindre värda i kronor.'], 'Bank': [1, 'Tjänar ofta mer på skillnaden mellan in- och utlåningsränta.'], 'Räntor': [1, 'Nya räntepapper ger högre ränta.'] },
+    example: 'Under 2022 höjde Riksbanken räntan från 0 till 2,5 %. Fastighetsaktierna på Stockholmsbörsen föll då kraftigt, många med mer än hälften.',
+    calm: 'Räntehöjningar brukar vara väntade. Ofta har börsen redan räknat med dem, så beskedet om framtiden spelar större roll än själva höjningen.' },
+  { id: 'ranta-ned', name: 'Räntan sänks', what: 'Centralbanken sänker styrräntan för att få fart på ekonomin.',
+    chain: ['Riksbanken sänker räntan', 'Lån blir billigare', 'Hushåll och företag vågar spendera och investera', 'Vinsterna kan växa', 'Aktier lockar mer än räntesparande'],
+    fx: { 'Fastigheter': [2, 'Lägre räntekostnader ger direkt bättre resultat.'], 'Teknik': [2, 'Framtida vinster blir mer värda när räntan är låg.'], 'Handel': [1, 'Hushållen får mer pengar över.'], 'Spel': [1, 'Mer pengar till nöjen.'], 'Sverigefond': [1, 'Hela börsen gynnas ofta av billigare lån.'], 'Bank': [-1, 'Tjänar ofta mindre på räntor.'], 'Räntor': [-1, 'Nya placeringar ger lägre ränta, men räntepapper du redan äger stiger lite i värde.'] },
+    example: 'Hösten 2023, när marknaden började räkna med räntesänkningar, steg många svenska fastighetsaktier kraftigt på bara några veckor.',
+    calm: 'Om räntan sänks för att ekonomin går dåligt kan börsen ändå falla. Varför räntan sänks spelar roll.' },
+  { id: 'inflation', name: 'Inflationen stiger', what: 'Priserna i samhället stiger snabbare än vanligt, så pengar blir mindre värda.',
+    chain: ['Priserna stiger snabbare', 'Pengar blir mindre värda', 'Centralbanken höjer räntan', 'Dyrare lån och lägre köpkraft'],
+    fx: { 'Handel': [-2, 'Kunderna har mindre pengar över till annat än det nödvändiga.'], 'Fastigheter': [-1, 'Räntorna väntas stiga.'], 'Teknik': [-1, 'Högre räntor sänker värdet på framtida vinster.'], 'Energi': [1, 'Dyr olja och el är ofta en orsak till inflationen.'], 'Gruvor & metaller': [1, 'Råvaror brukar stiga i pris.'], 'Bank': [1, 'Högre räntor kan ge mer räntenetto.'] },
+    example: 'År 2022 steg inflationen i Sverige till över 10 %. Klädhandel och annan sällanköpshandel fick det tufft medan energibolag gick bra.',
+    calm: 'Bolag med starka varumärken kan ofta höja sina priser och klarar inflation bättre än andra.' },
+  { id: 'olja-upp', name: 'Oljepriset stiger', what: 'Priset på råolja går upp, till exempel på grund av konflikter eller att oljeländer producerar mindre.',
+    chain: ['Mindre olja på marknaden', 'Oljepriset stiger', 'Dyrare bensin, frakt och el', 'Högre inflation', 'Mindre pengar över till annat'],
+    fx: { 'Energi': [2, 'Oljebolag tjänar mer på varje fat.'], 'Industri': [-1, 'Dyrare energi och transporter pressar marginalerna.'], 'Handel': [-1, 'Hushållen får mindre över, och frakten blir dyrare.'], 'Flyg & resor': [-2, 'Bränsle är en av de största kostnaderna.'] },
+    example: 'Efter Rysslands invasion av Ukraina 2022 steg oljan över 120 dollar per fat. Equinor och andra oljebolag gick mycket starkt det året.',
+    calm: 'Oljechocker brukar vara tillfälliga. Priset kan falla lika snabbt när oron lägger sig.' },
+  { id: 'krig', name: 'Krig eller konflikt', what: 'En väpnad konflikt bryter ut eller trappas upp någonstans i världen.',
+    chain: ['En konflikt bryter ut', 'Osäkerheten ökar', 'Investerare säljer riskfyllda aktier', 'Pengar söker sig till trygga placeringar', 'Länder höjer försvarsbudgetar'],
+    fx: { 'Försvar': [2, 'Länder köper mer försvarsmateriel.'], 'Energi': [1, 'Risk för störda leveranser höjer olje- och gaspriset.'], 'Räntor': [1, 'Pengar söker sig till trygga placeringar.'], 'Industri': [-1, 'Leveranskedjor kan störas.'], 'Handel': [-1, 'Osäkra konsumenter handlar mindre.'], 'Teknik': [-1, 'Riskfyllda aktier säljs ofta först.'] },
+    example: 'När Ryssland invaderade Ukraina i februari 2022 föll Stockholmsbörsen kraftigt de första dagarna, medan Saab-aktien steg mycket under året.',
+    calm: 'Historiskt har börsen ofta återhämtat sig inom några månader efter att en konflikt brutit ut, men varje fall är olika.' },
+  { id: 'tullar', name: 'Tullar och handelskrig', what: 'Ett land inför extra avgifter, tullar, på varor från andra länder.',
+    chain: ['Ett land inför tullar', 'Importerade varor blir dyrare', 'Andra länder svarar med egna tullar', 'Mindre handel och lägre vinster för exportbolag'],
+    fx: { 'Industri': [-2, 'Svenska industribolag säljer det mesta utomlands.'], 'Teknik': [-1, 'Elektronik tillverkas ofta i Asien och säljs i hela världen.'], 'Handel': [-1, 'Inköpen blir dyrare.'], 'Gruvor & metaller': [-1, 'Lägre efterfrågan på metaller.'], 'Globalfond': [-1, 'Hela världsekonomin kan växa långsammare.'] },
+    example: 'I april 2025 meddelade USA breda tullar. Börser världen över föll kraftigt på några dagar, men en stor del av fallet återhämtades när tullarna pausades.',
+    calm: 'Tullbesked ändras ofta. Att sälja i panik den första dagen har ofta varit ett dyrt misstag.' },
+  { id: 'krona-stark', name: 'Kronan stärks', what: 'Den svenska kronan blir mer värd jämfört med dollar och euro.',
+    chain: ['Kronan stärks', 'Utländska tillgångar blir mindre värda i kronor', 'Exportbolag får färre kronor för det de säljer', 'Importerade varor blir billigare'],
+    fx: { '_utland': [-1, 'Aktien handlas i utländsk valuta och blir mindre värd räknat i kronor.'], 'Globalfond': [-1, 'Fonden äger utländska aktier som blir mindre värda i kronor.'], 'Industri': [-1, 'Exportbolag får färre kronor för det de säljer.'], 'Läkemedel': [-1, 'Det mesta säljs utomlands.'], 'Handel': [1, 'Det blir billigare att köpa in varor från utlandet.'] },
+    example: 'Under 2025 stärktes kronan kraftigt mot dollarn. Den som ägde amerikanska aktier fick därför sämre avkastning i kronor än i dollar.',
+    calm: 'Valutor svänger åt båda hållen. På lång sikt brukar valutaeffekten jämna ut sig.' },
+  { id: 'lagkonj', name: 'Lågkonjunktur', what: 'Ekonomin växer långsamt eller krymper. Kallas recession när det pågår ett tag.',
+    chain: ['Ekonomin bromsar in', 'Arbetslösheten stiger', 'Hushåll och företag köper mindre', 'Bolagens vinster sjunker'],
+    fx: { 'Industri': [-2, 'Företag skjuter upp köp av maskiner och lastbilar.'], 'Handel': [-2, 'Hushållen sparar i stället för att handla.'], 'Bank': [-1, 'Fler låntagare kan få svårt att betala.'], 'Gruvor & metaller': [-1, 'Lägre efterfrågan på metaller.'], 'Investmentbolag': [-1, 'Äger många konjunkturkänsliga bolag.'], 'Sverigefond': [-1, 'Stockholmsbörsen har mycket industri.'], 'Globalfond': [-1, 'Vinsterna sjunker brett.'], 'Läkemedel': [1, 'Medicin behövs oavsett konjunktur. Kallas ett defensivt bolag.'], 'Räntor': [1, 'Räntorna brukar sänkas, och räntefonder ger stabilitet.'] },
+    example: 'Under finanskrisen 2008 föll Stockholmsbörsen ungefär 40 %. Läkemedels- och dagligvarubolag föll betydligt mindre.',
+    calm: 'Börsen brukar vända upp innan ekonomin gör det. Den som säljer i botten missar ofta återhämtningen.' },
+  { id: 'ai', name: 'Teknikgenombrott, t.ex. AI', what: 'En ny teknik väcker stora förväntningar på framtida vinster.',
+    chain: ['Ny teknik väcker förväntningar', 'Investerare köper bolag som kan tjäna på den', 'Värderingarna stiger snabbt', 'Risk för besvikelse om vinsterna dröjer'],
+    fx: { 'Teknik': [2, 'Bolag som säljer chip, molntjänster och mjukvara gynnas mest.'], 'Industri': [1, 'Datacenter behöver el, kylning och kompressorer.'], 'Energi': [1, 'Datacenter drar mycket el.'], 'Globalfond': [1, 'En stor del av världsindex är teknikbolag.'] },
+    example: 'Från 2023 steg Nvidia-aktien mångdubbelt när efterfrågan på AI-chip exploderade.',
+    calm: 'Hype kan vända snabbt. När förväntningarna är höga räcker det med små besvikelser för stora fall.' },
+  { id: 'val', name: 'Viktigt val', what: 'Ett val där politiken kan ändras, till exempel i USA eller Sverige.',
+    chain: ['Ett viktigt val närmar sig', 'Osäkerhet om ny politik', 'Kurserna svänger mer', 'Marknaden anpassar sig efter vinnarens politik'],
+    fx: { 'Försvar': [0, 'Försvarsbudgetar kan ändras åt båda hållen.'], 'Läkemedel': [0, 'Regler för läkemedelspriser kan ändras, särskilt i USA.'], 'Energi': [0, 'Klimat- och energipolitiken kan ändras.'], 'Industri': [0, 'Tullpolitiken kan ändras.'] },
+    example: 'Kring USA:s presidentval 2024 svängde börsen mer än vanligt de sista veckorna och steg sedan när resultatet var klart.',
+    calm: 'Osäkerheten är ofta störst före valet. När resultatet är klart brukar svängningarna minska.' },
+  { id: 'rapport', name: 'Bättre rapport än väntat', what: 'Bolaget redovisar en vinst som är högre än analytikerna räknat med.',
+    chain: ['Bolaget släpper sin kvartalsrapport', 'Vinsten är högre än väntat', 'Förväntningarna på framtiden höjs', 'Aktien stiger, ibland kraftigt samma dag'],
+    fx: { '_bolag': [2, 'Aktien kan stiga kraftigt samma dag.'] },
+    example: 'Det är vanligt att en aktie rör sig 5–15 % på rapportdagen, åt båda hållen.',
+    calm: 'Det är jämförelsen med förväntningarna som räknas. En bra rapport kan ändå ge ett fall om marknaden hoppats på ännu mer.' },
+  { id: 'vinstvarning', name: 'Vinstvarning', what: 'Bolaget meddelar i förväg att vinsten blir lägre än väntat.',
+    chain: ['Bolaget varnar för lägre vinst', 'Förtroendet minskar', 'Analytiker sänker sina prognoser', 'Aktien faller ofta kraftigt'],
+    fx: { '_bolag': [-2, 'Aktien faller ofta 10–30 % samma dag.'] },
+    example: 'Vinstvarningar kommer ofta utan förvarning, och fallet sker vanligtvis inom minuter efter beskedet.',
+    calm: 'Fundera på om problemet är tillfälligt eller långvarigt innan du agerar.' },
+  { id: 'utdelning', name: 'Utdelning', what: 'Bolaget delar ut en del av vinsten till ägarna.',
+    chain: ['Bolaget beslutar om utdelning', 'Sista dagen med rätt till utdelning passerar', 'Kursen sjunker med ungefär utdelningen på x-dagen', 'Pengarna kommer in på ditt konto några dagar senare'],
+    fx: { '_bolag': [0, 'Kursen sjunker med utdelningen, men du får pengarna. Värdet är i stort sett detsamma.'] },
+    example: 'Om aktien kostar 300 kr och delar ut 15 kr brukar den öppna runt 285 kr på x-dagen.',
+    calm: 'Ett kursfall på x-dagen är ingen förlust. Pengarna har flyttat från aktien till ditt konto.' },
+];
+
+const GLOSS = [
+  ['aktie', 'Aktie', 'En liten ägarandel i ett bolag. Går bolaget bra kan aktien bli mer värd, och du kan få utdelning.'],
+  ['fond', 'Fond', 'En korg med många aktier eller räntepapper som någon förvaltar åt dig. Du sprider risken automatiskt.'],
+  ['indexfond', 'Indexfond', 'En fond som köper alla bolag i ett index, till exempel Stockholmsbörsen eller hela världen. Låg avgift och ingen som försöker gissa vinnare.'],
+  ['kurs', 'Kurs', 'Priset på en aktie eller fond just nu.'],
+  ['courtage', 'Courtage', 'Avgiften du betalar till banken eller nätmäklaren när du köper eller säljer. Ofta 0–69 kr per affär.'],
+  ['gav', 'GAV', 'Genomsnittligt anskaffningsvärde: vad du i snitt betalat per aktie, inklusive courtage. Används för att räkna ut vinst eller förlust.'],
+  ['utdelning', 'Utdelning', 'När bolaget delar ut en del av vinsten till ägarna, oftast en gång per år.'],
+  ['direktavkastning', 'Direktavkastning', 'Utdelningen delad med aktiekursen. 4 % betyder att du får 4 kr per år för varje 100 kr i aktien, om utdelningen ligger kvar.'],
+  ['pe', 'P/E-tal', 'Kursen delad med vinsten per aktie. Visar hur många års vinst du betalar för aktien. Ett högt P/E betyder att marknaden väntar sig stark tillväxt.'],
+  ['x-dag', 'X-dag', 'Första dagen aktien handlas utan rätt till årets utdelning. Kursen sjunker då ungefär lika mycket som utdelningen.'],
+  ['orealiserad', 'Orealiserad vinst', 'Vinst eller förlust på det du fortfarande äger. Den blir verklig först när du säljer.'],
+  ['realiserad', 'Realiserad vinst', 'Vinst eller förlust på det du redan har sålt.'],
+  ['trend', 'Trend', 'Riktningen kursen har rört sig i under en längre tid: upp, ner eller sidledes.'],
+  ['ma', 'Glidande medelvärde (MA)', 'Snittkursen de senaste dagarna. MA50 är snittet för 50 handelsdagar, ungefär 2,5 månader. MA200 är snittet för 200 dagar, ungefär ett år. Ligger kursen över sitt snitt har den stigit.'],
+  ['rsi', 'RSI', 'Ett mått från 0 till 100 på hur snabbt kursen har rört sig de senaste veckorna. Över 70 kallas överköpt, alltså att den stigit väldigt snabbt. Under 30 kallas översåld.'],
+  ['kors', 'Gyllene kors och dödskors', 'När det korta snittet (MA50) går över det långa (MA200) kallas det gyllene kors och tolkas som positivt. Det omvända kallas dödskors.'],
+  ['signal', 'Köp- och säljsignal', 'Appens sammanvägning av trend, tempo, senaste månaden och omvärlden. Det är regler, inte en spådom, och signaler slår ofta fel.'],
+  ['stop-loss', 'Stop-loss', 'En gräns du bestämmer i förväg där du säljer om aktien faller dit, för att begränsa förlusten.'],
+  ['ta-hem', 'Ta hem vinst', 'Att sälja hela eller en del av ett innehav som har stigit, så att vinsten blir verklig.'],
+  ['riskspridning', 'Riskspridning', 'Att äga många olika bolag, branscher och länder, så att ett enskilt fall inte slår ut hela sparandet.'],
+  ['volatilitet', 'Volatilitet', 'Hur mycket kursen brukar svänga. Hög volatilitet betyder större risk men också större chans.'],
+  ['sektor', 'Sektor', 'En bransch, till exempel bank, industri eller teknik. Bolag i samma sektor påverkas ofta av samma saker.'],
+  ['index', 'Index', 'Ett mått på hur en grupp aktier utvecklas. OMXS30 är de 30 mest handlade aktierna på Stockholmsbörsen.'],
+  ['styrranta', 'Styrränta', 'Räntan som Riksbanken bestämmer. Den påverkar alla andra räntor, till exempel på bolån och sparkonton.'],
+  ['inflation', 'Inflation', 'Att priserna stiger över tid, så att pengar blir mindre värda.'],
+  ['rapport', 'Kvartalsrapport', 'Bolagets redovisning av försäljning och vinst, var tredje månad. Aktien rör sig ofta mycket på rapportdagen.'],
+  ['vinstvarning', 'Vinstvarning', 'När ett bolag meddelar i förväg att vinsten blir sämre än väntat.'],
+  ['rekyl', 'Rekyl', 'En kortare nedgång efter en uppgång, eller tvärtom.'],
+  ['tjur', 'Tjur- och björnmarknad', 'Tjurmarknad: börsen stiger under lång tid. Björnmarknad: börsen har fallit minst 20 % från toppen.'],
+  ['isk', 'ISK', 'Investeringssparkonto. Du betalar en låg schablonskatt varje år i stället för skatt på vinsten när du säljer. Det vanligaste kontot för sparande i Sverige.'],
+  ['valutarisk', 'Valutarisk', 'Äger du aktier i dollar eller euro påverkas värdet i kronor också av växelkursen.'],
+  ['blankning', 'Blankning', 'Att låna en aktie och sälja den för att köpa tillbaka billigare senare. Den som blankar tjänar på att kursen faller.'],
+  ['defensiv', 'Defensiv aktie', 'Ett bolag vars försäljning är stabil även i dåliga tider, till exempel läkemedel eller dagligvaror.'],
+];
+const GL = Object.fromEntries(GLOSS.map(g => [g[0], g]));
+const term = (id, text) => `<button type="button" class="term" data-act="term" data-term="${id}">${esc(text || GL[id]?.[1] || id)}</button>`;
+
+const HELP = {
+  hem: ['Överst ser du vad hela din portfölj är värd och hur mycket den ändrades senaste handelsdagen.',
+    '"Att titta på i dag" är förslag som appen räknar fram från signalerna, dina innehav och dagens nyheter. Det är inga order, bara saker att fundera på. Under varje förslag står varför.',
+    '"Dagens läge i världen" sammanfattar viktiga händelser och vilka av dina aktier de kan påverka.',
+    'Börja med att registrera dina affärer under Portfölj, eller prova med exempelportföljen.'],
+  portfolj: ['Registrera varje köp och försäljning med "Ny affär". Appen räknar själv ut snittpris (GAV), värde och vinst.',
+    'Under Riskkoll ser du hur dina pengar är fördelade. Är mycket samlat på ett ställe får du en varning.',
+    'I affärsdagboken kan du skriva varför du gjorde en affär. Det hjälper dig att lära av dina beslut.',
+    'Utländska aktier räknas om till kronor med dagens växelkurs.'],
+  marknad: ['Här finns alla aktier och fonder appen följer. Tryck på en rad för att se graf, signaler och hur aktien påverkas av omvärlden.',
+    'Tryck på stjärnan för att bevaka en aktie. Bevakade aktier syns på Hem och kan få larm.',
+    'Saknas din aktie eller fond? Välj "Lägg till egen" och skriv in namn och kurs.'],
+  aktie: ['Grafen visar kursen. Dra fingret eller musen över den för att se kursen en viss dag. Prickarna är dina egna köp och försäljningar.',
+    'Signalen väger ihop trend, tempo, senaste månaden och omvärlden. Under "Därför" står vad som drar upp och ner.',
+    '"Så brukar aktien påverkas" visar vad som brukar hända med bolag i samma bransch när något händer i världen.',
+    'Skapa ett larm så ser du direkt när kursen passerar en gräns.'],
+  omvarld: ['Här sammanfattas viktiga händelser i världen, med en förklaring av hur de kan påverka aktier.',
+    'Öppna en händelse för att se kedjan från händelse till aktiekurs, vilka branscher som kan gynnas eller missgynnas, och vilka av dina innehav som berörs.',
+    'Länkarna under varje händelse går till källorna.'],
+  larm: ['Ett larm säger till när något händer: kursen går över eller under en gräns, rör sig mycket på en dag, får en ny signal eller berörs av en nyhet.',
+    'Larmen kollas varje gång du öppnar appen och när nya kurser kommer in. Utlösta larm syns under klockan.',
+    'Appen kan inte skicka notiser till mobilen när den är stängd. Läs mer under "Vanliga frågor".'],
+  lar: ['Välj en händelse i "Vad händer om …?" för att se hur den brukar påverka börsen och dina innehav.',
+    'Ordlistan förklarar börsord i vardagsspråk. Prickade ord i appen går också att trycka på.',
+    'Fem grundregler sammanfattar det som de flesta erfarna sparare håller med om.'],
+};
+
+const FAQ = () => [
+  ['Är signalerna köp- och säljråd?', 'Nej. Signalerna är regler som räknas fram från kursens historik och dagens nyheter. De visar vad som brukar tolkas som starkt eller svagt, men de slår ofta fel. Fatta dina egna beslut, och prata gärna med en rådgivare inför stora affärer.'],
+  ['Var kommer kurserna ifrån?', S.meta?.pricesDemo
+    ? 'Just nu är kurserna exempeldata: påhittade siffror som visar hur appen fungerar. Nyheterna under Omvärld är riktiga. Du kan ange din egen aktuella kurs för vilken aktie eller fond som helst med knappen "Ange kurs".'
+    : 'Kurserna hämtas från Yahoo Finance och är fördröjda. Senast hämtade ' + (S.meta?.pricesUpdatedAt ? fmtDateY(S.meta.pricesUpdatedAt.slice(0, 10)) : 'nyligen') + '. Du kan alltid ange en egen kurs.'],
+  ['Hur får jag notiser i mobilen?', 'Larmen kollas varje gång du öppnar appen, och utlösta larm syns under klockan. Appen kan inte skicka notiser när den är stängd. Lägg appen på hemskärmen så är den snabb att öppna.'],
+  ['Är mina affärer privata?', 'Ja. Dina affärer, larm och inställningar sparas bara i den här webbläsaren och skickas ingenstans. Vill du flytta dem till en annan enhet: spara en säkerhetskopia under Hjälp, Inställningar, och läs in den på den andra enheten.'],
+  ['Min aktie eller fond finns inte med. Vad gör jag?', 'Gå till Marknad och välj "Lägg till egen". Skriv namnet och dagens kurs. Du kan uppdatera kursen när du vill.'],
+  ['Vad är skillnaden på Enkelt och Avancerat?', 'Enkelt visar förklaringar i vardagsspråk. Avancerat visar också siffrorna bakom: glidande medelvärden i grafen, RSI-värden, P/E-tal och direktavkastning.'],
+  ['Hur räknas min vinst?', 'Appen använder GAV, snittpriset du betalat inklusive courtage. Vinsten är dagens värde minus det du betalat. Utländska aktier räknas om till kronor med dagens växelkurs.'],
+  ['Kan jag köpa och sälja aktier i appen?', 'Nej. Börskompassen är till för att hålla koll och förstå. Själva affärerna gör du hos din bank eller nätmäklare, och sedan registrerar du dem här.'],
+];
+
+const LEVELS = {
+  2: { label: 'Stark köpsignal', cls: 'buy2', tone: 'up' },
+  1: { label: 'Köpsignal', cls: 'buy', tone: 'up' },
+  0: { label: 'Avvakta', cls: 'hold', tone: 'info' },
+  '-1': { label: 'Säljsignal', cls: 'sell', tone: 'down' },
+  '-2': { label: 'Stark säljsignal', cls: 'sell2', tone: 'down' },
+};
+
+const EXAMPLE_TRADES = [
+  { inst: 'fond-global', side: 'kop', qty: 20, date: '2025-11-20', fee: 0, note: 'Månadssparande, grunden i portföljen.' },
+  { inst: 'inve-b', side: 'kop', qty: 25, date: '2025-12-10', fee: 39, note: 'Bred exponering mot svenska storbolag.' },
+  { inst: 'volv-b', side: 'kop', qty: 30, date: '2026-01-15', fee: 39, note: 'Tror på fortsatt stark efterfrågan på lastbilar.' },
+  { inst: 'saab-b', side: 'kop', qty: 12, date: '2026-02-20', fee: 39, note: 'Europa ökar sina försvarsbudgetar.' },
+  { inst: 'nvda', side: 'kop', qty: 15, date: '2026-03-12', fee: 0, note: 'AI-investeringarna fortsätter.' },
+  { inst: 'hm-b', side: 'kop', qty: 40, date: '2026-04-08', fee: 39, note: 'Kändes billig efter nedgången.' },
+  { inst: 'hm-b', side: 'salj', qty: 20, date: '2026-07-02', fee: 39, note: 'Minskade, trenden fortsatte nedåt.' },
+  { inst: 'saab-b', side: 'salj', qty: 4, date: '2026-09-15', fee: 39, note: 'Tog hem en del av vinsten.' },
+];
+
+/* =========================================================
+   State
+   ========================================================= */
+const DEFAULT_SETTINGS = { mode: 'enkel', watch: ['saab-b', 'volv-b', 'nvda', 'fond-global'], custom: [], overrides: {}, tourDone: false, seen: [] };
+const S = {
+  quotes: {}, briefs: [], calendar: [], meta: null,
+  trades: [], alerts: [], settings: clone(DEFAULT_SETTINGS),
+  ready: { market: false, user: false }, marketSlow: false, marketErr: false,
+  route: { view: 'hem', param: null },
+  ui: { range: '6M', prange: '6M', mfilter: 'alla', q: '', sim: 'olja-upp', brief: 0, gq: '', helpTab: 'sida', hq: '', wopen: null },
+  sample: null, sampleOff: false, chat: [], chatCtl: null,
+  P: null, N: [],
+};
+const adv = () => S.settings.mode === 'avancerat';
+
+/* =========================================================
+   Storage: claude db per user, with a local fallback
+   ========================================================= */
+const LS_KEY = 'borskompassen:v1';
+const lsRead = () => { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { return null; } };
+const lsWrite = o => { try { localStorage.setItem(LS_KEY, JSON.stringify(o)); return true; } catch { return false; } };
+
+const Store = {
+  mode: 'local',
+  async init() {
+    this.useLocal();
+    await this.loadMarket();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - (this.loadedAt || 0) > 15 * 60 * 1000) this.loadMarket(); });
+  },
+  async loadMarket() {
+    const get = n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null);
+    const [q, m, b, c] = await Promise.all(['quotes', 'meta', 'briefs', 'calendar'].map(get));
+    if (q && Array.isArray(q.quotes)) {
+      S.quotes = Object.fromEntries(q.quotes.map(x => [x.id, x]));
+      S.meta = m || {}; S.briefs = (b?.briefs || []).slice().sort((x, y) => (y.date || '').localeCompare(x.date || ''));
+      S.calendar = c?.events || []; S.marketErr = false; this.loadedAt = Date.now();
+    } else S.marketErr = true;
+    S.ready.market = true; invalidate(); schedRender();
+  },
+  useLocal() {
+    const o = lsRead() || {};
+    S.trades = o.trades || []; S.alerts = o.alerts || [];
+    S.settings = { ...clone(DEFAULT_SETTINGS), ...(o.settings || {}) };
+    S.ready.user = true; S.settingsLoaded = true; maybeTour();
+  },
+  saveLocal() { if (!lsWrite({ trades: S.trades, alerts: S.alerts, settings: S.settings })) toast('Webbläsaren tillåter inte att appen sparar. Ändringen gäller bara tills du stänger sidan.'); },
+  async put(kind, obj) {
+    const list = kind === 'trades' ? S.trades : S.alerts;
+    const k = list.findIndex(x => x.id === obj.id); if (k >= 0) list[k] = obj; else list.push(obj);
+    invalidate(); schedRender(); this.saveLocal();
+  },
+  async del(kind, id) {
+    if (kind === 'trades') S.trades = S.trades.filter(x => x.id !== id); else S.alerts = S.alerts.filter(x => x.id !== id);
+    invalidate(); schedRender(); this.saveLocal();
+  },
+  settings(patch) { Object.assign(S.settings, patch); invalidate(); schedRender(); this.saveLocal(); },
+  exportData() {
+    const blob = new Blob([JSON.stringify({ app: 'borskompassen', version: 1, exportedAt: new Date().toISOString(), trades: S.trades, alerts: S.alerts, settings: S.settings }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `borskompassen-${todayISO()}.json`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('Säkerhetskopian är nedladdad.');
+  },
+  async importData(file) {
+    try {
+      const o = JSON.parse(await file.text());
+      if (o.app !== 'borskompassen' || !Array.isArray(o.trades)) throw new Error();
+      S.trades = o.trades; S.alerts = o.alerts || []; S.settings = { ...clone(DEFAULT_SETTINGS), ...(o.settings || {}), tourDone: true };
+      this.saveLocal(); invalidate(); schedRender(); toast(`Läste in ${o.trades.length} affärer.`);
+    } catch { toast('Filen kunde inte läsas. Välj en säkerhetskopia från Börskompassen.'); }
+  },
+};
+
+/* =========================================================
+   Market math
+   ========================================================= */
+let SIG = new Map(); const DATEIDX = new Map();
+function invalidate() { SIG = new Map(); DATEIDX.clear(); }
+const allInst = () => [...Object.values(S.quotes), ...(S.settings.custom || []).map(c => ({ ...c, custom: true }))];
+const inst = id => S.quotes[id] || ((S.settings.custom || []).find(c => c.id === id) ? { ...(S.settings.custom.find(c => c.id === id)), custom: true } : null);
+const FX_DEFAULT = { SEK: 1, USD: 9.55, NOK: 0.94, EUR: 11.0 };
+const fx = cur => S.meta?.fx?.[cur] ?? FX_DEFAULT[cur] ?? 1;
+function priceOf(i) {
+  const o = S.settings.overrides?.[i.id];
+  if (o && (i.demo || i.custom || !i.date || o.date >= i.date)) return { price: o.price, date: o.date, own: true };
+  return { price: i.price, date: i.date, own: !!i.custom };
+}
+function dayChange(i) { const p = priceOf(i); if (p.own || !i.prevClose) return null; return (i.price / i.prevClose - 1) * 100; }
+function closeOn(i, d) {
+  if (!i) return null;
+  const h = i.history;
+  if (!h || !h.dates) return priceOf(i).price;
+  let m = DATEIDX.get(i.id); if (!m) { m = new Map(h.dates.map((x, k) => [x, k])); DATEIDX.set(i.id, m); }
+  const k = m.get(d); if (k != null) return h.close[k];
+  let lo = 0, hi = h.dates.length - 1, ans = -1;
+  while (lo <= hi) { const mid = (lo + hi) >> 1; if (h.dates[mid] <= d) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
+  return ans >= 0 ? h.close[ans] : null;
+}
+function sma(c, n, end = c.length) { if (end < n) return null; let s = 0; for (let i = end - n; i < end; i++) s += c[i]; return s / n; }
+function smaSeries(c, n) { const out = new Array(c.length).fill(null); let s = 0; for (let i = 0; i < c.length; i++) { s += c[i]; if (i >= n) s -= c[i - n]; if (i >= n - 1) out[i] = s / n; } return out; }
+function rsi(c, n = 14) {
+  if (c.length < n + 1) return null; let g = 0, l = 0;
+  for (let i = 1; i <= n; i++) { const d = c[i] - c[i - 1]; if (d > 0) g += d; else l -= d; }
+  g /= n; l /= n;
+  for (let i = n + 1; i < c.length; i++) { const d = c[i] - c[i - 1]; g = (g * (n - 1) + Math.max(d, 0)) / n; l = (l * (n - 1) + Math.max(-d, 0)) / n; }
+  return l === 0 ? 100 : 100 - 100 / (1 + g / l);
+}
+const latestBrief = () => S.briefs[0] || null;
+function impactsFor(i, brief = latestBrief()) {
+  if (!brief || !i) return [];
+  const out = [];
+  for (const it of brief.items || []) for (const im of it.impacts || []) {
+    if (im.sector === i.sector || (im.ids || []).includes(i.id)) out.push({ item: it, im });
+  }
+  return out;
+}
+function worldFactor(i) {
+  const hits = impactsFor(i); if (!hits.length) return null;
+  const tot = sum(hits, h => (h.im.dir || 0) * (h.im.strength || 1));
+  const top = [...hits].sort((a, b) => (b.im.strength || 1) - (a.im.strength || 1))[0];
+  const v = Math.max(-1, Math.min(1, Math.round(tot / 2 * 2) / 2));
+  if (v > 0) return { v, title: 'Omvärlden talar för', text: top.im.why + ' (' + top.item.title + ')', link: 'omvarld' };
+  if (v < 0) return { v, title: 'Omvärlden talar emot', text: top.im.why + ' (' + top.item.title + ')', link: 'omvarld' };
+  return { v: 0, title: 'Omvärlden: osäkert läge', text: top.im.why + ' (' + top.item.title + ')', link: 'omvarld' };
+}
+function signalFor(i) {
+  if (!i) return { level: null, factors: [] };
+  if (SIG.has(i.id)) return SIG.get(i.id);
+  const c = i.history?.close;
+  let res;
+  if (!c || c.length < 60) {
+    const w = worldFactor(i);
+    res = { level: null, factors: w ? [w] : [], noData: true };
+  } else {
+    const p = c[c.length - 1], s50 = sma(c, 50), s200 = sma(c, 200), r = rsi(c), F = [];
+    if (s200 != null) {
+      if (p > s50 && s50 > s200) F.push({ v: 1, title: 'Upptrend', term: 'trend', text: 'Kursen ligger över sina genomsnitt. Den har alltså stigit stadigt under en längre tid.', det: `Kurs ${fmt(p)} > MA50 ${fmt(s50)} > MA200 ${fmt(s200)}` });
+      else if (p < s50 && s50 < s200) F.push({ v: -1, title: 'Nedtrend', term: 'trend', text: 'Kursen ligger under sina genomsnitt. Den har alltså fallit under en längre tid.', det: `Kurs ${fmt(p)} < MA50 ${fmt(s50)} < MA200 ${fmt(s200)}` });
+      else F.push({ v: 0, title: 'Ingen tydlig trend', term: 'trend', text: 'Kursen rör sig mest sidledes, varken tydligt upp eller ner.', det: `Kurs ${fmt(p)}, MA50 ${fmt(s50)}, MA200 ${fmt(s200)}` });
+      for (let k = 1; k <= 15; k++) {
+        const a50 = sma(c, 50, c.length - k), a200 = sma(c, 200, c.length - k), b50 = sma(c, 50, c.length - k + 1), b200 = sma(c, 200, c.length - k + 1);
+        if (a50 == null || a200 == null) break;
+        if (a50 <= a200 && b50 > b200) { F.push({ v: 1, title: 'Gyllene kors', term: 'kors', text: `För ${k} handelsdagar sedan gick det korta genomsnittet över det långa. Det brukar tolkas som början på en uppgång.` }); break; }
+        if (a50 >= a200 && b50 < b200) { F.push({ v: -1, title: 'Dödskors', term: 'kors', text: `För ${k} handelsdagar sedan gick det korta genomsnittet under det långa. Det brukar tolkas som början på en nedgång.` }); break; }
+      }
+    }
+    if (r != null) {
+      if (r >= 70) F.push({ v: -1, title: 'Överköpt', term: 'rsi', text: 'Aktien har stigit snabbt på kort tid. Ofta kommer en paus eller en liten nedgång efter det.', det: `RSI ${fmt(r, 0)} (över 70)` });
+      else if (r <= 30) F.push({ v: 1, title: 'Översåld', term: 'rsi', text: 'Aktien har fallit snabbt på kort tid. Ofta studsar kursen upp en bit efter det.', det: `RSI ${fmt(r, 0)} (under 30)` });
+      else F.push({ v: 0, title: 'Normalt tempo', term: 'rsi', text: 'Kursen har varken rusat eller rasat de senaste veckorna.', det: `RSI ${fmt(r, 0)} (mellan 30 och 70)` });
+    }
+    const m1 = c.length > 22 ? (p / c[c.length - 22] - 1) * 100 : null;
+    if (m1 != null && m1 >= 8) F.push({ v: 0.5, title: 'Stark senaste månad', text: `Kursen har stigit ${fmtPct(m1, 1, false)} på en månad.`, det: `1 mån ${fmtPct(m1)}` });
+    else if (m1 != null && m1 <= -8) F.push({ v: -0.5, title: 'Svag senaste månad', text: `Kursen har fallit ${fmtPct(-m1, 1, false)} på en månad.`, det: `1 mån ${fmtPct(m1)}` });
+    const w = worldFactor(i); if (w) F.push(w);
+    const score = sum(F, f => f.v);
+    const level = score >= 2 ? 2 : score >= 1 ? 1 : score <= -2 ? -2 : score <= -1 ? -1 : 0;
+    res = { level, score, factors: F, rsi: r, s50, s200, m1 };
+  }
+  SIG.set(i.id, res); return res;
+}
+function sigPill(i) {
+  const s = signalFor(i);
+  if (s.level == null) return `<span class="pill hold">Ingen signal</span>`;
+  const L = LEVELS[s.level];
+  return `<span class="pill ${L.cls}">${s.level > 0 ? '▲' : s.level < 0 ? '▼' : '•'} ${L.label}</span>`;
+}
+
+/* =========================================================
+   Portfolio
+   ========================================================= */
+const byDate = (a, b) => (a.date || '').localeCompare(b.date || '') || (a.createdAt || 0) - (b.createdAt || 0);
+function computeHoldings() {
+  const by = {};
+  for (const t of [...S.trades].sort(byDate)) {
+    const h = by[t.inst] || (by[t.inst] = { inst: t.inst, qty: 0, cost: 0, realized: 0, fees: 0, trades: [], first: t.date });
+    const q = +t.qty || 0, p = +t.price || 0, f = +t.fee || 0;
+    h.fees += f; h.trades.push(t);
+    if (t.side === 'kop') { h.cost += q * p + f; h.qty += q; }
+    else { const avg = h.qty > 0 ? h.cost / h.qty : p; const qq = Math.min(q, h.qty); h.realized += qq * p - f - qq * avg; h.cost -= qq * avg; h.qty -= qq; if (h.qty < 1e-9) { h.qty = 0; h.cost = 0; } }
+  }
+  const list = Object.values(by).map(h => {
+    const i = inst(h.inst); const cur = i?.currency || 'SEK'; const rate = fx(cur);
+    const pr = i ? priceOf(i).price : (+h.trades[h.trades.length - 1].price);
+    const value = h.qty * pr, ch = i ? dayChange(i) : null;
+    return { ...h, i, cur, rate, price: pr, avg: h.qty > 0 ? h.cost / h.qty : 0,
+      value, valueSek: value * rate, costSek: h.cost * rate, unrealSek: (value - h.cost) * rate,
+      unrealPct: h.cost > 0 ? (value - h.cost) / h.cost * 100 : 0, realizedSek: h.realized * rate, feesSek: h.fees * rate,
+      dayPct: ch, daySek: ch != null ? value * rate - value * rate / (1 + ch / 100) : 0,
+      name: i?.name || 'Okänt värdepapper' };
+  });
+  const open = list.filter(h => h.qty > 0).sort((a, b) => b.valueSek - a.valueSek);
+  const total = sum(open, h => h.valueSek);
+  open.forEach(h => { h.share = total > 0 ? h.valueSek / total : 0; });
+  const cost = sum(open, h => h.costSek), day = sum(open, h => h.daySek);
+  return { list, open, closed: list.filter(h => h.qty === 0), total, cost, unreal: total - cost, unrealPct: cost > 0 ? (total - cost) / cost * 100 : 0,
+    realized: sum(list, h => h.realizedSek), fees: sum(list, h => h.feesSek), day, dayPct: total - day > 0 ? day / (total - day) * 100 : 0 };
+}
+const held = id => S.P?.open.find(h => h.inst === id);
+function valueHistory(days) {
+  const ref = S.quotes['fond-global'] || Object.values(S.quotes).find(q => q.history?.dates);
+  if (!ref || !S.trades.length) return null;
+  const D = ref.history.dates, start = Math.max(0, D.length - days), trades = [...S.trades].sort(byDate);
+  const qty = {}; let ti = 0; const vals = [], dates = [];
+  for (let k = 0; k < D.length; k++) {
+    const d = D[k];
+    while (ti < trades.length && trades[ti].date <= d) { const t = trades[ti++]; qty[t.inst] = (qty[t.inst] || 0) + (t.side === 'kop' ? 1 : -1) * (+t.qty || 0); }
+    if (k < start) continue;
+    let v = 0, any = false;
+    for (const id in qty) { if (qty[id] <= 1e-9) continue; const i = inst(id); const c = closeOn(i, d); if (c == null) continue; v += qty[id] * c * fx(i?.currency || 'SEK'); any = true; }
+    if (any || vals.length) { vals.push(v); dates.push(d); }
+  }
+  if (vals.length && dates[dates.length - 1] === ref.date && S.P) vals[vals.length - 1] = S.P.total;
+  return vals.length > 1 ? { dates, vals } : null;
+}
+
+/* =========================================================
+   Ideas ("Att titta på i dag") and notifications
+   ========================================================= */
+function ideas() {
+  const P = S.P, out = [], seen = new Set();
+  const add = (k, o) => { if (!seen.has(k)) { seen.add(k); out.push(o); } };
+  for (const h of P.open) {
+    if (!h.i) continue;
+    const sg = signalFor(h.i), L = sg.level != null ? LEVELS[sg.level] : null;
+    if (h.unrealPct >= 30 && (sg.level ?? 0) <= 0) add('take' + h.inst, { pr: 3, tone: 'info', id: h.inst, title: `${h.name}: fundera på att ta hem en del av vinsten`, text: `Du är upp ${fmtPct(h.unrealPct, 0)} och signalerna är inte längre positiva. Att sälja en del låser in vinsten och minskar risken.` });
+    if (h.unrealPct <= -15 && (sg.level ?? 0) < 0) add('loss' + h.inst, { pr: 4, tone: 'warn', id: h.inst, title: `${h.name}: ner ${fmtPct(-h.unrealPct, 0, false)} och fortsatt svag`, text: 'Fråga dig om skälet till att du köpte fortfarande gäller. Har du bestämt en gräns där du säljer?' });
+    if (sg.level != null && sg.level <= -1) add('sig' + h.inst, { pr: 3, tone: 'down', id: h.inst, title: `${h.name} har ${L.label.toLowerCase()}`, text: sg.factors.filter(f => f.v < 0).map(f => f.text).slice(0, 2).join(' ') });
+    if (h.share >= 0.25 && P.open.length > 1) add('conc' + h.inst, { pr: 2, tone: 'warn', id: h.inst, title: `${h.name} är ${fmtPct(h.share * 100, 0, false)} av din portfölj`, text: 'Mycket pengar i ett enda innehav ger stor risk. Många sparare håller varje innehav under 10–20 %.' });
+  }
+  for (const id of S.settings.watch || []) {
+    const i = inst(id); if (!i || held(id)) continue;
+    const sg = signalFor(i);
+    if (sg.level != null && sg.level >= 1) add('wbuy' + id, { pr: 2, tone: 'up', id, title: `${i.name} har ${LEVELS[sg.level].label.toLowerCase()}`, text: sg.factors.filter(f => f.v > 0).map(f => f.text).slice(0, 2).join(' ') });
+  }
+  const b = latestBrief();
+  if (b) for (const h of P.open) for (const { item, im } of impactsFor(h.i)) {
+    if ((im.strength || 1) >= 2 && im.dir) add('w' + item.id + h.inst, { pr: 1, tone: im.dir > 0 ? 'up' : 'down', id: h.inst, title: `Nyhet som berör ${h.name}`, text: `${item.title}. ${im.why}`, link: 'omvarld' });
+  }
+  const sec = {}; P.open.forEach(h => { const s = h.i?.sector || 'Annat'; sec[s] = (sec[s] || 0) + h.share; });
+  const [ts, tv] = Object.entries(sec).sort((a, b) => b[1] - a[1])[0] || [];
+  if (tv >= 0.4 && P.open.length > 1) add('sector', { pr: 2, tone: 'warn', title: `${fmtPct(tv * 100, 0, false)} av portföljen ligger i ${ts.toLowerCase()}`, text: 'Bolag i samma bransch faller ofta samtidigt. Fler branscher sprider risken.', link: 'portfolj' });
+  return out.sort((a, b) => b.pr - a.pr).slice(0, 6);
+}
+const ALERT_TYPES = { over: 'Kursen går över', under: 'Kursen går under', move: 'Rör sig mer än ± % på en dag', signal: 'Får köp- eller säljsignal', news: 'Berörs av en omvärldshändelse' };
+function alertText(a, i) {
+  if (!i) return 'Okänt värdepapper';
+  if (a.type === 'over') return `Över ${fmtCur(a.value, i.currency)}`;
+  if (a.type === 'under') return `Under ${fmtCur(a.value, i.currency)}`;
+  if (a.type === 'move') return `Rör sig mer än ±${fmt(a.value, 1)} % på en dag`;
+  if (a.type === 'signal') return 'Ny köp- eller säljsignal';
+  return 'Nyheter som berör aktien';
+}
+function alertHit(a, all) {
+  const i = inst(a.inst); if (!i || a.on === false) return null;
+  const pr = priceOf(i);
+  if (a.type === 'over' && pr.price >= a.value) return { key: `${a.id}:${pr.date}`, tone: 'up', title: `${i.name} är över ${fmtCur(a.value, i.currency)}`, text: `Kursen är nu ${fmtCur(pr.price, i.currency)} (${fmtDate(pr.date)}).`, date: pr.date, id: i.id };
+  if (a.type === 'under' && pr.price <= a.value) return { key: `${a.id}:${pr.date}`, tone: 'down', title: `${i.name} är under ${fmtCur(a.value, i.currency)}`, text: `Kursen är nu ${fmtCur(pr.price, i.currency)} (${fmtDate(pr.date)}).`, date: pr.date, id: i.id };
+  if (a.type === 'move') { const ch = dayChange(i); if (ch != null && Math.abs(ch) >= a.value) return { key: `${a.id}:${pr.date}`, tone: ch > 0 ? 'up' : 'down', title: `${i.name} ${ch > 0 ? 'steg' : 'föll'} ${fmtPct(Math.abs(ch), 1, false)} på en dag`, text: `Din gräns är ±${fmt(a.value, 1)} %. Kursen är ${fmtCur(pr.price, i.currency)}.`, date: pr.date, id: i.id }; }
+  if (a.type === 'signal') { const sg = signalFor(i); if (sg.level != null && sg.level !== 0) return { key: `${a.id}:${pr.date}:${sg.level}`, tone: LEVELS[sg.level].tone, title: `${i.name}: ${LEVELS[sg.level].label}`, text: sg.factors.filter(f => Math.sign(f.v) === Math.sign(sg.level)).map(f => f.title).join(', ') + '.', date: pr.date, id: i.id }; }
+  if (a.type === 'news') { const b = latestBrief(); const hs = impactsFor(i, b); if (hs.length) { const L = hs.map(h => ({ key: `${a.id}:${b.date}:${h.item.id}`, tone: h.im.dir > 0 ? 'up' : h.im.dir < 0 ? 'down' : 'info', title: `${i.name} berörs: ${h.item.title}`, text: h.im.why, date: b.date, id: i.id, link: 'omvarld' })); return all ? L : L[0]; } }
+  return null;
+}
+function notifications() {
+  const out = [], keys = new Set(); const push = n => { if (n && !keys.has(n.key)) { keys.add(n.key); out.push(n); } };
+  S.alerts.forEach(a => { const r = alertHit(a, true); (Array.isArray(r) ? r : [r]).forEach(push); });
+  const newsOn = new Set(S.alerts.filter(a => a.type === 'news' && a.on !== false).map(a => a.inst));
+  const b = latestBrief();
+  if (b && S.P) for (const h of S.P.open) for (const { item, im } of impactsFor(h.i, b)) {
+    if ((im.strength || 1) >= 2 && !newsOn.has(h.inst)) push({ key: `auto:${b.date}:${item.id}:${h.inst}`, tone: im.dir > 0 ? 'up' : im.dir < 0 ? 'down' : 'info', title: `Omvärlden: ${item.title}`, text: `Kan påverka ditt innehav i ${h.name}. ${im.why}`, date: b.date, id: h.inst, link: 'omvarld' });
+  }
+  const seen = new Set(S.settings.seen || []);
+  out.forEach(n => { n.unread = !seen.has(n.key); });
+  return out.sort((a, b) => (b.unread - a.unread) || (b.date || '').localeCompare(a.date || ''));
+}
+
+/* =========================================================
+   Charts
+   ========================================================= */
+let CH = new Map();
+function niceTicks(min, max, n = 4) {
+  const span = max - min || Math.abs(max) || 1; const step0 = span / n; const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const nm = step0 / mag; const step = (nm < 1.5 ? 1 : nm < 3 ? 2 : nm < 7 ? 5 : 10) * mag;
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, t = [];
+  for (let v = lo; v <= hi + step / 2; v += step) t.push(+v.toFixed(10));
+  return t;
+}
+function chartBox(id, cfg) { CH.set(id, cfg); return `<div class="chart" data-chart="${id}" style="height:${cfg.h || 220}px"></div>`; }
+function pathD(pts) { let d = '', pen = false; for (const p of pts) { if (!p) { pen = false; continue; } d += (pen ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); pen = true; } return d; }
+function drawCharts() {
+  for (const el of $$('.chart[data-chart]')) {
+    const cfg = CH.get(el.dataset.chart); if (!cfg) continue;
+    const W = Math.max(260, Math.floor(el.clientWidth)), H = cfg.h || 220;
+    const padL = 2, padR = cfg.padR || 58, padT = 10, padB = 26, n = cfg.dates.length;
+    const all = []; cfg.series.forEach(s => s.values.forEach(v => { if (v != null) all.push(v); })); (cfg.markers || []).forEach(m => all.push(m.v));
+    let mn = Math.min(...all), mx = Math.max(...all); if (mn === mx) { mn -= Math.abs(mn) * 0.02 || 1; mx += Math.abs(mx) * 0.02 || 1; }
+    const ticks = niceTicks(mn - (mx - mn) * 0.04, mx + (mx - mn) * 0.04, 4); mn = ticks[0]; mx = ticks[ticks.length - 1];
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const X = i => padL + (n <= 1 ? pw : i / (n - 1) * pw), Y = v => padT + (1 - (v - mn) / (mx - mn)) * ph;
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(cfg.label || 'Diagram')}">`;
+    for (const t of ticks) { const y = Y(t).toFixed(1); s += `<line x1="${padL}" x2="${padL + pw}" y1="${y}" y2="${y}" class="c-grid"/><text x="${padL + pw + 8}" y="${y}" dy="0.35em" class="c-tick">${esc(cfg.fmtY(t))}</text>`; }
+    const xl = n > 2 ? [0, Math.round((n - 1) / 3), Math.round(2 * (n - 1) / 3), n - 1] : [0, n - 1];
+    xl.forEach((i, k) => { const a = k === 0 ? 'start' : k === xl.length - 1 ? 'end' : 'middle'; s += `<text x="${X(i).toFixed(1)}" y="${H - 6}" text-anchor="${a}" class="c-tick">${esc(fmtDate(cfg.dates[i]))}</text>`; });
+    cfg.series.forEach(se => {
+      const pts = se.values.map((v, i) => v == null ? null : [X(i), Y(v)]); const d = pathD(pts);
+      if (se.area) { const f = pts.findIndex(p => p), l = pts.length - 1 - [...pts].reverse().findIndex(p => p); s += `<path d="${d}L${pts[l][0].toFixed(1)},${padT + ph}L${pts[f][0].toFixed(1)},${padT + ph}Z" style="fill:${se.color};fill-opacity:.1;stroke:none"/>`; }
+      s += `<path d="${d}" style="fill:none;stroke:${se.color};stroke-width:${se.w || 2};stroke-linejoin:round;stroke-linecap:round${se.dash ? ';stroke-dasharray:' + se.dash : ''}"/>`;
+    });
+    const main = cfg.series[0]; const li = main.values.length - 1;
+    if (main.values[li] != null) s += `<circle cx="${X(li).toFixed(1)}" cy="${Y(main.values[li]).toFixed(1)}" r="4" class="c-dot" style="fill:${main.color}"/>`;
+    for (const m of cfg.markers || []) s += `<circle cx="${X(m.i).toFixed(1)}" cy="${Y(m.v).toFixed(1)}" r="5.5" class="c-dot" style="fill:var(--${m.kind === 'kop' ? 'up' : 'down'})"/>`;
+    s += `<g class="c-hover" style="display:none"><line class="c-cross" y1="${padT}" y2="${padT + ph}"/>${cfg.series.map((se, k) => `<circle r="4.5" class="c-dot" data-k="${k}" style="fill:${se.color}"/>`).join('')}</g>`;
+    s += `<rect x="${padL}" y="${padT}" width="${pw}" height="${ph}" fill="transparent" class="c-hit"/></svg><div class="c-tip" hidden></div>`;
+    el.innerHTML = s;
+    const hover = $('.c-hover', el), tip = $('.c-tip', el), cross = $('.c-cross', el), dots = $$('circle[data-k]', el), hit = $('.c-hit', el);
+    const move = e => {
+      const r = el.getBoundingClientRect(); const x = e.clientX - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.round((x - padL) / pw * (n - 1))));
+      hover.style.display = ''; const cx = X(i); cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
+      dots.forEach(dn => { const se = cfg.series[+dn.dataset.k]; const v = se.values[i]; if (v == null) { dn.style.display = 'none'; return; } dn.style.display = ''; dn.setAttribute('cx', cx); dn.setAttribute('cy', Y(v)); });
+      const mk = (cfg.markers || []).filter(m => m.i === i);
+      tip.innerHTML = `<div>${esc(fmtDateY(cfg.dates[i]))}</div>` + cfg.series.map(se => se.values[i] == null ? '' : `<div><i style="background:${se.color}"></i>${esc(se.name)} <span class="tv">${esc(cfg.fmtTip ? cfg.fmtTip(se.values[i]) : cfg.fmtY(se.values[i]))}</span></div>`).join('') + mk.map(m => `<div>${m.kind === 'kop' ? '▲ Ditt köp' : '▼ Din försäljning'}: ${esc(m.label)}</div>`).join('');
+      tip.hidden = false; const tw = tip.offsetWidth; let left = cx + 12; if (left + tw > W) left = cx - tw - 12; tip.style.left = Math.max(0, left) + 'px'; tip.style.top = '4px';
+    };
+    const leave = () => { hover.style.display = 'none'; tip.hidden = true; };
+    hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move); hit.addEventListener('pointerleave', leave);
+  }
+}
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawCharts, 150); });
+function spark(values, up) {
+  if (!values || values.length < 2) return '<svg class="spark" aria-hidden="true"></svg>';
+  const mn = Math.min(...values), mx = Math.max(...values), n = values.length, W = 100, H = 30;
+  const pts = values.map((v, i) => [i / (n - 1) * (W - 4) + 2, mx === mn ? H / 2 : 3 + (1 - (v - mn) / (mx - mn)) * (H - 6)]);
+  const last = pts[n - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${pathD(pts)}" style="fill:none;stroke:var(--${up ? 'up' : 'down'});stroke-width:1.6;stroke-linejoin:round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.4" style="fill:var(--${up ? 'up' : 'down'})"/></svg>`;
+}
+const RANGES = { '1M': 21, '3M': 63, '6M': 126, '1Å': 260 };
+const rangeBtns = (cur, act) => `<div class="ranges" role="group" aria-label="Tidsperiod">${Object.keys(RANGES).map(r => `<button type="button" data-act="${act}" data-r="${r}" aria-pressed="${r === cur}">${r}</button>`).join('')}</div>`;
+const compactKr = v => Math.abs(v) >= 100000 ? fmt(v / 1000, 0) + ' tkr' : fmt(v, 0) + ' kr';
+
+/* =========================================================
+   Shared view pieces
+   ========================================================= */
+function demoBanner() {
+  if (!S.meta?.pricesDemo) return S.meta?.pricesUpdatedAt ? `<p class="xs muted" style="margin:-8px 0 16px">Kurser från Yahoo Finance, fördröjda. Hämtade ${esc(new Date(S.meta.pricesUpdatedAt).toLocaleString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))}.</p>` : '';
+  return `<div class="banner" role="note"><b>Exempelkurser</b><span>Kurserna och graferna är påhittade tills riktiga kurser har hämtats från Yahoo Finance (npm run update).</span><button class="linkbtn" data-act="help" data-tab="faq">Läs mer</button></div>`;
+}
+function marketState() {
+  if (S.marketErr) return `<div class="card empty"><h2>Kursdata kunde inte laddas</h2><p>Appen hittar inte filen data/quotes.json. Öppna appen via en webbserver (npm start) i stället för att dubbelklicka på filen, och kör npm run update för att hämta kurser.</p></div>`;
+  if (!S.ready.market) return `<div class="card">${S.marketSlow ? '<p class="ink2">Kurserna dröjer. Det kan vara anslutningen. Sidan fortsätter att försöka.</p>' : ''}<div class="skel" style="width:60%"></div><div class="skel"></div><div class="skel" style="width:80%"></div></div>`;
+  return '';
+}
+function phead(title, sub, actions = '') { return `<div class="phead"><div><h1>${title}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}</div>${actions ? `<div class="actions">${actions}</div>` : ''}</div>`; }
+const delta = (v, txt) => `<span class="delta ${cls(v)}">${arrow(v)} ${txt}</span>`;
+function ideaRow(o, extra = '') {
+  const sym = { up: '▲', down: '▼', warn: '!', info: 'i' }[o.tone] || 'i';
+  const href = o.id ? `#aktie-${o.id}` : o.link ? `#${o.link}` : null;
+  return `<div class="idea"><span class="tone ${o.tone}" aria-hidden="true">${sym}</span><div><h3>${o.unread ? '<span class="unread" title="Oläst"></span>' : ''}${esc(o.title)}</h3><p>${esc(o.text)}</p>${href ? `<p><a href="${href}">${o.id ? 'Visa ' + esc(inst(o.id)?.name || '') : 'Läs mer'}</a>${o.link && o.id ? ` · <a href="#${o.link}">Läs analysen</a>` : ''}</p>` : ''}${extra}</div></div>`;
+}
+function emptyPortfolio() {
+  return `<div class="empty"><span class="eyebrow">Din portfölj</span><h2>Lägg in din första affär</h2><p>Skriv in vad du har köpt eller sålt, så räknar appen ut värde, vinst och risk åt dig. Vill du först se hur det fungerar kan du prova med en exempelportfölj som du sedan tar bort med en knapptryckning.</p><div class="chips"><button class="btn primary" data-act="trade-new">${ico('plus', 'icon sm')}Ny affär</button><button class="btn" data-act="example-load">Prova med exempel</button></div></div>`;
+}
+function moodPill(b) { const t = { positiv: 'up', negativ: 'down', forsiktig: 'warn' }[b.mood] || 'info'; return `<span class="pill ${t}">${esc(b.moodText || 'Läget')}</span>`; }
+function mineInSector(sector) { return (S.P?.open || []).filter(h => h.i?.sector === sector).map(h => h.name); }
+function calRows(limit) {
+  const t = todayISO(); const ev = (S.calendar || []).filter(e => e.date >= t).slice(0, limit || 99);
+  if (!ev.length) return '<p class="muted small">Inga inlagda händelser framåt.</p>';
+  return ev.map(e => { const d = dt(e.date); return `<div class="cal"><div class="d"><b>${d.getDate()}</b><span>${d.toLocaleDateString('sv-SE', { month: 'short' }).replace('.', '')}</span></div><div><b>${esc(e.title)}</b><p class="small ink2">${esc(e.why)}</p></div></div>`; }).join('');
+}
+
+/* =========================================================
+   Views
+   ========================================================= */
+const VIEWS = {};
+
+VIEWS.hem = () => {
+  const P = S.P, h = new Date().getHours();
+  const greet = h < 10 ? 'God morgon' : h < 17 ? 'Hej' : 'God kväll';
+  let html = phead(greet, cap(fmtDateLong(todayISO())) + '.') + demoBanner();
+  const ms = marketState(); if (ms) return html + ms;
+  const lastDay = Object.values(S.quotes)[0]?.date;
+  let port;
+  if (!S.ready.user) port = `<div class="skel" style="width:40%"></div><div class="skel" style="height:40px;width:60%"></div><div class="skel"></div>`;
+  else if (!S.trades.length) port = emptyPortfolio();
+  else {
+    const vh = valueHistory(RANGES[S.ui.prange]);
+    port = `<div class="card-head"><span class="eyebrow">Din portfölj</span>${vh ? rangeBtns(S.ui.prange, 'prange') : ''}</div>
+      <div class="big">${fmtKr(P.total)}</div>
+      <p style="margin-top:6px">${delta(P.day, signKr(P.day) + ' (' + fmtPct(P.dayPct) + ')')} <span class="muted small">senaste handelsdagen${lastDay ? ', ' + fmtDate(lastDay) : ''}</span></p>
+      <p class="small ink2" style="margin-top:2px">Totalt ${delta(P.unreal + P.realized, signKr(P.unreal + P.realized))} sedan start, varav ${term('orealiserad', 'orealiserat')} ${signKr(P.unreal)}.</p>
+      ${vh ? `<div style="margin-top:14px">${chartBox('pv', { dates: vh.dates, series: [{ name: 'Värde', values: vh.vals, color: 'var(--series-1)', area: true }], h: 190, fmtY: compactKr, fmtTip: v => fmtKr(v), label: 'Portföljens värde över tid' })}</div>` : ''}
+      <p style="margin-top:10px"><a href="#portfolj">Visa innehav och riskkoll</a></p>`;
+  }
+  const ID = S.ready.user ? ideas() : [];
+  const ideasHtml = ID.length ? ID.map(o => ideaRow(o)).join('') : `<p class="ink2">Inget som sticker ut just nu. ${S.trades.length ? 'Dina innehav och bevakningar ser lugna ut.' : 'Lägg in affärer eller bevaka aktier så får du förslag här.'}</p>`;
+  const b = latestBrief();
+  const world = b ? `<div class="card-head"><h2>Dagens läge i världen</h2>${moodPill(b)}</div>
+      <p class="eyebrow" style="margin-bottom:4px">${esc(fmtDateY(b.date))}</p><h3 style="font-size:var(--t-lg)">${esc(b.title)}</h3>
+      <div class="rows" style="margin-top:8px">${[...(b.items || [])].sort((x, y) => (y.importance || 0) - (x.importance || 0)).slice(0, 4).map(it => {
+        const mine = [...new Set((it.impacts || []).flatMap(im => mineInSector(im.sector).map(nm => ({ nm, dir: im.dir }))).map(x => JSON.stringify(x)))].map(x => JSON.parse(x));
+        return `<a class="row" href="#omvarld" style="grid-template-columns:minmax(0,1fr)"><div><div class="nm">${esc(it.title)}</div>${mine.length ? `<div class="chips" style="margin-top:6px">${mine.map(m => `<span class="pill ${m.dir > 0 ? 'up' : m.dir < 0 ? 'down' : 'flat'}">${m.dir > 0 ? '▲' : m.dir < 0 ? '▼' : '•'} ${esc(m.nm)}</span>`).join('')}</div>` : `<div class="meta">${esc(it.category || '')}</div>`}</div></a>`;
+      }).join('')}</div>
+      <p style="margin-top:8px"><a href="#omvarld">Läs hela analysen och hur aktierna påverkas</a></p>`
+    : `<h2>Dagens läge i världen</h2><p class="ink2">Ingen omvärldsanalys är inlagd ännu.</p>`;
+  const N = S.N.filter(n => n.unread).slice(0, 3);
+  const notif = `<div class="card-head"><h2>Larm</h2><a class="small" href="#larm">Alla larm</a></div>${N.length ? N.map(n => ideaRow(n)).join('') : '<p class="ink2 small">Inga nya larm. Skapa larm för att få veta när en aktie passerar en gräns.</p>'}`;
+  const W = (S.settings.watch || []).map(inst).filter(Boolean);
+  const watch = `<div class="card-head"><h2>Bevakade</h2><a class="small" href="#marknad">Marknad</a></div>${W.length ? `<div class="rows">${W.map(i => { const ch = dayChange(i), pr = priceOf(i); return `<a class="row" href="#aktie-${i.id}"><div><div class="nm">${esc(i.name)}</div><div style="margin-top:3px">${sigPill(i)}</div></div><div class="right"><div class="num">${fmtCur(pr.price, i.currency)}</div><div class="small">${ch != null ? delta(ch, fmtPct(ch)) : '<span class="muted">egen kurs</span>'}</div></div></a>`; }).join('')}</div>` : '<p class="ink2 small">Tryck på stjärnan vid en aktie under Marknad för att bevaka den.</p>'}`;
+  html += `<div class="grid2"><div class="stack"><section class="card">${port}</section><section class="card"><div class="card-head"><h2>Att titta på i dag</h2><button class="linkbtn small" data-act="help" data-tab="sida">Hur räknas det?</button></div>${ideasHtml}<p class="disclaimer">Förslag att fundera på, inte råd. Appen vet inte allt om din ekonomi.</p></section><section class="card">${world}</section></div>
+    <div class="stack"><section class="card">${notif}</section><section class="card">${watch}</section><section class="card"><h2>Kommande händelser</h2>${calRows(4)}</section></div></div>`;
+  return html;
+};
+
+VIEWS.portfolj = () => {
+  const P = S.P, ex = S.trades.some(t => t.example);
+  const acts = `${ex ? '<button class="btn" data-act="example-clear">Ta bort exemplen</button>' : ''}<button class="btn primary" data-act="trade-new">${ico('plus', 'icon sm')}Ny affär</button>`;
+  let html = phead('Portfölj', 'Det du äger, vad det är värt och hur riskerna är fördelade.', S.trades.length ? acts : '') + demoBanner();
+  if (!S.ready.user) return html + '<div class="card"><div class="skel"></div><div class="skel"></div></div>';
+  if (!S.trades.length) return html + `<section class="card">${emptyPortfolio()}</section>`;
+  html += `<div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="l">Värde nu</div><div class="v">${fmtKr(P.total)}</div></div>
+    <div class="stat"><div class="l">Du har betalat</div><div class="v">${fmtKr(P.cost)}</div></div>
+    <div class="stat"><div class="l">${term('orealiserad', 'Orealiserad vinst')}</div><div class="v ${cls(P.unreal)}">${signKr(P.unreal)}</div><div class="xs ${cls(P.unreal)}">${fmtPct(P.unrealPct)}</div></div>
+    <div class="stat"><div class="l">${term('realiserad', 'Realiserad vinst')}</div><div class="v ${cls(P.realized)}">${signKr(P.realized)}</div></div>
+    <div class="stat"><div class="l">${term('courtage', 'Courtage totalt')}</div><div class="v">${fmtKr(P.fees)}</div></div></div>`;
+  const rows = P.open.map(h => `<a class="row hrow" href="#aktie-${esc(h.inst)}">
+      <div><div class="nm">${esc(h.name)}</div><div class="meta">${fmt(h.qty, h.qty % 1 ? 2 : 0)} st · GAV ${fmtCur(h.avg, h.cur)}${h.i && priceOf(h.i).own ? ' · egen kurs' : ''}</div></div>
+      <div class="dcell num">${fmtCur(h.price, h.cur)}</div>
+      <div class="dcell num">${h.dayPct != null ? `<span class="${cls(h.dayPct)}">${fmtPct(h.dayPct)}</span>` : '–'}</div>
+      <div class="dcell num">${fmtKr(h.valueSek)}</div>
+      <div class="dcell num ${cls(h.unrealSek)}">${signKr(h.unrealSek)}<div class="xs">${fmtPct(h.unrealPct)}</div></div>
+      <div class="dcell num ink2">${fmtPct(h.share * 100, 0, false)}</div>
+      <div class="right mob"><div class="num">${fmtKr(h.valueSek)}</div><div class="small num ${cls(h.unrealSek)}">${arrow(h.unrealSek)} ${signKr(h.unrealSek)} (${fmtPct(h.unrealPct, 0)})</div></div>
+    </a>`).join('');
+  html += `<section class="card" style="margin-bottom:16px"><div class="card-head"><h2>Innehav</h2><span class="small muted">${P.open.length} st</span></div>
+    <div class="rows"><div class="row hrow thead"><div>Namn</div><div class="dcell">Kurs</div><div class="dcell">Senaste dagen</div><div class="dcell">Värde</div><div class="dcell">Vinst</div><div class="dcell">Andel</div></div>${rows || '<p class="ink2">Du äger inget just nu.</p>'}</div></section>`;
+  // risk
+  const sec = {}, curs = {};
+  P.open.forEach(h => { const s = h.i?.sector || 'Annat'; sec[s] = (sec[s] || 0) + h.share; curs[h.cur] = (curs[h.cur] || 0) + h.share; });
+  const bars = o => `<div class="bars">${Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="bar"><span>${esc(k)}</span><span class="num">${fmtPct(v * 100, 0, false)}</span><div class="track"><div class="fill" style="width:${(v * 100).toFixed(1)}%"></div></div></div>`).join('')}</div>`;
+  const warns = [];
+  const top = P.open[0]; if (top && top.share >= 0.25 && P.open.length > 1) warns.push(`<b>${esc(top.name)}</b> är ${fmtPct(top.share * 100, 0, false)} av portföljen. Ett enskilt innehav över 20–25 % ger stor risk.`);
+  const ts = Object.entries(sec).sort((a, b) => b[1] - a[1])[0]; if (ts && ts[1] >= 0.4 && P.open.length > 1) warns.push(`${fmtPct(ts[1] * 100, 0, false)} ligger i <b>${esc(ts[0].toLowerCase())}</b>. Bolag i samma bransch faller ofta samtidigt.`);
+  if (P.open.length > 0 && P.open.length < 4 && !P.open.some(h => h.i?.type === 'fond')) warns.push('Du har få innehav och ingen fond. En bred indexfond är ett enkelt sätt att sprida risken.');
+  const foreign = sum(Object.entries(curs).filter(([c]) => c !== 'SEK'), x => x[1]); if (foreign >= 0.3) warns.push(`${fmtPct(foreign * 100, 0, false)} är i utländsk valuta. Värdet i kronor påverkas också av växelkursen. Det kallas ${term('valutarisk', 'valutarisk')}.`);
+  html += `<div class="grid2" style="margin-bottom:16px"><section class="card"><h2>Riskkoll</h2>${warns.length ? `<div class="stack" style="gap:8px;margin-bottom:14px">${warns.map(w => `<div class="note warn">${ico('alert', 'icon sm')}<span>${w}</span></div>`).join('')}</div>` : `<div class="note" style="margin-bottom:14px">${ico('info', 'icon sm')}<span><strong>Bra spridning.</strong> Inget enskilt innehav eller ${term('sektor', 'bransch')} dominerar.</span></div>`}
+      <h3 style="margin-bottom:10px">Fördelning per bransch</h3>${bars(sec)}</section>
+      <section class="card"><h2>Valuta</h2>${bars(curs)}<p class="small ink2" style="margin-top:12px">Utländska innehav räknas om till kronor med ${S.meta?.fxDemo ? 'exempelkurser för valutan' : 'senaste växelkursen'}: 1 USD = ${fmt(fx('USD'))} kr, 1 NOK = ${fmt(fx('NOK'))} kr.</p></section></div>`;
+  // journal
+  const tr = [...S.trades].sort(byDate).reverse();
+  html += `<section class="card"><div class="card-head"><h2>Affärsdagbok</h2><span class="small muted">${tr.length} affärer</span></div><div class="rows">${tr.map(t => {
+    const i = inst(t.inst), cur = i?.currency || 'SEK', tot = (+t.qty) * (+t.price) + (t.side === 'kop' ? 1 : -1) * (+t.fee || 0);
+    return `<div class="row trow"><span class="pill side-pill ${t.side === 'kop' ? 'up' : 'down'}">${t.side === 'kop' ? 'Köp' : 'Sälj'}</span>
+      <div><div class="nm">${esc(i?.name || t.inst)}${t.example ? ' <span class="pill demo">exempel</span>' : ''}</div><div class="meta">${fmtDateY(t.date)} · ${fmt(+t.qty, t.qty % 1 ? 2 : 0)} st à ${fmtCur(+t.price, cur)}${+t.fee ? ` · courtage ${fmtCur(+t.fee, cur, 0)}` : ''} · totalt ${fmtCur(tot, cur, 0)}</div>${t.note ? `<p class="small ink2" style="margin-top:4px">”${esc(t.note)}”</p>` : ''}</div>
+      <div class="acts"><button class="iconbtn" data-act="trade-edit" data-id="${esc(t.id)}" aria-label="Ändra affär">${ico('edit', 'icon sm')}</button><button class="iconbtn" data-act="trade-del" data-id="${esc(t.id)}" aria-label="Ta bort affär">${ico('trash', 'icon sm')}</button></div></div>`;
+  }).join('')}</div></section>`;
+  return html;
+};
+
+VIEWS.marknad = () => {
+  let html = phead('Marknad', 'Aktier och fonder med kurs, signal och utveckling. Tryck på en rad för detaljer.', `<button class="btn" data-act="custom-new">${ico('plus', 'icon sm')}Lägg till egen</button>`) + demoBanner();
+  const ms = marketState(); if (ms) return html + ms;
+  const f = S.ui.mfilter, q = S.ui.q.trim().toLowerCase();
+  const W = new Set(S.settings.watch || []);
+  let list = allInst();
+  if (f === 'mina') list = list.filter(i => held(i.id)); else if (f === 'bevakade') list = list.filter(i => W.has(i.id));
+  else if (f === 'aktier') list = list.filter(i => i.type !== 'fond'); else if (f === 'fonder') list = list.filter(i => i.type === 'fond');
+  if (q) list = list.filter(i => (i.name + ' ' + i.ticker + ' ' + i.sector).toLowerCase().includes(q));
+  list.sort((a, b) => (!!held(b.id) - !!held(a.id)) || (W.has(b.id) - W.has(a.id)) || a.name.localeCompare(b.name, 'sv'));
+  const F = [['alla', 'Alla'], ['mina', 'Mina innehav'], ['bevakade', 'Bevakade'], ['aktier', 'Aktier'], ['fonder', 'Fonder']];
+  html += `<section class="card"><div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center"><label class="sr" for="q">Sök</label><input id="q" class="inp" type="search" placeholder="Sök namn, kortnamn eller bransch" value="${esc(S.ui.q)}" style="flex:1 1 240px;max-width:380px" autocomplete="off"><div class="chips">${F.map(([k, l]) => `<button class="chip" data-act="mfilter" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join('')}</div></div>
+    <div class="rows"><div class="row mrow thead"><div></div><div>Namn</div><div class="scell">3 mån</div><div class="pcell" style="text-align:right">Kurs</div><div class="ccell" style="text-align:right">Senaste dagen</div><div class="ccell">Signal</div></div>
+    ${list.map(i => {
+      const pr = priceOf(i), ch = dayChange(i), c = i.history?.close, s3 = c ? c.slice(-63) : null, up = s3 ? s3[s3.length - 1] >= s3[0] : true;
+      return `<div class="row mrow"><button class="star" data-act="watch" data-inst="${esc(i.id)}" aria-pressed="${W.has(i.id)}" aria-label="${W.has(i.id) ? 'Sluta bevaka' : 'Bevaka'} ${esc(i.name)}">${ico('star', 'icon sm')}</button>
+        <a href="#aktie-${esc(i.id)}" style="color:inherit;text-decoration:none;min-width:0"><div class="nm">${esc(i.name)}</div><div class="meta">${esc(i.ticker || '')} · ${esc(i.sector)}${held(i.id) ? ' · <b class="up">äger</b>' : ''}${i.custom ? ' · egen' : ''}</div></a>
+        <div class="scell">${s3 ? spark(s3, up) : '<span class="xs muted">ingen historik</span>'}</div>
+        <div class="pcell num" style="text-align:right">${fmtCur(pr.price, i.currency)}</div>
+        <div class="ccell" style="text-align:right">${ch != null ? delta(ch, fmtPct(ch)) : '<span class="xs muted">egen kurs</span>'}</div>
+        <div class="ccell">${sigPill(i)}</div>
+        <a class="right mob" href="#aktie-${esc(i.id)}" style="color:inherit;text-decoration:none"><div class="num">${fmtCur(pr.price, i.currency)}</div><div class="small">${ch != null ? delta(ch, fmtPct(ch)) : ''}</div></a>
+      </div>`;
+    }).join('') || '<p class="ink2" style="padding:12px 0">Inga träffar. Prova ett annat ord, eller lägg till aktien själv med "Lägg till egen".</p>'}</div></section>`;
+  return html;
+};
+
+VIEWS.aktie = () => {
+  const i = inst(S.route.param);
+  if (!i) return phead('Hittade inte aktien') + (S.ready.market ? `<p><a href="#marknad">Tillbaka till Marknad</a></p>` : marketState());
+  const pr = priceOf(i), ch = dayChange(i), sg = signalFor(i), h = held(i.id), W = (S.settings.watch || []).includes(i.id);
+  let html = `<p style="margin-bottom:12px"><a href="#marknad" style="display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:600">${ico('back', 'icon sm')}Marknad</a></p>`;
+  html += `<div class="phead"><div><p class="eyebrow">${esc(i.ticker || '')} · ${esc(i.sector)} · ${i.type === 'fond' ? 'Fond' : 'Aktie'}${i.demo ? ' · <span class="pill demo">exempelkurs</span>' : ''}</p><h1 style="margin-top:4px">${esc(i.name)}</h1>
+    <p style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline"><span class="big" style="font-size:var(--t-2xl)">${fmtCur(pr.price, i.currency)}</span>${ch != null ? delta(ch, fmtPct(ch) + ' senaste dagen') : ''}<span class="small muted">${pr.own ? 'Din egen kurs, ' : ''}${fmtDateY(pr.date)}</span></p></div>
+    <div class="actions"><button class="btn ${W ? '' : ''}" data-act="watch" data-inst="${esc(i.id)}" aria-pressed="${W}">${ico('star', 'icon sm')}${W ? 'Bevakas' : 'Bevaka'}</button><button class="btn" data-act="alert-new" data-inst="${esc(i.id)}">${ico('bell', 'icon sm')}Larm</button><button class="btn" data-act="price-set" data-inst="${esc(i.id)}">Ange kurs</button><button class="btn primary" data-act="trade-new" data-inst="${esc(i.id)}">${ico('plus', 'icon sm')}Registrera affär</button></div></div>`;
+  // chart
+  const c = i.history?.close;
+  let chartCard = '';
+  if (c && c.length > 5) {
+    const n = Math.min(RANGES[S.ui.range], c.length), s0 = c.length - n, dates = i.history.dates.slice(s0);
+    const series = [{ name: 'Kurs', values: c.slice(s0), color: 'var(--series-1)', area: !adv() }];
+    if (adv()) { series.push({ name: 'MA50', values: smaSeries(c, 50).slice(s0), color: 'var(--series-2)', w: 1.6 }); series.push({ name: 'MA200', values: smaSeries(c, 200).slice(s0), color: 'var(--series-3)', w: 1.6 }); }
+    const idx = new Map(dates.map((d, k) => [d, k]));
+    const markers = S.trades.filter(t => t.inst === i.id && t.date >= dates[0]).map(t => { let k = idx.get(t.date); if (k == null) { k = dates.findIndex(d => d > t.date); if (k < 0) k = dates.length - 1; } return { i: k, v: +t.price, kind: t.side, label: `${fmt(+t.qty, 0)} st à ${fmtCur(+t.price, i.currency)}` }; });
+    const chg = (c[c.length - 1] / c[s0] - 1) * 100;
+    const yf = v => fmt(v, decFor(v));
+    chartCard = `<section class="card"><div class="card-head"><div><h2>Kursen</h2><p class="small" style="margin-top:2px">${delta(chg, fmtPct(chg))} <span class="muted">under perioden</span></p></div>${rangeBtns(S.ui.range, 'range')}</div>
+      ${chartBox('px', { dates, series, markers, h: 240, fmtY: yf, fmtTip: v => fmtCur(v, i.currency), label: 'Kursgraf för ' + i.name })}
+      <div class="legend">${series.length > 1 ? series.map(s => `<span><i style="background:${s.color}"></i>${s.name === 'Kurs' ? 'Kurs' : s.name === 'MA50' ? term('ma', 'MA50') : term('ma', 'MA200')}</span>`).join('') : ''}${markers.length ? '<span><i class="dot" style="background:var(--up)"></i>Ditt köp</span><span><i class="dot" style="background:var(--down)"></i>Din försäljning</span>' : ''}${i.demo ? '<span class="muted">Exempelkurser</span>' : ''}</div></section>`;
+  } else chartCard = `<section class="card"><h2>Kursen</h2><p class="ink2">Det finns ingen kurshistorik för ${esc(i.name)}, så graf och tekniska signaler saknas. Uppdatera kursen med "Ange kurs" när du vill.</p></section>`;
+  // signal
+  let sigCard;
+  if (sg.level == null) sigCard = `<section class="card"><h2>Signal</h2><p class="ink2">Signaler kräver kurshistorik för minst tre månader.</p>${sg.factors.map(factorRow).join('')}</section>`;
+  else {
+    const L = LEVELS[sg.level];
+    sigCard = `<section class="card"><div class="card-head"><h2>${term('signal', 'Signal')}</h2><button class="linkbtn small" data-act="ask" data-q="${esc('Förklara signalen för ' + i.name + ' med enkla ord. Vad betyder den för mig?')}">Fråga Claude</button></div>
+      <div class="siglabel ${L.tone === 'info' ? '' : L.tone}">${L.label}</div>
+      <div class="meter" aria-hidden="true">${[-2, -1, 0, 1, 2].map(l => `<span class="l${l} ${l === sg.level ? 'on' : ''}"></span>`).join('')}</div>
+      <div class="meter-l"><span>Sälj</span><span>Avvakta</span><span>Köp</span></div>
+      <h3 style="margin:16px 0 4px">Därför</h3>${sg.factors.map(factorRow).join('')}
+      <p class="disclaimer">Signalen är en sammanvägning av regler${i.demo ? ' och bygger här på exempelkurser' : ''}. Den är inget råd och kan slå fel.</p></section>`;
+  }
+  // holding
+  let hold = '';
+  if (h) {
+    const idea = ideas().filter(o => o.id === i.id);
+    hold = `<section class="card"><h2>Ditt innehav</h2><div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="l">Antal</div><div class="v">${fmt(h.qty, h.qty % 1 ? 2 : 0)} st</div></div><div class="stat"><div class="l">${term('gav', 'GAV')}</div><div class="v">${fmtCur(h.avg, h.cur)}</div></div><div class="stat"><div class="l">Värde</div><div class="v">${fmtKr(h.valueSek)}</div></div><div class="stat"><div class="l">Vinst</div><div class="v ${cls(h.unrealSek)}">${signKr(h.unrealSek)}</div><div class="xs ${cls(h.unrealSek)}">${fmtPct(h.unrealPct)}</div></div></div>${idea.length ? `<div style="margin-top:8px">${idea.map(o => ideaRow({ ...o, id: null, link: null })).join('')}</div>` : ''}</section>`;
+  }
+  // world
+  const hits = impactsFor(i), b = latestBrief();
+  const world = `<section class="card"><h2>Omvärlden just nu</h2>${hits.length ? hits.map(({ item, im }) => `<div class="idea"><span class="tone ${im.dir > 0 ? 'up' : im.dir < 0 ? 'down' : 'info'}" aria-hidden="true">${im.dir > 0 ? '▲' : im.dir < 0 ? '▼' : '•'}</span><div><h3>${esc(item.title)}</h3><p>${esc(im.why)}</p><p><a href="#omvarld">Läs analysen</a></p></div></div>`).join('') : `<p class="ink2 small">${b ? `Dagens analys (${fmtDate(b.date)}) nämner inget som direkt berör ${esc(i.sector.toLowerCase())}.` : 'Ingen omvärldsanalys är inlagd ännu.'}</p>`}</section>`;
+  // sensitivities
+  const sens = EVENTS.map(ev => ({ ev, e: effectOf(ev, i) })).filter(x => x.e && x.e[0] !== 0 && !ev_isCompany(x.ev)).sort((a, b) => Math.abs(b.e[0]) - Math.abs(a.e[0])).slice(0, 6);
+  const sensCard = `<section class="card"><h2>Så brukar ${esc(i.name)} påverkas</h2><p class="small ink2" style="margin-bottom:6px">Vad som brukar hända med ${esc(i.sector.toLowerCase())} när något av det här inträffar.</p>${sens.length ? sens.map(({ ev, e }) => `<div class="factor"><span class="fi ${e[0] > 0 ? 'p' : 'n'}" aria-hidden="true">${e[0] > 0 ? '▲' : '▼'}</span><div><b>${esc(ev.name)}: ${e[0] > 0 ? 'brukar gynnas' : 'brukar missgynnas'}${Math.abs(e[0]) >= 2 ? ' tydligt' : ''}</b><p>${esc(e[1])}</p></div></div>`).join('') : '<p class="ink2 small">Ingen tydlig koppling i appens händelsebibliotek.</p>'}<p style="margin-top:10px"><a href="#lar">Prova fler händelser i "Vad händer om …?"</a></p></section>`;
+  // about
+  const kv = [];
+  if (i.high52 != null) kv.push(['Högsta 52 veckor', fmtCur(i.high52, i.currency)], ['Lägsta 52 veckor', fmtCur(i.low52, i.currency)]);
+  if (i.dividendYield != null) kv.push([term('direktavkastning', 'Direktavkastning'), fmtPct(i.dividendYield, 1, false)]);
+  if (adv() && i.pe != null) kv.push([term('pe', 'P/E-tal'), fmt(i.pe, 1)]);
+  if (adv() && sg.rsi != null) kv.push([term('rsi', 'RSI (14 dagar)'), fmt(sg.rsi, 0)]);
+  const about = `<section class="card"><h2>Om ${esc(i.name)}</h2>${i.about ? `<p class="ink2">${esc(i.about)}</p>` : '<p class="ink2">Egen aktie eller fond som du har lagt till.</p>'}${kv.length ? `<div class="rows" style="margin-top:10px">${kv.map(([k, v]) => `<div class="row"><span class="ink2">${k}</span><span class="num">${v}</span></div>`).join('')}</div>` : ''}${!adv() && (i.pe != null) ? '<p class="xs muted" style="margin-top:8px">Fler nyckeltal visas i läget Avancerat.</p>' : ''}${i.custom ? `<p style="margin-top:12px"><button class="btn danger sm" data-act="custom-del" data-inst="${esc(i.id)}">${ico('trash', 'icon sm')}Ta bort från appen</button></p>` : ''}</section>`;
+  const o = (h, n) => h.replace('<section class="card"', `<section style="order:${n}" class="card"`);
+  html += `<div class="grid2 reflow"><div class="stack">${o(chartCard, 1)}${o(hold, 3)}${o(world, 4)}${o(sensCard, 5)}</div><div class="stack">${o(sigCard, 2)}${o(about, 6)}</div></div>`;
+  return html;
+};
+function factorRow(f) {
+  const k = f.v > 0 ? 'p' : f.v < 0 ? 'n' : 'z';
+  return `<div class="factor"><span class="fi ${k}" aria-hidden="true">${f.v > 0 ? '+' : f.v < 0 ? '−' : '•'}</span><div><b>${f.term ? term(f.term, f.title) : esc(f.title)}</b><p>${esc(f.text)}${f.link ? ` <a href="#${f.link}">Läs mer</a>` : ''}</p>${adv() && f.det ? `<div class="det">${esc(f.det)}</div>` : ''}</div></div>`;
+}
+const ev_isCompany = ev => !!ev.fx._bolag;
+function effectOf(ev, i) {
+  if (ev.fx._bolag) return ev.fx._bolag;
+  if (ev.fx[i.sector]) return ev.fx[i.sector];
+  if (ev.fx._utland && i.currency && i.currency !== 'SEK') return ev.fx._utland;
+  return null;
+}
+
+VIEWS.omvarld = () => {
+  let html = phead('Omvärlden', 'Viktiga händelser i världen och hur de kan påverka aktier.');
+  if (!S.ready.market) return html + marketState();
+  const B = S.briefs; if (!B.length) return html + `<section class="card empty"><h2>Ingen analys ännu</h2><p>Lägg in en analys i filen data/briefs.json så visas den här.</p></section>`;
+  const k = Math.min(S.ui.brief, B.length - 1), b = B[k];
+  html += `<section class="card" style="margin-bottom:16px"><div class="card-head"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="eyebrow">${esc(cap(fmtDateLong(b.date)))}</span>${moodPill(b)}</div>${B.length > 1 ? `<label class="small" style="display:flex;gap:8px;align-items:center">Tidigare <select id="briefsel" class="inp" style="min-height:36px;padding:4px 8px;width:auto">${B.map((x, j) => `<option value="${j}" ${j === k ? 'selected' : ''}>${esc(fmtDateY(x.date))}</option>`).join('')}</select></label>` : ''}</div>
+    <h2 style="font-size:var(--t-xl)">${esc(b.title)}</h2><p class="ink2" style="margin-top:8px;max-width:72ch">${esc(b.summary)}</p>
+    ${b.sourceNote ? `<p class="xs muted" style="margin-top:10px">${esc(b.sourceNote)}</p>` : ''}</section>`;
+  html += `<div class="grid2"><section class="card">${(b.items || []).map((it, j) => {
+    const mineAll = (it.impacts || []).flatMap(im => mineInSector(im.sector));
+    return `<details class="wi" data-id="${esc(it.id)}" ${(S.ui.wopen ? S.ui.wopen.has(it.id) : j === 0) ? 'open' : ''}><summary><div><p class="eyebrow" style="margin-bottom:4px">${esc(it.category || '')}${it.region ? ' · ' + esc(it.region) : ''}</p><h3>${esc(it.title)}</h3>${mineAll.length ? `<p class="small" style="margin-top:6px;color:var(--accent);font-weight:700">Berör dig: ${esc([...new Set(mineAll)].join(', '))}</p>` : ''}</div><span class="chev">${ico('chev', 'icon sm')}</span></summary>
+      <div class="body"><div><h3 style="margin-bottom:4px">Vad hände?</h3><p class="ink2">${esc(it.what)}</p></div>
+      ${it.chain?.length ? `<div><h3 style="margin-bottom:8px">Från händelse till aktiekurs</h3><div class="chain">${it.chain.map((s, n) => `${n ? '<span class="ar" aria-hidden="true">→</span>' : ''}<span class="st">${esc(s)}</span>`).join('')}</div></div>` : ''}
+      <div><h3 style="margin-bottom:4px">Varför påverkar det aktier?</h3><p class="ink2">${esc(it.why)}</p></div>
+      ${it.impacts?.length ? `<div><h3 style="margin-bottom:8px">Vilka kan påverkas</h3><div class="imp">${it.impacts.map(im => { const mine = mineInSector(im.sector); return `<span class="pill ${im.dir > 0 ? 'up' : im.dir < 0 ? 'down' : 'flat'}">${im.dir > 0 ? '▲ Gynnas' : im.dir < 0 ? '▼ Missgynnas' : '• Osäkert'}</span><div><b>${esc(im.sector)}</b>${(im.strength || 1) >= 3 ? ' <span class="xs muted">(stor effekt)</span>' : ''}<p>${esc(im.why)}</p>${mine.length ? `<div class="mine">Ditt innehav: ${esc(mine.join(', '))}</div>` : ''}</div>`; }).join('')}</div></div>` : ''}
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between"><div class="srcs"><span class="muted">Källor:</span>${(it.sources || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>`).join('')}</div>
+      <button class="btn sm" data-act="ask" data-q="${esc('Vad betyder händelsen "' + it.title + '" för mig och mina innehav? Förklara enkelt.')}">${ico('chat', 'icon sm')}Vad betyder det för mig?</button></div></div></details>`;
+  }).join('')}</section>
+  <div class="stack"><section class="card"><h2>Kommande händelser</h2>${calRows()}</section><section class="card"><h2>Så läser du analysen</h2><p class="small ink2">Varje händelse visar en kedja från det som hände till hur det kan påverka aktiekurser. ▲ betyder att branschen kan gynnas, ▼ att den kan missgynnas. Det är bedömningar av hur det brukar fungera, inga garantier.</p><p class="small ink2" style="margin-top:8px">Vill du förstå mer om hur olika händelser påverkar börsen? Prova <a href="#lar">"Vad händer om …?"</a>.</p></section></div></div>`;
+  return html;
+};
+
+VIEWS.larm = () => {
+  let html = phead('Larm', 'Få veta när en aktie passerar en gräns, rör sig mycket eller berörs av en nyhet.', `<button class="btn primary" data-act="alert-new">${ico('plus', 'icon sm')}Nytt larm</button>`);
+  if (!S.ready.user || !S.ready.market) return html + '<div class="card"><div class="skel"></div><div class="skel"></div></div>';
+  const N = S.N, unread = N.filter(n => n.unread).length;
+  html += `<div class="grid2"><div class="stack"><section class="card"><div class="card-head"><h2>Notiser</h2>${unread ? `<button class="btn sm" data-act="mark-read">Markera alla som lästa</button>` : ''}</div>${N.length ? N.map(n => ideaRow(n)).join('') : '<p class="ink2">Inga notiser just nu. När ett larm slår till eller en nyhet berör dina innehav syns det här.</p>'}</section>
+    <section class="card"><div class="card-head"><h2>Dina larm</h2><span class="small muted">${S.alerts.length} st</span></div>${S.alerts.length ? `<div class="rows">${S.alerts.map(a => { const i = inst(a.inst), hit = alertHit({ ...a, on: true }); return `<div class="row" style="grid-template-columns:minmax(0,1fr) auto"><div><div class="nm">${esc(i?.name || 'Okänt')}${a.example ? ' <span class="pill demo">exempel</span>' : ''}</div><div class="meta">${esc(alertText(a, i))}</div><div style="margin-top:4px">${a.on === false ? '<span class="pill flat">Avstängt</span>' : hit ? '<span class="pill warn">Utlöst nu</span>' : '<span class="pill info">Väntar</span>'}</div></div><div style="display:flex;gap:4px;align-items:center"><button class="btn sm" data-act="alert-toggle" data-id="${esc(a.id)}">${a.on === false ? 'Slå på' : 'Stäng av'}</button><button class="iconbtn" data-act="alert-del" data-id="${esc(a.id)}" aria-label="Ta bort larm">${ico('trash', 'icon sm')}</button></div></div>`; }).join('')}</div>` : '<p class="ink2 small">Du har inga larm än.</p>'}</section></div>`;
+  // suggestions
+  const sug = [];
+  for (const h of S.P.open.slice(0, 5)) {
+    if (!h.i) continue;
+    const hasUnder = S.alerts.some(a => a.inst === h.inst && a.type === 'under'), hasNews = S.alerts.some(a => a.inst === h.inst && a.type === 'news');
+    if (!hasUnder) { const v = +(h.avg * 0.9).toFixed(decFor(h.avg)); sug.push({ inst: h.inst, type: 'under', value: v, text: `${h.name} under ${fmtCur(v, h.cur)}`, why: '10 % under ditt snittpris. En vanlig gräns för att tänka efter.' }); }
+    if (!hasNews) sug.push({ inst: h.inst, type: 'news', value: 0, text: `Nyheter som berör ${h.name}`, why: 'Säger till när dagens omvärldsanalys nämner branschen.' });
+  }
+  html += `<div class="stack"><section class="card"><h2>Föreslagna larm</h2>${sug.length ? `<div class="rows">${sug.slice(0, 6).map(s => `<div class="row"><div><div class="nm">${esc(s.text)}</div><div class="meta">${esc(s.why)}</div></div><button class="btn sm" data-act="alert-quick" data-inst="${esc(s.inst)}" data-type="${s.type}" data-value="${s.value}">Lägg till</button></div>`).join('')}</div>` : `<p class="ink2 small">${S.P.open.length ? 'Dina innehav har redan larm. Bra jobbat.' : 'När du har innehav föreslår appen lämpliga larm här.'}</p>`}</section>
+    <section class="card"><h2>Notiser i mobilen</h2><p class="small ink2">Larmen kollas varje gång du öppnar appen och när nya kurser har hämtats. Appen kan inte skicka notiser när den är stängd.</p><p class="small ink2" style="margin-top:8px">Tips: lägg appen på hemskärmen. I Safari väljer du Dela och sedan Lägg till på hemskärmen. I Chrome väljer du menyn och sedan Lägg till på startskärmen.</p></section></div></div>`;
+  return html;
+};
+
+VIEWS.lar = () => {
+  const ev = EVENTS.find(e => e.id === S.ui.sim) || EVENTS[0];
+  const base = S.P.open.length ? S.P.open.map(h => h.i).filter(Boolean) : allInst();
+  const g = { up: [], down: [], mixed: [], none: [] };
+  for (const i of base) { const e = effectOf(ev, i); if (!e) g.none.push(i); else (e[0] > 0 ? g.up : e[0] < 0 ? g.down : g.mixed).push({ i, e }); }
+  const col = (title, arr, tone) => `<div class="simcol"><h3><span class="${tone}">${tone === 'up' ? '▲' : tone === 'down' ? '▼' : '•'}</span> ${title}</h3>${arr.length ? `<ul>${arr.map(({ i, e }) => `<li><b>${esc(i.name)}</b><span>${esc(e[1])}</span></li>`).join('')}</ul>` : '<p class="small muted">Inga.</p>'}</div>`;
+  const other = Object.entries(ev.fx).filter(([k]) => !k.startsWith('_') && !base.some(i => i.sector === k));
+  let html = phead('Lär dig', 'Förstå hur händelser i världen påverkar aktier, och lär dig orden som används.');
+  html += `<section class="card" style="margin-bottom:16px"><h2>Vad händer om …?</h2><p class="small ink2" style="margin-bottom:12px">Välj en händelse. Du ser hur den brukar påverka ${S.P.open.length ? 'dina innehav' : 'aktierna i appen'}.</p>
+    <div class="evchips" role="group" aria-label="Välj händelse">${EVENTS.map(e => `<button class="chip" data-act="sim" data-ev="${e.id}" aria-pressed="${e.id === ev.id}">${esc(e.name)}</button>`).join('')}</div>
+    <div class="stack" style="margin-top:14px"><div><h3 style="font-size:var(--t-lg)">${esc(ev.name)}</h3><p class="ink2" style="margin-top:4px">${esc(ev.what)}</p></div>
+    <div><h3 style="margin-bottom:8px">Så brukar det gå till</h3><div class="chain">${ev.chain.map((s, n) => `${n ? '<span class="ar" aria-hidden="true">→</span>' : ''}<span class="st">${esc(s)}</span>`).join('')}</div></div>
+    <div class="simgrid">${col('Kan gynnas', g.up, 'up')}${col('Kan missgynnas', g.down, 'down')}${g.mixed.length ? col('Osäkert, beror på utfallet', g.mixed, 'flat') : ''}${g.none.length ? `<div class="simcol"><h3>• Liten direkt påverkan</h3><p class="small ink2">${esc(g.none.map(i => i.name).join(', '))}</p></div>` : ''}</div>
+    ${other.length ? `<p class="small ink2"><b>Andra branscher:</b> ${other.map(([k, v]) => `${esc(k)} ${v[0] > 0 ? '▲' : v[0] < 0 ? '▼' : '•'}`).join(' · ')}</p>` : ''}
+    <div class="note">${ico('info', 'icon sm')}<span><strong>Exempel från verkligheten.</strong> ${esc(ev.example)}</span></div>
+    <div class="note">${ico('compass', 'icon sm')}<span><strong>Att tänka på.</strong> ${esc(ev.calm)}</span></div>
+    <p><button class="btn sm" data-act="ask" data-q="${esc('Förklara enkelt hur "' + ev.name + '" kan påverka mina innehav, och vad jag kan tänka på.')}">${ico('chat', 'icon sm')}Fråga Claude om det här</button></p></div></section>`;
+  const RULES = [
+    ['Sprid riskerna', 'Ha pengarna i flera bolag, branscher och länder. Många håller varje enskilt innehav under 10–20 %. En bred indexfond sprider risken automatiskt.'],
+    ['Tänk i år, inte dagar', 'På kort sikt går börsen upp och ner nästan slumpmässigt. Över många år har breda index ändå stigit.'],
+    ['Håll koll på avgifterna', 'En fondavgift på 1 % om året låter lite, men över 20 år kan den äta upp en stor del av avkastningen. Courtage på många små affärer gör samma sak.'],
+    ['Ha en plan innan du köper', 'Skriv ner varför du köper, hur länge du tänker äga aktien och när du skulle sälja. Affärsdagboken är till för det.'],
+    ['Sälj inte i panik', 'Breda index har hittills alltid återhämtat sig efter stora fall, men ibland har det tagit flera år. Pengar du behöver snart ska inte ligga i aktier.'],
+  ];
+  html += `<div class="grid2"><section class="card"><div class="card-head"><h2>Ordlista</h2><span class="small muted">${GLOSS.length} ord</span></div><label class="sr" for="gq">Sök i ordlistan</label><input id="gq" class="inp" type="search" placeholder="Sök ord, t.ex. utdelning" value="${esc(S.ui.gq)}" autocomplete="off" style="margin-bottom:8px">
+    <div>${GLOSS.filter(g => !S.ui.gq || (g[1] + ' ' + g[2]).toLowerCase().includes(S.ui.gq.toLowerCase())).map(g => `<div class="gl" id="ord-${g[0]}"><b>${esc(g[1])}</b><p>${esc(g[2])}</p></div>`).join('') || '<p class="ink2 small">Inget ord matchar. Fråga Claude i hjälpen i stället.</p>'}</div></section>
+    <div class="stack"><section class="card"><h2>Fem grundregler</h2><div class="stack" style="gap:14px">${RULES.map(r => `<div class="rule"><span class="tone info" aria-hidden="true">${ico('compass', 'icon sm')}</span><div><b>${esc(r[0])}</b><p>${esc(r[1])}</p></div></div>`).join('')}</div></section>
+    <section class="card"><h2>Så läser du signalerna</h2><p class="small ink2">Appen tittar på fyra saker och ger plus eller minus för var och en:</p><ul class="small ink2" style="margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li><b>${term('trend', 'Trend')}</b>: har kursen stigit eller fallit under lång tid?</li><li><b>${term('rsi', 'Tempo')}</b>: har den rusat eller rasat de senaste veckorna? Då kommer ofta en rekyl.</li><li><b>Senaste månaden</b>: en stark eller svag månad.</li><li><b>Omvärlden</b>: berörs branschen av dagens nyheter?</li></ul><p class="small ink2" style="margin-top:8px">Summan blir en skala från stark säljsignal till stark köpsignal. Signaler är verktyg för att tänka, inte facit.</p></section></div></div>`;
+  return html;
+};
+
+/* =========================================================
+   Router & chrome
+   ========================================================= */
+const NAV = [['hem', 'Hem', 'home'], ['portfolj', 'Portfölj', 'case'], ['marknad', 'Marknad', 'chart'], ['omvarld', 'Omvärld', 'globe'], ['larm', 'Larm', 'bell'], ['lar', 'Lär dig', 'book']];
+function parseRoute() {
+  const h = (location.hash || '').slice(1);
+  if (h.startsWith('aktie-')) return { view: 'aktie', param: h.slice(6) };
+  return { view: VIEWS[h] ? h : 'hem', param: null };
+}
+function navHtml(mobile) {
+  return NAV.filter(n => !(mobile && n[0] === 'larm')).map(([k, l, ic]) => {
+    const cur = S.route.view === k || (k === 'marknad' && S.route.view === 'aktie');
+    const unread = k === 'larm' ? S.N.filter(n => n.unread).length : 0;
+    return `<a href="#${k}" ${cur ? 'aria-current="page"' : ''}>${ico(ic)}<span>${l}</span>${unread && !mobile ? `<span class="badge">${unread}</span>` : ''}</a>`;
+  }).join('');
+}
+function updateChrome() {
+  $('#sidenav').innerHTML = navHtml(false);
+  $('#tabbar').innerHTML = navHtml(true);
+  const unread = S.N.filter(n => n.unread).length;
+  $('#bell').innerHTML = ico('bell') + (unread ? `<span class="badge">${unread}</span>` : '');
+  $('#bell').setAttribute('aria-label', unread ? `Larm, ${unread} nya` : 'Larm');
+  const msw = `<button type="button" data-act="mode" data-m="enkel" aria-pressed="${!adv()}">Enkelt</button><button type="button" data-act="mode" data-m="avancerat" aria-pressed="${adv()}">Avancerat</button>`;
+  $('#modesw1').innerHTML = msw;
+}
+let rq = 0;
+function schedRender() { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; render(); }); }
+function render() {
+  S.P = computeHoldings(); S.N = notifications(); CH = new Map();
+  const main = $('#main'), ae = document.activeElement;
+  const fid = ae && main.contains(ae) && ae.id ? ae.id : null;
+  let sel = null; try { if (fid && ae.selectionStart != null) sel = [ae.selectionStart, ae.selectionEnd]; } catch {}
+  main.innerHTML = (VIEWS[S.route.view] || VIEWS.hem)();
+  drawCharts();
+  if (fid) { const el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); if (sel) try { el.setSelectionRange(sel[0], sel[1]); } catch {} } }
+  updateChrome();
+  if (!$('#helpwrap').hidden && S.ui.helpTab === 'sida' && S._helpView !== S.route.view) renderHelp();
+}
+addEventListener('hashchange', () => { S.route = parseRoute(); closePop(); render(); scrollTo(0, 0); $('#main').focus({ preventScroll: true }); });
+
+/* =========================================================
+   Dialogs & forms
+   ========================================================= */
+const dlg = $('#dlg');
+function openDialog(html, mount) { dlg.innerHTML = html; if (!dlg.open) dlg.showModal(); mount && mount(dlg); const f = dlg.querySelector('input:not([type=radio]),select,textarea,button.primary'); f && f.focus(); }
+function closeDialog() { if (dlg.open) dlg.close(); }
+dlg.addEventListener('click', e => { if (e.target === dlg) closeDialog(); });
+function instOptions(sel) {
+  const A = allInst(); const grp = (l, arr) => arr.length ? `<optgroup label="${l}">${arr.sort((a, b) => a.name.localeCompare(b.name, 'sv')).map(i => `<option value="${esc(i.id)}" ${i.id === sel ? 'selected' : ''}>${esc(i.name)}${i.ticker && !i.custom ? ' (' + esc(i.ticker) + ')' : ''}</option>`).join('')}</optgroup>` : '';
+  return grp('Aktier', A.filter(i => i.type !== 'fond' && !i.custom)) + grp('Fonder', A.filter(i => i.type === 'fond' && !i.custom)) + grp('Egna', A.filter(i => i.custom));
+}
+function tradeForm(t, presetInst) {
+  const edit = !!t; t = t || { side: 'kop', inst: presetInst || (S.settings.watch || [])[0] || Object.keys(S.quotes)[0], date: todayISO(), fee: 0 };
+  if (!allInst().length) { toast('Lägg först till en aktie eller fond.'); return customForm(); }
+  openDialog(`<form class="form" id="f-trade" novalidate><h2>${edit ? 'Ändra affär' : 'Ny affär'}</h2>
+    <div class="seg" role="radiogroup" aria-label="Köp eller sälj"><input type="radio" name="side" id="side-kop" value="kop" ${t.side === 'kop' ? 'checked' : ''}><label for="side-kop">Köp</label><input type="radio" name="side" id="side-salj" value="salj" ${t.side === 'salj' ? 'checked' : ''}><label for="side-salj">Sälj</label></div>
+    <label class="fld"><span>Aktie eller fond</span><select id="t-inst">${instOptions(t.inst)}<option value="__new">＋ Lägg till en som saknas …</option></select></label>
+    <div class="row2"><label class="fld"><span>Antal</span><input id="t-qty" inputmode="decimal" autocomplete="off" value="${t.qty != null ? esc(String(t.qty).replace('.', ',')) : ''}" placeholder="t.ex. 10"></label>
+    <label class="fld"><span>Kurs per st (<span id="t-cur">kr</span>)</span><input id="t-price" inputmode="decimal" autocomplete="off" value="${t.price != null ? esc(String(t.price).replace('.', ',')) : ''}"></label></div>
+    <div class="row2"><label class="fld"><span>Datum</span><input id="t-date" type="date" value="${esc(t.date)}" max="${todayISO()}"></label>
+    <label class="fld"><span>Courtage (avgift)</span><input id="t-fee" inputmode="decimal" autocomplete="off" value="${esc(String(t.fee ?? 0).replace('.', ','))}"></label></div>
+    <label class="fld"><span>Varför gör du affären? (valfritt)</span><textarea id="t-note" rows="2" placeholder="T.ex. långsiktigt sparande, tror på bolaget">${esc(t.note || '')}</textarea><span class="hint">Bra att läsa senare när du utvärderar dina beslut.</span></label>
+    <p class="f-sum" id="t-sum">Fyll i antal och kurs.</p><p class="f-err" id="t-err" hidden></p>
+    <div class="f-actions"><button type="button" class="btn ghost" data-act="close">Avbryt</button><button class="btn primary" type="submit">${edit ? 'Spara ändringen' : 'Spara affären'}</button></div></form>`, d => {
+    const $i = $('#t-inst', d), $q = $('#t-qty', d), $p = $('#t-price', d), $f = $('#t-fee', d);
+    const upd = () => {
+      const i = inst($i.value); const cur = i?.currency || 'SEK'; $('#t-cur', d).textContent = cur === 'SEK' ? 'kr' : cur;
+      const q = parseNum($q.value), p = parseNum($p.value), f = parseNum($f.value) || 0, side = d.querySelector('[name=side]:checked').value;
+      $('#t-sum', d).textContent = (q > 0 && p > 0) ? `${side === 'kop' ? 'Du betalar' : 'Du får'} ungefär ${fmtCur(q * p + (side === 'kop' ? f : -f), cur, 2)}${cur !== 'SEK' ? ` (≈ ${fmtKr((q * p) * fx(cur))})` : ''}.` : 'Fyll i antal och kurs.';
+    };
+    const prefill = () => { const i = inst($i.value); if (i && !edit) { $p.value = String(priceOf(i).price).replace('.', ','); } upd(); };
+    $i.addEventListener('change', () => { if ($i.value === '__new') { customForm(id => tradeForm(null, id)); return; } prefill(); });
+    d.addEventListener('input', upd); if (!edit && t.price == null) prefill(); else upd();
+    $('#f-trade', d).addEventListener('submit', e => {
+      e.preventDefault();
+      const side = d.querySelector('[name=side]:checked').value, id = $i.value, q = parseNum($q.value), p = parseNum($p.value), f = parseNum($f.value) || 0, date = $('#t-date', d).value;
+      const err = m => { const el = $('#t-err', d); el.textContent = m; el.hidden = false; };
+      if (!inst(id)) return err('Välj en aktie eller fond.');
+      if (!(q > 0)) return err('Skriv hur många du köpte eller sålde, till exempel 10.');
+      if (!(p > 0)) return err('Skriv kursen per aktie eller fondandel, till exempel 245,50.');
+      if (f < 0) return err('Courtaget kan inte vara negativt.');
+      if (!date) return err('Välj ett datum.');
+      if (side === 'salj') {
+        const others = S.trades.filter(x => x.inst === id && x.id !== t.id && x.date <= date);
+        const have = sum(others, x => (x.side === 'kop' ? 1 : -1) * x.qty);
+        if (q > have + 1e-9) return err(`Du ägde ${fmt(Math.max(0, have), 0)} st det datumet, så du kan inte sälja ${fmt(q, 0)} st. Registrera köpet först.`);
+      }
+      const rec = { id: t.id || newId(), inst: id, side, qty: q, price: p, fee: f, date, note: $('#t-note', d).value.trim().slice(0, 500), createdAt: t.createdAt || Date.now() };
+      if (t.example) rec.example = true;
+      Store.put('trades', rec); closeDialog(); toast(edit ? 'Affären är ändrad.' : (side === 'kop' ? 'Köpet är sparat.' : 'Försäljningen är sparad.'));
+    });
+  });
+}
+function customForm(after) {
+  openDialog(`<form class="form" id="f-custom" novalidate><h2>Lägg till egen aktie eller fond</h2><p class="ink2 small">För värdepapper som inte finns i appen. Du anger kursen själv och kan uppdatera den när du vill.</p>
+    <label class="fld"><span>Namn</span><input id="c-name" autocomplete="off" placeholder="t.ex. Swedbank Robur Ny Teknik"></label>
+    <div class="row2"><label class="fld"><span>Typ</span><select id="c-type"><option value="aktie">Aktie</option><option value="fond">Fond</option></select></label>
+    <label class="fld"><span>Bransch</span><select id="c-sector">${SECTORS.map(s => `<option>${esc(s)}</option>`).join('')}</select></label></div>
+    <label class="fld"><span>Aktuell kurs i kronor</span><input id="c-price" inputmode="decimal" autocomplete="off" placeholder="t.ex. 412,30"><span class="hint">Hittar du kursen hos din bank eller på nätet.</span></label>
+    <p class="f-err" id="c-err" hidden></p>
+    <div class="f-actions"><button type="button" class="btn ghost" data-act="close">Avbryt</button><button class="btn primary" type="submit">Lägg till</button></div></form>`, d => {
+    $('#f-custom', d).addEventListener('submit', e => {
+      e.preventDefault();
+      const name = $('#c-name', d).value.trim(), p = parseNum($('#c-price', d).value);
+      const err = m => { const el = $('#c-err', d); el.textContent = m; el.hidden = false; };
+      if (!name) return err('Skriv ett namn.'); if (!(p > 0)) return err('Skriv dagens kurs, till exempel 412,30.');
+      const rec = { id: 'c-' + newId(), name: name.slice(0, 80), ticker: '', type: $('#c-type', d).value, sector: $('#c-sector', d).value, currency: 'SEK', price: p, date: todayISO() };
+      Store.settings({ custom: [...(S.settings.custom || []), rec], watch: [...(S.settings.watch || []), rec.id] });
+      closeDialog(); toast(`${rec.name} är tillagd.`); if (after) setTimeout(() => after(rec.id), 50);
+    });
+  });
+}
+function priceForm(id) {
+  const i = inst(id); if (!i) return; const o = S.settings.overrides?.[id], pr = priceOf(i);
+  openDialog(`<form class="form" id="f-price" novalidate><h2>Ange kurs för ${esc(i.name)}</h2><p class="ink2 small">${i.demo ? 'Kurserna i appen är exempeldata. Skriv in den riktiga kursen från din bank, så räknas ditt innehav och dina larm med den.' : 'Skriv in en egen kurs, till exempel dagens kurs från din bank.'}</p>
+    <div class="row2"><label class="fld"><span>Kurs (${i.currency === 'SEK' ? 'kr' : esc(i.currency)})</span><input id="p-price" inputmode="decimal" autocomplete="off" value="${esc(String(pr.price).replace('.', ','))}"></label><label class="fld"><span>Datum</span><input id="p-date" type="date" value="${todayISO()}" max="${todayISO()}"></label></div>
+    <p class="f-err" id="p-err" hidden></p>
+    <div class="f-actions">${o && !i.custom ? '<button type="button" class="btn danger" id="p-clear">Använd appens kurs</button>' : ''}<button type="button" class="btn ghost" data-act="close">Avbryt</button><button class="btn primary" type="submit">Spara kursen</button></div></form>`, d => {
+    $('#p-clear', d)?.addEventListener('click', () => { const ov = { ...S.settings.overrides }; delete ov[id]; Store.settings({ overrides: ov }); closeDialog(); toast('Appens kurs används igen.'); });
+    $('#f-price', d).addEventListener('submit', e => {
+      e.preventDefault(); const p = parseNum($('#p-price', d).value), date = $('#p-date', d).value || todayISO();
+      if (!(p > 0)) { const el = $('#p-err', d); el.textContent = 'Skriv en kurs större än noll.'; el.hidden = false; return; }
+      Store.settings({ overrides: { ...(S.settings.overrides || {}), [id]: { price: p, date } } }); closeDialog(); toast('Kursen är sparad.');
+    });
+  });
+}
+function alertForm(presetInst) {
+  if (!allInst().length) return toast('Det finns inga aktier att skapa larm för ännu.');
+  const sel = presetInst || S.P.open[0]?.inst || (S.settings.watch || [])[0];
+  openDialog(`<form class="form" id="f-alert" novalidate><h2>Nytt larm</h2>
+    <label class="fld"><span>Aktie eller fond</span><select id="a-inst">${instOptions(sel)}</select></label>
+    <label class="fld"><span>Säg till när den …</span><select id="a-type">${Object.entries(ALERT_TYPES).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></label>
+    <label class="fld" id="a-vwrap"><span id="a-vlabel">Gräns</span><input id="a-value" inputmode="decimal" autocomplete="off"><span class="hint" id="a-hint"></span></label>
+    <p class="f-err" id="a-err" hidden></p>
+    <div class="f-actions"><button type="button" class="btn ghost" data-act="close">Avbryt</button><button class="btn primary" type="submit">Skapa larmet</button></div></form>`, d => {
+    const $i = $('#a-inst', d), $t = $('#a-type', d), $v = $('#a-value', d);
+    const upd = (fill) => {
+      const i = inst($i.value), ty = $t.value, pr = i ? priceOf(i).price : 0;
+      $('#a-vwrap', d).hidden = !(ty === 'over' || ty === 'under' || ty === 'move');
+      if (ty === 'move') { $('#a-vlabel', d).textContent = 'Procent'; if (fill) $v.value = '4'; $('#a-hint', d).textContent = 'Larmar om kursen ändras mer än så på en dag, upp eller ner.'; }
+      else { $('#a-vlabel', d).textContent = `Gräns (${i?.currency === 'SEK' ? 'kr' : i?.currency || 'kr'})`; if (fill) $v.value = String(+(pr * (ty === 'over' ? 1.1 : 0.9)).toFixed(decFor(pr))).replace('.', ','); $('#a-hint', d).textContent = `Kursen är nu ${fmtCur(pr, i?.currency)}.`; }
+      if (ty === 'signal') $('#a-hint', d).textContent = '';
+    };
+    $i.addEventListener('change', () => upd(true)); $t.addEventListener('change', () => upd(true)); upd(true);
+    $('#f-alert', d).addEventListener('submit', e => {
+      e.preventDefault(); const ty = $t.value, v = parseNum($v.value);
+      if ((ty === 'over' || ty === 'under' || ty === 'move') && !(v > 0)) { const el = $('#a-err', d); el.textContent = 'Skriv en gräns större än noll.'; el.hidden = false; return; }
+      Store.put('alerts', { id: newId(), inst: $i.value, type: ty, value: (ty === 'signal' || ty === 'news') ? 0 : v, on: true, createdAt: Date.now() });
+      closeDialog(); toast('Larmet är skapat.');
+    });
+  });
+}
+function confirmDialog(title, text, okLabel, onOk) {
+  openDialog(`<div class="form"><h2>${esc(title)}</h2><p class="ink2">${esc(text)}</p><div class="f-actions"><button type="button" class="btn ghost" data-act="close">Avbryt</button><button type="button" class="btn primary" id="ok">${esc(okLabel)}</button></div></div>`, d => { $('#ok', d).addEventListener('click', () => { closeDialog(); onOk(); }); });
+}
+async function loadExample() {
+  if (!Object.keys(S.quotes).length) return toast('Kursdata saknas, så exemplet kan inte laddas just nu.');
+  const now = Date.now();
+  for (const [k, t] of EXAMPLE_TRADES.entries()) {
+    const i = inst(t.inst); if (!i) continue;
+    const p = closeOn(i, t.date) ?? i.price;
+    await Store.put('trades', { id: 'ex-' + k, ...t, price: +(+p).toFixed(decFor(p)), example: true, createdAt: now + k });
+  }
+  const sb = inst('saab-b'), vb = inst('volv-b');
+  if (sb) await Store.put('alerts', { id: 'ex-a1', inst: 'saab-b', type: 'over', value: Math.round(sb.price * 0.98), on: true, example: true, createdAt: now });
+  if (vb) await Store.put('alerts', { id: 'ex-a2', inst: 'volv-b', type: 'under', value: Math.round(vb.price * 0.95), on: true, example: true, createdAt: now });
+  await Store.put('alerts', { id: 'ex-a3', inst: 'nvda', type: 'news', value: 0, on: true, example: true, createdAt: now });
+  toast('Exempelportföljen är inlagd. Ta bort den när du vill under Portfölj.');
+}
+function clearExample() {
+  confirmDialog('Ta bort exemplen?', 'Alla affärer och larm som är märkta "exempel" tas bort. Dina egna affärer påverkas inte.', 'Ta bort exemplen', async () => {
+    for (const t of S.trades.filter(t => t.example)) await Store.del('trades', t.id);
+    for (const a of S.alerts.filter(a => a.example)) await Store.del('alerts', a.id);
+    toast('Exemplen är borttagna.');
+  });
+}
+
+/* =========================================================
+   Tour
+   ========================================================= */
+const TOUR = [
+  { ic: 'compass', t: 'Välkommen till Börskompassen', p: 'Här håller du koll på dina aktier och fonder, får signaler och förstår hur det som händer i världen påverkar dina pengar.' },
+  { ic: 'case', t: 'Lägg in dina affärer', p: 'Registrera det du köper och säljer. Appen räknar ut värde, vinst och om du har för mycket i samma bransch.' },
+  { ic: 'globe', t: 'Signaler och omvärld', p: 'Varje aktie får en signal från sälj till köp, med förklaring. Under Omvärld förklaras viktiga händelser, och du ser vilka av dina innehav som berörs.' },
+  { ic: 'bell', t: 'Larm och hjälp', p: 'Skapa larm för gränser du bryr dig om. Fastnar du finns hjälpen alltid nära: tryck på frågetecknet, eller på ett prickat ord för att se vad det betyder.' },
+];
+function maybeTour() { if (S.settingsLoaded && !S.settings.tourDone && !S._tourShown) { S._tourShown = true; setTimeout(() => tour(0), 400); } }
+function tour(k) {
+  if (k >= TOUR.length) {
+    openDialog(`<div class="tour"><div class="ill">${ico('book')}</div><h2>Hur van är du vid aktier?</h2><p>Du kan ändra det när som helst.</p><div class="choice"><button type="button" data-act="tour-mode" data-m="enkel"><b>Jag är ny</b><span>Förklaringar i vardagsspråk, färre siffror.</span></button><button type="button" data-act="tour-mode" data-m="avancerat"><b>Jag har koll</b><span>Visar även glidande medelvärden, RSI och nyckeltal.</span></button></div></div>`);
+    return;
+  }
+  const s = TOUR[k];
+  openDialog(`<div class="tour"><div class="ill">${ico(s.ic)}</div><h2>${esc(s.t)}</h2><p>${esc(s.p)}</p><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px"><div class="dots" aria-label="Steg ${k + 1} av ${TOUR.length + 1}">${[...TOUR, 0].map((_, j) => `<i class="${j === k ? 'on' : ''}"></i>`).join('')}</div><div style="display:flex;gap:8px">${k === 0 ? '<button type="button" class="btn ghost" data-act="tour-skip">Hoppa över</button>' : `<button type="button" class="btn ghost" data-act="tour-go" data-k="${k - 1}">Tillbaka</button>`}<button type="button" class="btn primary" data-act="tour-go" data-k="${k + 1}">Nästa</button></div></div></div>`);
+}
+
+/* =========================================================
+   Help drawer & Claude chat
+   ========================================================= */
+function openHelp(tab) { S.ui.helpTab = tab || 'sida'; $('#helpwrap').hidden = false; renderHelp(); $('#drawer').focus(); }
+function closeHelp() { $('#helpwrap').hidden = true; S.chatCtl?.abort(); }
+function renderHelp() {
+  const tabs = [['sida', 'Den här sidan'], ...(S.sample && !S.sampleOff ? [['fraga', 'Fråga Claude']] : []), ['faq', 'Vanliga frågor'], ['ord', 'Ordlista'], ['inst', 'Inställningar']];
+  if (!tabs.some(t => t[0] === S.ui.helpTab)) S.ui.helpTab = 'sida';
+  const t = S.ui.helpTab, view = S.route.view; S._helpView = view;
+  let body = '';
+  if (t === 'sida') {
+    const name = { hem: 'Hem', portfolj: 'Portfölj', marknad: 'Marknad', aktie: 'Aktiesidan', omvarld: 'Omvärld', larm: 'Larm', lar: 'Lär dig' }[view];
+    body = `<div><p class="eyebrow">Du är på</p><h3 style="font-size:var(--t-lg)">${name}</h3></div><ul>${(HELP[view] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      ${S.sample && !S.sampleOff ? `<div class="note">${ico('chat', 'icon sm')}<span><strong>Undrar du något mer?</strong> Fråga Claude med egna ord. <button class="linkbtn" data-act="help-tab" data-tab="fraga">Ställ en fråga</button></span></div>` : ''}
+      <button class="btn" data-act="tour-go" data-k="0">Visa introduktionen igen</button>`;
+  } else if (t === 'fraga') {
+    const sug = ['Vad är skillnaden på en aktie och en fond?', 'Är min portfölj för riskfylld?', 'Hur påverkar oljepriset mina aktier?', 'Vad betyder köpsignal?'];
+    body = `<div class="chat" id="chat">${S.chat.length ? S.chat.map(msgHtml).join('') : `<div class="msg a">Hej! Jag förklarar gärna allt om aktier, fonder och appen med enkla ord. Jag ser dina innehav och dagens nyheter. Vad undrar du?</div><div class="chips">${sug.map(q => `<button class="chip" data-act="ask" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>`}</div>
+      <p class="xs muted">Claude kan ha fel och ger inte personlig finansiell rådgivning. Frågorna använder din egen Claude-användning.</p>`;
+  } else if (t === 'faq') body = FAQ().map(([q, a], j) => `<details class="faq" ${j < 1 ? 'open' : ''}><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
+  else if (t === 'ord') body = `<label class="sr" for="hq">Sök i ordlistan</label><input id="hq" class="inp" type="search" placeholder="Sök ord" value="${esc(S.ui.hq)}" autocomplete="off"><div id="hglist">${glossList(S.ui.hq)}</div>`;
+  else body = `<div><h3 style="margin-bottom:8px">Visa</h3><div class="modesw">${`<button type="button" data-act="mode" data-m="enkel" aria-pressed="${!adv()}">Enkelt</button><button type="button" data-act="mode" data-m="avancerat" aria-pressed="${adv()}">Avancerat</button>`}</div><p class="small ink2" style="margin-top:8px">Enkelt visar förklaringar i vardagsspråk. Avancerat visar även glidande medelvärden, RSI och nyckeltal.</p></div>
+    <div><h3 style="margin-bottom:4px">Var sparas mina uppgifter?</h3><p class="small ink2">I den här webbläsaren, på den här enheten. Spara en säkerhetskopia ibland, och läs in den om du byter mobil eller vill se samma portfölj på datorn.</p><div class="chips" style="margin-top:10px"><button class="btn sm" data-act="export">Spara säkerhetskopia</button><label class="btn sm" for="importfile">Läs in säkerhetskopia</label><input type="file" id="importfile" accept="application/json,.json" hidden></div></div>
+    <div><h3 style="margin-bottom:4px">Kursdata</h3><p class="small ink2">${S.meta?.pricesDemo ? 'Exempelkurser, påhittade för att visa hur appen fungerar.' : 'Från Yahoo Finance, fördröjda.'} Senast uppdaterade ${S.meta?.pricesUpdatedAt ? fmtDateY(S.meta.pricesUpdatedAt.slice(0, 10)) : '–'}.</p></div>`;
+  $('#drawer').innerHTML = `<div class="dr-head"><h2 id="help-title">Hjälp</h2><button class="iconbtn" data-act="close-help" aria-label="Stäng hjälpen">${ico('x')}</button></div>
+    <div class="dr-tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-act="help-tab" data-tab="${k}" aria-selected="${k === t}">${l}</button>`).join('')}</div>
+    <div class="dr-body" id="drbody">${body}</div>
+    ${t === 'fraga' ? `<form class="chatbox" id="chatform"><label class="sr" for="chatin">Din fråga</label><textarea id="chatin" rows="1" placeholder="Skriv din fråga …"></textarea>${S.chatCtl ? `<button type="button" class="btn" data-act="chat-stop" aria-label="Stoppa svaret">${ico('stop', 'icon sm')}</button>` : `<button class="btn primary" type="submit" aria-label="Skicka">${ico('send', 'icon sm')}</button>`}</form>` : ''}`;
+  $('#drawer').tabIndex = -1;
+  const f = $('#chatform'); if (f) {
+    const ta = $('#chatin');
+    f.addEventListener('submit', e => { e.preventDefault(); const v = ta.value.trim(); if (v && !S.chatCtl) { ta.value = ''; askClaude(v); } });
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); f.requestSubmit(); } });
+    const b = $('#drbody'); b.scrollTop = b.scrollHeight; if (!S.chatCtl) ta.focus();
+  }
+}
+function glossList(q) { const L = GLOSS.filter(g => !q || (g[1] + ' ' + g[2]).toLowerCase().includes(q.toLowerCase())); return L.map(g => `<div class="gl"><b>${esc(g[1])}</b><p>${esc(g[2])}</p></div>`).join('') || '<p class="small ink2">Inget ord matchar.</p>'; }
+function md(s) {
+  const lines = esc(s).split('\n'); let out = '', ul = false;
+  const inl = x => x.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*/g, '$1<i>$2</i>');
+  for (const l of lines) {
+    const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+    if (m) { if (!ul) { out += '<ul>'; ul = true; } out += `<li>${inl(m[1])}</li>`; continue; }
+    if (ul) { out += '</ul>'; ul = false; }
+    if (l.trim()) out += `<p>${inl(l.replace(/^#+\s*/, ''))}</p>`;
+  }
+  return out + (ul ? '</ul>' : '');
+}
+function msgHtml(m) {
+  if (m.role === 'user') return `<div class="msg u">${esc(m.content)}</div>`;
+  return `<div class="msg a">${m.pending && !m.content ? '<span class="thinking" aria-label="Claude tänker"><i></i><i></i><i></i>&nbsp;Tänker …</span>' : md(m.content)}${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}</div>`;
+}
+function chatContext() {
+  const P = S.P, b = latestBrief();
+  const hold = P.open.length ? P.open.map(h => `- ${h.name} (${h.i?.sector || 'okänd bransch'}): ${fmt(h.qty, 0)} st, GAV ${fmtCur(h.avg, h.cur)}, kurs ${fmtCur(h.price, h.cur)}, vinst ${fmtPct(h.unrealPct)}, ${fmtPct(h.share * 100, 0, false)} av portföljen, signal: ${h.i ? (LEVELS[signalFor(h.i).level]?.label || 'ingen') : 'ingen'}`).join('\n') : 'Användaren har inga innehav inlagda.';
+  const watch = (S.settings.watch || []).map(inst).filter(Boolean).map(i => `${i.name} (${LEVELS[signalFor(i).level]?.label || 'ingen signal'})`).join(', ');
+  const cur = S.route.view === 'aktie' ? (inst(S.route.param)?.name || '') : '';
+  return `Du är hjälpfunktionen i appen Börskompassen, en svensk app för att hålla koll på aktier och fonder.
+Svara alltid på svenska, enkelt och kort (högst cirka 150 ord om användaren inte ber om mer), som till någon helt utan förkunskaper. Förklara facktermer direkt i texten. Använd korta stycken eller korta punktlistor.
+Ge inga garantier om framtiden. Du får resonera om för- och nackdelar med att köpa eller sälja, men säg kort att det inte är personlig finansiell rådgivning när frågan gäller ett konkret köp eller en försäljning. Uppmuntra riskspridning, låga avgifter och långsiktighet. Uppmana aldrig till panikförsäljning.
+${S.meta?.pricesDemo ? 'VIKTIGT: Kurserna och kursgraferna i appen är EXEMPELDATA, alltså påhittade. Nämn det om användaren frågar om kurser, kursutveckling eller signaler. Nyheterna i omvärldsanalysen är riktiga.\n' : ''}
+Appens signaler: en regelbaserad sammanvägning av trend (kurs mot MA50/MA200), RSI (över 70 överköpt, under 30 översåld), senaste månadens utveckling och om dagens omvärldsanalys berör branschen. Skala: stark säljsignal, säljsignal, avvakta, köpsignal, stark köpsignal.
+
+Användaren tittar just nu på: ${S.route.view}${cur ? ' (' + cur + ')' : ''}. Läge: ${adv() ? 'avancerat' : 'enkelt (nybörjare)'}.
+Portföljens värde: ${fmtKr(P.total)}. Innehav:
+${hold}
+Bevakade: ${watch || 'inga'}.
+${b ? `Senaste omvärldsanalys (${b.date}): ${b.title}. ${b.summary}\nHändelser: ${(b.items || []).map(it => `${it.title} [påverkar: ${(it.impacts || []).map(im => im.sector + (im.dir > 0 ? ' +' : im.dir < 0 ? ' −' : ' ?')).join(', ')}]`).join('; ')}` : ''}
+Dagens datum: ${todayISO()}.`;
+}
+const SAMPLE_ERR = { not_granted: 'Du har inte gett appen lov att fråga Claude, så den funktionen är avstängd.', sampling_disabled: 'Claude är inte tillgänglig för ditt konto.', not_declared: 'Funktionen är inte tillgänglig.', capability_disabled: 'Funktionen är inte tillgänglig här.', capability_removed: 'Funktionen är inte tillgänglig här.', rate_limited: 'Claude har fått många frågor på kort tid. Vänta en stund och försök igen.', session_expired: 'Du behöver logga in igen.', refused: 'Claude kunde inte svara på den frågan. Försök formulera den på ett annat sätt.', empty_completion: 'Svaret blev tomt. Försök med en kortare fråga.', prompt_too_large: 'Frågan blev för lång. Korta ner den.' };
+async function askClaude(q) {
+  if (!S.sample || S.sampleOff || S.chatCtl) return;
+  if ($('#helpwrap').hidden || S.ui.helpTab !== 'fraga') openHelp('fraga');
+  S.chat.push({ role: 'user', content: q }); const reply = { role: 'assistant', content: '', pending: true }; S.chat.push(reply);
+  if (S.chat.length > 16) S.chat.splice(0, S.chat.length - 16);
+  const ctl = new AbortController(); S.chatCtl = ctl; renderHelp();
+  const turns = [{ role: 'user', content: chatContext() }, ...S.chat.filter(m => m !== reply && m.content).map(m => ({ role: m.role, content: m.content }))];
+  const bubble = () => { const c = $('#chat'); if (c && c.lastElementChild) { c.lastElementChild.outerHTML = msgHtml(reply); const b = $('#drbody'); b.scrollTop = b.scrollHeight; } };
+  try {
+    const r = await S.sample(turns, { cache: false, signal: ctl.signal, onText: ({ text }) => { reply.content = text; reply.pending = false; bubble(); } });
+    reply.content = r.text; if (r.truncated) reply.error = 'Svaret blev avkortat. Be om en kortare förklaring.';
+  } catch (e) {
+    reply.content = e?.text || (e?.code === 'cancelled' ? 'Avbrutet.' : '');
+    if (e?.code !== 'cancelled') reply.error = SAMPLE_ERR[e?.code] || 'Något gick fel på vägen. Försök igen om en stund.';
+    if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(e?.code)) S.sampleOff = true;
+  } finally { reply.pending = false; S.chatCtl = null; if (!$('#helpwrap').hidden) renderHelp(); }
+}
+
+/* =========================================================
+   Popover, toast
+   ========================================================= */
+const pop = $('#pop');
+function showTerm(el) {
+  const g = GL[el.dataset.term]; if (!g) return;
+  pop.innerHTML = `<b>${esc(g[1])}</b>${esc(g[2])}`; pop.hidden = false;
+  const r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = Math.min(Math.max(16, r.left), innerWidth - pw - 16), top = r.bottom + 8; if (top + ph > innerHeight - 16) top = r.top - ph - 8;
+  pop.style.left = left + 'px'; pop.style.top = Math.max(16, top) + 'px'; S._popFor = el;
+}
+function closePop() { pop.hidden = true; S._popFor = null; }
+let tt; function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => { t.hidden = true; }, 3800); }
+
+/* =========================================================
+   Events
+   ========================================================= */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) { if (!e.target.closest('#pop')) closePop(); return; }
+  const a = el.dataset.act, d = el.dataset;
+  if (a !== 'term') closePop();
+  switch (a) {
+    case 'help': e.preventDefault(); openHelp(d.tab); break;
+    case 'close-help': closeHelp(); break;
+    case 'help-tab': S.ui.helpTab = d.tab; renderHelp(); break;
+    case 'close': closeDialog(); break;
+    case 'term': e.preventDefault(); e.stopPropagation(); if (S._popFor === el) closePop(); else showTerm(el); break;
+    case 'trade-new': tradeForm(null, d.inst); break;
+    case 'trade-edit': { const t = S.trades.find(x => x.id === d.id); if (t) tradeForm(t); break; }
+    case 'trade-del': { const t = S.trades.find(x => x.id === d.id); if (t) confirmDialog('Ta bort affären?', `${t.side === 'kop' ? 'Köpet' : 'Försäljningen'} av ${inst(t.inst)?.name || ''} den ${fmtDateY(t.date)} tas bort. Det går inte att ångra.`, 'Ta bort', () => { Store.del('trades', t.id); toast('Affären är borttagen.'); }); break; }
+    case 'alert-new': alertForm(d.inst); break;
+    case 'alert-del': Store.del('alerts', d.id); toast('Larmet är borttaget.'); break;
+    case 'alert-toggle': { const al = S.alerts.find(x => x.id === d.id); if (al) Store.put('alerts', { ...al, on: al.on === false }); break; }
+    case 'alert-quick': Store.put('alerts', { id: newId(), inst: d.inst, type: d.type, value: +d.value, on: true, createdAt: Date.now() }); toast('Larmet är skapat.'); break;
+    case 'mark-read': Store.settings({ seen: [...new Set([...(S.settings.seen || []), ...S.N.map(n => n.key)])].slice(-300) }); break;
+    case 'watch': { const w = new Set(S.settings.watch || []); const on = !w.has(d.inst); on ? w.add(d.inst) : w.delete(d.inst); Store.settings({ watch: [...w] }); toast(on ? 'Bevakas nu.' : 'Bevakas inte längre.'); break; }
+    case 'price-set': priceForm(d.inst); break;
+    case 'custom-new': customForm(); break;
+    case 'custom-del': confirmDialog('Ta bort från appen?', 'Den egna aktien eller fonden tas bort. Affärer du registrerat för den ligger kvar i dagboken.', 'Ta bort', () => { Store.settings({ custom: (S.settings.custom || []).filter(c => c.id !== d.inst), watch: (S.settings.watch || []).filter(x => x !== d.inst) }); location.hash = 'marknad'; }); break;
+    case 'range': S.ui.range = d.r; render(); break;
+    case 'prange': S.ui.prange = d.r; render(); break;
+    case 'mfilter': S.ui.mfilter = d.f; render(); break;
+    case 'sim': S.ui.sim = d.ev; render(); break;
+    case 'example-load': loadExample(); break;
+    case 'example-clear': clearExample(); break;
+    case 'mode': Store.settings({ mode: d.m }); if (!$('#helpwrap').hidden) renderHelp(); break;
+    case 'ask': if (S.sample && !S.sampleOff) askClaude(d.q); else { openHelp('faq'); toast('Frågefunktionen är inte tillgänglig här. Här är vanliga frågor i stället.'); } break;
+    case 'chat-stop': S.chatCtl?.abort(); break;
+    case 'export': Store.exportData(); break;
+    case 'tour-go': tour(+d.k); break;
+    case 'tour-skip': closeDialog(); Store.settings({ tourDone: true }); break;
+    case 'tour-mode': closeDialog(); Store.settings({ mode: d.m, tourDone: true }); toast(d.m === 'enkel' ? 'Enkelt läge är på.' : 'Avancerat läge är på.'); break;
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { S.ui.q = e.target.value; render(); }
+  else if (e.target.id === 'gq') { S.ui.gq = e.target.value; render(); }
+  else if (e.target.id === 'hq') { S.ui.hq = e.target.value; $('#hglist').innerHTML = glossList(S.ui.hq); }
+});
+document.addEventListener('toggle', e => {
+  const d = e.target; if (!d.classList || !d.classList.contains('wi')) return;
+  if (!S.ui.wopen) S.ui.wopen = new Set($$('details.wi[open]').map(x => x.dataset.id));
+  if (d.open) S.ui.wopen.add(d.dataset.id); else S.ui.wopen.delete(d.dataset.id);
+}, true);
+document.addEventListener('change', e => { if (e.target.id === 'importfile' && e.target.files[0]) { const f = e.target.files[0]; confirmDialog('Läsa in säkerhetskopian?', 'Affärerna, larmen och inställningarna i filen ersätter det som finns i den här webbläsaren nu.', 'Läs in', () => Store.importData(f)); e.target.value = ''; return; } if (e.target.id === 'briefsel') { S.ui.brief = +e.target.value; render(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (!pop.hidden) closePop(); else if (!$('#helpwrap').hidden) closeHelp(); }
+});
+dlg.addEventListener('close', () => { if (!S.settings.tourDone && dlg.querySelector('.tour')) Store.settings({ tourDone: true }); });
+
+/* =========================================================
+   Boot
+   ========================================================= */
+$('#mk1').innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-4 8-8 4 4-8z" fill="currentColor"/><circle cx="12" cy="12" r="1.6" style="fill:var(--accent)"/></svg>`;
+$('#mk2').innerHTML = $('#mk1').innerHTML;
+S.route = parseRoute();
+render();
+Store.init();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "events": [
+    {"date": "2026-11-03", "title": "USA:s mellanårsval", "why": "Kan påverka tullar, skatter och statens utgifter.", "kind": "politik"},
+    {"date": "2026-11-04", "title": "Riksbankens räntebesked kl. 09.30", "why": "Styrräntan är 1,75 %. Påverkar lån, banker, fastigheter och kronan.", "kind": "ranta"},
+    {"date": "2026-12-09", "title": "Fed räntebesked (möte 8–9 dec)", "why": "Marknaden diskuterar en möjlig höjning.", "kind": "ranta"}
+  ],
+  "updatedAt": "2026-11-01T10:30:00+01:00"
+}
