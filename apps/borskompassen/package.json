@@ -6,8 +6,8 @@
   "type": "module",
   "engines": { "node": ">=18" },
   "scripts": {
-    "update": "node scripts/fetch-yahoo.mjs",
+    "update": "python update_data.py",
     "start": "node server.mjs",
-    "test": "node --test test/yahoo.test.mjs"
+    "test": "python -m pytest ../../tests/test_borskompassen.py"
   }
 }

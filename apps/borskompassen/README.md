@@ -6,7 +6,15 @@ Appen är en enda webbsida (`index.html`) utan byggsteg. Kurserna ligger i JSON-
 
 ## Kom igång på din egen dator
 
-Du behöver [Node.js](https://nodejs.org) version 18 eller senare. Inga paket behöver installeras.
+Du behöver [Python](https://www.python.org) 3.12 eller senare och [Node.js](https://nodejs.org) version 18 eller senare. Kurserna hämtas med repots Python-paket `finance`, som du installerar en gång från repots rot:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+python -m pip install -e '.[data,dev]'
+```
+
+Gå sedan till `apps/borskompassen` (med samma miljö aktiverad):
 
 ```bash
 npm run update   # hämtar kurser från Yahoo Finance till data/
@@ -20,9 +28,10 @@ Innan du har kört `npm run update` visar appen exempelkurser, och det står tyd
 
 ## Lägg upp den på GitHub (gratis webbadress)
 
-1. Skapa ett nytt repo på GitHub och ladda upp innehållet i den här mappen, inklusive den dolda mappen `.github`.
-2. Gå till **Settings → Pages** och välj **Source: GitHub Actions**.
-3. Gå till **Actions → Uppdatera kurser och publicera → Run workflow**.
+Appen ligger i `apps/borskompassen` i repot, och automatiken i repots `.github/workflows/update-data.yml`.
+
+1. Gå till repots **Settings → Pages** och välj **Source: GitHub Actions**.
+2. Gå till **Actions → Uppdatera kurser och publicera → Run workflow**.
 
 Efter någon minut ligger appen på `https://<ditt-användarnamn>.github.io/<repo-namn>/`. Automatiken hämtar sedan nya kurser tre gånger varje vardag:
 
@@ -30,7 +39,7 @@ Efter någon minut ligger appen på `https://<ditt-användarnamn>.github.io/<rep
 - efter att Stockholmsbörsen har stängt
 - efter att New York-börsen har stängt
 
-Varje gång sparas kurserna i `data/` och sidan publiceras på nytt. Tiderna står i `.github/workflows/update-data.yml`.
+Varje gång sparas kurserna i `data/` och sidan publiceras på nytt. Den publiceras också när appen eller hämtkoden ändras på repots huvudgren (`master`). Tiderna står i `.github/workflows/update-data.yml`.
 
 Lägg sidan på hemskärmen i mobilen så fungerar den som en app. I Safari väljer du Dela och sedan Lägg till på hemskärmen. I Chrome väljer du menyn och sedan Lägg till på startskärmen.
 
@@ -70,7 +79,8 @@ I webbläsaren, på den enhet du använder. Inget skickas till någon server. Vi
 
 ## Bra att veta
 
-- Yahoo Finance har inget officiellt API. Chart-gränssnittet som skriptet använder (`/v8/finance/chart`) är öppet men kan ändras eller strypas utan förvarning. Om en aktie inte kan hämtas behåller skriptet den senaste lyckade kursen och skriver felet i `data/quotes.json`.
+- Yahoo Finance har inget officiellt API. Skriptet hämtar via repots `finance.data.YahooFinance`, som bygger på paketet yfinance. Gränssnitten kan ändras eller strypas utan förvarning. Om en aktie inte kan hämtas behåller skriptet den senaste lyckade kursen och skriver felet i `data/quotes.json`.
+- Direktavkastningen är utdelningarna det senaste året delat med kursen. P/E-talet hämtas för aktier och visas i läget Avancerat. Saknar Yahoo det, visas det inte.
 - Kurserna är fördröjda och uppdateras bara när skriptet körs. Appen är inte gjord för daytrading.
 - Yahoos villkor tillåter personligt bruk. Kontrollera villkoren innan du använder datan i en tjänst för andra.
 - Signalerna är regler som räknas fram från kurshistoriken och omvärldsanalysen. De är inte finansiell rådgivning och slår ofta fel.
@@ -81,9 +91,8 @@ I webbläsaren, på den enhet du använder. Inget skickas till någon server. Vi
 |---|---|
 | `index.html` | Hela appen: utseende, beräkningar, signaler, larm och hjälp |
 | `instruments.json` | Aktier, fonder och valutor som hämtas |
-| `scripts/fetch-yahoo.mjs` | Hämtar kurser och skriver `data/quotes.json` och `data/meta.json` |
-| `scripts/yahoo.mjs` | Anropet till Yahoo och omvandlingen till appens format |
+| `update_data.py` | Hämtar kurser via repots `finance`-paket och skriver `data/quotes.json` och `data/meta.json` |
 | `data/` | Kurser, valutakurser, omvärldsanalyser och kalender |
 | `server.mjs` | Enkel webbserver för att köra appen lokalt |
-| `test/` | Tester för hämtningen, med ett påhittat Yahoo-svar |
-| `.github/workflows/update-data.yml` | Hämtar kurser enligt schema och publicerar på GitHub Pages |
+| `tests/test_borskompassen.py` (i repots rot) | Tester för hämtningen, med påhittade kurser |
+| `.github/workflows/update-data.yml` (i repots rot) | Hämtar kurser enligt schema och publicerar på GitHub Pages |
