@@ -1,0 +1,11 @@
+{
+  "pricesDemo": true,
+  "pricesUpdatedAt": "2026-10-30T17:30:00+01:00",
+  "pricesNote": "Exempelkurser tills npm run update eller GitHub-automatiken har hämtat riktiga kurser.",
+  "fx": {
+    "SEK": 1,
+    "USD": 9.55,
+    "NOK": 0.94
+  },
+  "fxDemo": true
+}

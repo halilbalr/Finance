@@ -1,0 +1,21 @@
+{
+  "_info": "Aktier och fonder som hämtas från Yahoo Finance. 'symbol' är Yahoos kortnamn: svenska aktier slutar på .ST, norska på .OL, amerikanska har inget tillägg. Lägg till eller ta bort rader och kör npm run update.",
+  "fx": { "USD": "USDSEK=X", "NOK": "NOKSEK=X", "EUR": "EURSEK=X" },
+  "instruments": [
+    { "id": "inve-b", "symbol": "INVE-B.ST", "ticker": "INVE B", "name": "Investor B", "type": "aktie", "sector": "Investmentbolag", "about": "Wallenbergsfärens investmentbolag. Äger stora delar av bland annat Atlas Copco, ABB, SEB och AstraZeneca, och fungerar därför som en bred korg av svenska storbolag." },
+    { "id": "volv-b", "symbol": "VOLV-B.ST", "ticker": "VOLV B", "name": "Volvo B", "type": "aktie", "sector": "Industri", "about": "Tillverkar lastbilar, bussar, anläggningsmaskiner och motorer. Säljer över hela världen, så efterfrågan följer konjunkturen och valutan påverkar vinsten." },
+    { "id": "atco-a", "symbol": "ATCO-A.ST", "ticker": "ATCO A", "name": "Atlas Copco A", "type": "aktie", "sector": "Industri", "about": "Gör kompressorer, vakuumpumpar och industriverktyg. Kunder finns bland annat inom halvledare och fordonsindustri." },
+    { "id": "eric-b", "symbol": "ERIC-B.ST", "ticker": "ERIC B", "name": "Ericsson B", "type": "aktie", "sector": "Teknik", "about": "Bygger utrustning för mobilnät (4G/5G) åt operatörer världen över. Påverkas av hur mycket operatörerna investerar." },
+    { "id": "hm-b", "symbol": "HM-B.ST", "ticker": "HM B", "name": "H&M B", "type": "aktie", "sector": "Handel", "about": "Klädkedja med butiker i över 70 länder. Påverkas av hushållens köpkraft, valutor och fraktkostnader." },
+    { "id": "seb-a", "symbol": "SEB-A.ST", "ticker": "SEB A", "name": "SEB A", "type": "aktie", "sector": "Bank", "about": "En av Sveriges storbanker, med fokus på företag. Tjänar ofta mer när räntorna är högre, men drabbas om låntagare får problem." },
+    { "id": "saab-b", "symbol": "SAAB-B.ST", "ticker": "SAAB B", "name": "Saab B", "type": "aktie", "sector": "Försvar", "about": "Försvars- och säkerhetsbolag: stridsflygplanet Gripen, ubåtar, radar och vapensystem. Efterfrågan styrs av länders försvarsbudgetar." },
+    { "id": "azn", "symbol": "AZN.ST", "ticker": "AZN", "name": "AstraZeneca", "type": "aktie", "sector": "Läkemedel", "about": "Läkemedelsbolag med cancer-, hjärt- och lungmediciner. Läkemedel köps även i dåliga tider, så aktien brukar vara stabilare än börsen." },
+    { "id": "bol", "symbol": "BOL.ST", "ticker": "BOL", "name": "Boliden", "type": "aktie", "sector": "Gruvor & metaller", "about": "Gruv- och smältverksbolag som utvinner koppar, zink, nickel, guld och silver. Vinsten följer metallpriserna." },
+    { "id": "evo", "symbol": "EVO.ST", "ticker": "EVO", "name": "Evolution", "type": "aktie", "sector": "Spel", "about": "Levererar livesända kasinospel till spelbolag. Påverkas mycket av regler och licenser i olika länder." },
+    { "id": "eqnr", "symbol": "EQNR.OL", "ticker": "EQNR", "name": "Equinor", "type": "aktie", "sector": "Energi", "about": "Norskt energibolag, främst olja och gas från Nordsjön, men också havsbaserad vindkraft. Följer olje- och gaspriset." },
+    { "id": "nvda", "symbol": "NVDA", "ticker": "NVDA", "name": "Nvidia", "type": "aktie", "sector": "Teknik", "about": "Amerikanskt bolag som gör grafikkort och chip för AI-datacenter. Aktien är känslig för förväntningar på AI-investeringar och räntor." },
+    { "id": "aapl", "symbol": "AAPL", "ticker": "AAPL", "name": "Apple", "type": "aktie", "sector": "Teknik", "about": "Gör iPhone, Mac och tjänster som App Store. Mycket tillverkning sker i Asien, så tullar och handelsfrågor spelar roll." },
+    { "id": "fond-global", "symbol": "URTH", "ticker": "URTH", "name": "iShares MSCI World (ETF)", "type": "fond", "sector": "Globalfond", "about": "Börshandlad fond som följer ett världsindex med runt 1 400 bolag i industriländer, ungefär 70 % i USA. Visar hur en global indexfond utvecklas." },
+    { "id": "fond-sverige", "symbol": "^OMX", "ticker": "OMXS30", "name": "OMXS30 (index)", "type": "fond", "sector": "Sverigefond", "about": "De 30 mest handlade aktierna på Stockholmsbörsen. Visar hur en Sverigefond som följer index brukar röra sig. Ett index kan inte köpas direkt, men det finns fonder som följer det." }
+  ]
+}

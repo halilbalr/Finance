@@ -5,9 +5,15 @@ import pandas as pd
 
 
 def normalize_ticker(ticker: str) -> str:
-    """Normalize Yahoo share-class symbols (BRK.B -> BRK-B); retain index/FX suffixes."""
-    ticker = ticker.strip().upper().replace(".", "-")
-    if not re.fullmatch(r"[A-Z0-9^][A-Z0-9^=\-]{0,24}", ticker):
+    """Normalize Yahoo share-class symbols (BRK.B -> BRK-B); retain index/FX suffixes.
+
+    A final two- or three-letter suffix is a Yahoo exchange code and is kept (VOLV-B.ST).
+    """
+    ticker = ticker.strip().upper()
+    match = re.fullmatch(r"(.+)(\.[A-Z]{2,3})", ticker)
+    base, exchange = match.groups() if match else (ticker, "")
+    ticker = base.replace(".", "-") + exchange
+    if not re.fullmatch(r"[A-Z0-9^][A-Z0-9^=\-]{0,24}(\.[A-Z]{2,3})?", ticker):
         raise ValueError(f"invalid ticker: {ticker!r}")
     return ticker
 

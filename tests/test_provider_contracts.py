@@ -59,6 +59,24 @@ def test_bad_provider_schema_fails_explicitly(monkeypatch, ohlcv):
     assert len(aligned) == len(ohlcv) - 1
 
 
+def test_yahoo_history_records_quote_currency(monkeypatch, ohlcv):
+    class FakeTicker:
+        history_metadata = {"currency": "SEK", "symbol": "VOLV-B.ST"}
+
+        def history(self, **kwargs):
+            return ohlcv.rename(columns=str.title)
+
+    monkeypatch.setattr(YahooFinance, "_ticker", lambda *a: FakeTicker())
+    result = YahooFinance(adjusted=False).history("volv-b.st", "2020-01-01", "2023-01-01")
+    assert result.attrs == {
+        "provider": "Yahoo Finance",
+        "ticker": "VOLV-B.ST",
+        "adjusted": False,
+        "currency": "SEK",
+    }
+    pd.testing.assert_frame_equal(result, ohlcv.rename_axis("date"))
+
+
 @pytest.mark.parametrize("dividend,annual", [("$0.26", "1.04"), (0.26, 1.04)])
 def test_calendar_normalization(monkeypatch, dividend, annual):
     row = {

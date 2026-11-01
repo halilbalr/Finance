@@ -1,0 +1,11 @@
+{
+  "name": "Börskompassen",
+  "short_name": "Börskompassen",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f2ee",
+  "theme_color": "#7a2e6b",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

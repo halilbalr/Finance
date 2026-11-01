@@ -1,0 +1,13 @@
+{
+  "name": "borskompassen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Håll koll på aktier och fonder med signaler, larm och omvärldsanalys. Kurser från Yahoo Finance.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "update": "python update_data.py",
+    "start": "node server.mjs",
+    "test": "python -m pytest ../../tests/test_borskompassen.py"
+  }
+}
