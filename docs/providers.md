@@ -18,7 +18,8 @@ Trader's two listing files, excludes test issues and retains the ETF flag and na
 It preserves `NA` as a ticker. Exchange codes and special preferred/warrant share symbols
 are exchange-native; translate them for the chosen provider, rather than treating every
 listing as a Yahoo common-stock symbol. `normalize_ticker` handles ordinary Yahoo share-class,
-index and FX symbols, not every exchange suffix convention.
+index and FX symbols and keeps two- or three-letter exchange suffixes such as `VOLV-B.ST`;
+one-letter exchange suffixes (`.L`, `.T`) read as share classes and are not supported.
 
 `dividend_calendar(date)` returns Nasdaq ex-dividend/payment/record dates and reported
 amounts. `cot_financial_futures(contract_code, start, end)` uses CFTC TFF futures-only

@@ -24,6 +24,10 @@ def test_normalize(ohlcv):
     raw.columns = pd.MultiIndex.from_product([raw.columns, ["AAPL"]])
     assert_allclose(normalize_ohlcv(raw), actual)
     assert normalize_ticker(" brk.b ") == "BRK-B"
+    assert normalize_ticker("volv-b.st") == "VOLV-B.ST"
+    assert normalize_ticker("0P0000J1JP.ST") == "0P0000J1JP.ST"
+    assert normalize_ticker("EQNR.OL") == "EQNR.OL"
+    assert normalize_ticker("USDSEK=X") == "USDSEK=X"
     with pytest.raises(ValueError):
         normalize_ticker("a/b")
     with pytest.raises(ValueError):
