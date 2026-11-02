@@ -39,26 +39,28 @@ QUOTE_KEYS = [
 
 
 class FakeYahoo:
-    """The YahooFinance methods update_data calls, with an optional set of failing symbols."""
+    """YahooFinance.history, the only call update_data makes, with optional failures."""
 
-    def __init__(self, ohlcv, failing=(), paid=18.0):
-        self.ohlcv, self.failing, self.paid, self.company_calls = ohlcv, set(failing), paid, []
+    def __init__(self, ohlcv, failing=(), rate_limited=(), rejected=()):
+        self.ohlcv, self.failing, self.calls = ohlcv, set(failing), []
+        self.rate_limited = set(rate_limited)  # fail once with Yahoo's rate-limit message
+        self.rejected = set(rejected)  # rows the repository's OHLC validation refuses
 
     def history(self, symbol, start, end):
+        self.calls.append(symbol)
         if symbol in self.failing:
             raise ProviderError(f"Yahoo history failed for {symbol}")
+        if symbol in self.rejected:
+            raise ProviderError(
+                f"Yahoo history failed for {symbol} (1d): inconsistent OHLC bounds; check adjustment basis"
+            )
+        if symbol in self.rate_limited:
+            self.rate_limited.discard(symbol)
+            raise ProviderError(f"Yahoo history failed for {symbol} (1d): Too Many Requests.")
         index = self.ohlcv.index
         result = self.ohlcv[(index >= start) & (index < end)].copy()  # end is exclusive
         result.attrs["currency"] = "USD" if symbol in ("URTH", "USDSEK=X") else "SEK"
         return result
-
-    def dividends(self, symbol, start, end):
-        amounts = [self.paid] if symbol == "VOLV-B.ST" else []
-        return pd.Series(amounts, dtype=float, name="dividend")
-
-    def company(self, symbol):
-        self.company_calls.append(symbol)
-        return pd.Series({"pe": 12.345, "dividend_yield": 0.05})
 
 
 @pytest.fixture
@@ -67,12 +69,22 @@ def app(tmp_path):
     return tmp_path
 
 
+def write_universe(app, instruments=(), fundamentals=None):
+    universe = {"generatedAt": "2021-06-28", "instruments": list(instruments)}
+    universe["fundamentals"] = fundamentals or {}
+    (app / "universe.json").write_text(json.dumps(universe), "utf-8")
+
+
 def read(app, name):
     return json.loads((app / "data" / name).read_text("utf-8"))
 
 
 def test_quotes_and_meta_match_the_app_format(app, ohlcv):
     provider = FakeYahoo(ohlcv)
+    reference = 100.0  # the price build_universe saw P/E 12 and a 5 % yield at
+    write_universe(
+        app, fundamentals={"VOLV-B.ST": {"pe": 12, "dividendYield": 5, "price": reference}}
+    )
     update_data.update(app, provider, NOW)
     quotes, meta = read(app, "quotes.json"), read(app, "meta.json")
 
@@ -96,12 +108,15 @@ def test_quotes_and_meta_match_the_app_format(app, ohlcv):
     assert stock["price"] == round(year.close.iloc[-1], 2)  # 2 decimals between 10 and 1000
     assert stock["high52"] == round(year.high.max(), 2)
     assert stock["currency"] == "SEK" and fund["currency"] == "USD"  # from the provider
-    assert stock["dividendYield"] == round(18 / year.close.iloc[-1] * 100, 2)
-    assert stock["pe"] == 12.35
-    # Defaults for fields an instrument leaves out; funds have no P/E and here no dividend.
+    # Earnings and dividends per share are unchanged, so both scale with today's price.
+    latest = year.close.iloc[-1]
+    assert stock["pe"] == round(12 * latest / reference, 2)
+    assert stock["dividendYield"] == round(5 * reference / latest, 2)
+    # Defaults for fields an instrument leaves out; no fundamentals give null key figures.
     assert (fund["ticker"], fund["name"], fund["about"]) == ("URTH", "URTH", "")
     assert (fund["pe"], fund["dividendYield"]) == (None, None)
-    assert provider.company_calls == ["VOLV-B.ST"]
+    # One history request per instrument and per currency, nothing else.
+    assert provider.calls == ["VOLV-B.ST", "URTH", "USDSEK=X", "NOKSEK=X"]
 
     usd = round(year.close.iloc[-1], 4)
     assert meta == {
@@ -113,9 +128,95 @@ def test_quotes_and_meta_match_the_app_format(app, ohlcv):
     }
 
 
-def test_stock_without_dividends_yields_zero(app, ohlcv):
-    update_data.update(app, FakeYahoo(ohlcv, paid=0.0), NOW)
-    assert read(app, "quotes.json")["quotes"][0]["dividendYield"] == 0
+def test_zero_dividend_stays_zero(app, ohlcv):
+    write_universe(app, fundamentals={"VOLV-B.ST": {"pe": None, "dividendYield": 0, "price": 90}})
+    update_data.update(app, FakeYahoo(ohlcv), NOW)
+    stock = read(app, "quotes.json")["quotes"][0]
+    assert (stock["pe"], stock["dividendYield"]) == (None, 0)
+
+
+def test_universe_follows_curated_instruments_without_duplicates(app, ohlcv):
+    extra = {"id": "eric-b-st", "symbol": "ERIC-B.ST", "name": "Ericsson B", "type": "aktie"}
+    write_universe(
+        app,
+        [
+            extra,
+            {"id": "volv-b", "symbol": "OTHER.ST"},  # id taken by instruments.json
+            {"id": "volvo-dup", "symbol": "VOLV-B.ST"},  # symbol taken by instruments.json
+        ],
+    )
+    update_data.update(app, FakeYahoo(ohlcv), NOW)
+    quotes = read(app, "quotes.json")["quotes"]
+    assert [q["id"] for q in quotes] == ["volv-b", "fond-global", "eric-b-st"]
+    assert quotes[2]["name"] == "Ericsson B" and quotes[2]["about"] == ""
+
+
+def test_rejected_rows_use_the_closing_price_fallback(app, ohlcv):
+    asked = []
+
+    def lenient(symbol, start, end):
+        asked.append(symbol)
+        index = ohlcv.index
+        closes = ohlcv.loc[(index >= start) & (index < end), ["close"]].assign(high=500.0, low=1.0)
+        closes.attrs["currency"] = "USD"
+        return closes
+
+    update_data.update(app, FakeYahoo(ohlcv, rejected={"URTH", "NOKSEK=X"}), NOW, lenient)
+    quotes, meta = read(app, "quotes.json"), read(app, "meta.json")
+    assert asked == ["URTH", "NOKSEK=X"] and quotes["errors"] == []
+    fund = quotes["quotes"][1]
+    assert (fund["high52"], fund["low52"], fund["currency"]) == (500.0, 1.0, "USD")
+    assert meta["fx"]["NOK"] == round(ohlcv.loc[:"2021-06-30", "close"].iloc[-1], 4)
+
+    # Without the fallback the rejection is reported as before.
+    update_data.update(app, FakeYahoo(ohlcv, rejected={"URTH"}), NOW)
+    assert [e["id"] for e in read(app, "quotes.json")["errors"]] == ["fond-global"]
+
+
+def test_yahoo_closes_keeps_valid_closes_and_widens_the_range(monkeypatch):
+    yf = pytest.importorskip("yfinance")
+    index = pd.date_range("2021-06-28", periods=4, tz="Europe/Stockholm")
+    raw = pd.DataFrame(
+        {
+            "Close": [100.0, float("nan"), 105.0, 103.0],
+            "High": [101.0, 99.0, 104.0, 0.0],  # day 3: high below close; day 4: no high
+            "Low": [99.0, 98.0, 0.0, 102.0],  # day 3: no low
+            "Volume": [float("nan")] * 4,  # indices often lack volume
+        },
+        index=index,
+    )
+
+    class FakeTicker:
+        history_metadata = {"currency": "JPY"}
+
+        def __init__(self, symbol):
+            assert symbol == "^N225"
+
+        def history(self, **kwargs):
+            assert kwargs["auto_adjust"] is False
+            return raw
+
+    monkeypatch.setattr(yf, "Ticker", FakeTicker)
+    result = update_data.yahoo_closes("^N225", "2021-06-28", "2021-07-02")
+    assert list(result.index) == [index[0], index[2], index[3]]  # nothing filled in
+    assert result["close"].tolist() == [100.0, 105.0, 103.0]
+    assert result["high"].tolist() == [101.0, 105.0, 103.0]
+    assert result["low"].tolist() == [99.0, 105.0, 102.0]
+    assert result.attrs["currency"] == "JPY"
+
+    raw["Close"] = float("nan")
+    with pytest.raises(ProviderError, match="no valid closing prices"):
+        update_data.yahoo_closes("^N225", "2021-06-28", "2021-07-02")
+
+
+def test_rate_limited_request_waits_and_retries_once(app, ohlcv, monkeypatch):
+    waits = []
+    monkeypatch.setattr(update_data.time, "sleep", waits.append)
+    provider = FakeYahoo(ohlcv, rate_limited={"URTH"})
+    update_data.update(app, provider, NOW)
+    assert waits == [update_data.PAUSE]
+    assert provider.calls.count("URTH") == 2
+    assert read(app, "quotes.json")["errors"] == []
 
 
 def test_failed_instrument_keeps_previous_entry_marked_stale(app, ohlcv):

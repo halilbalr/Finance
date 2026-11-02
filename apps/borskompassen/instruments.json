@@ -1,6 +1,6 @@
 {
   "_info": "Aktier och fonder som hämtas från Yahoo Finance. 'symbol' är Yahoos kortnamn: svenska aktier slutar på .ST, norska på .OL, amerikanska har inget tillägg. Lägg till eller ta bort rader och kör npm run update.",
-  "fx": { "USD": "USDSEK=X", "NOK": "NOKSEK=X", "EUR": "EURSEK=X" },
+  "fx": { "USD": "USDSEK=X", "NOK": "NOKSEK=X", "EUR": "EURSEK=X", "DKK": "DKKSEK=X", "GBP": "GBPSEK=X", "JPY": "JPYSEK=X", "HKD": "HKDSEK=X" },
   "instruments": [
     { "id": "inve-b", "symbol": "INVE-B.ST", "ticker": "INVE B", "name": "Investor B", "type": "aktie", "sector": "Investmentbolag", "about": "Wallenbergsfärens investmentbolag. Äger stora delar av bland annat Atlas Copco, ABB, SEB och AstraZeneca, och fungerar därför som en bred korg av svenska storbolag." },
     { "id": "volv-b", "symbol": "VOLV-B.ST", "ticker": "VOLV B", "name": "Volvo B", "type": "aktie", "sector": "Industri", "about": "Tillverkar lastbilar, bussar, anläggningsmaskiner och motorer. Säljer över hela världen, så efterfrågan följer konjunkturen och valutan påverkar vinsten." },

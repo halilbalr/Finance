@@ -1077,7 +1077,7 @@ VIEWS.marknad = () => {
   const F = [['alla', 'Alla'], ['mina', 'Mina innehav'], ['bevakade', 'Bevakade'], ['aktier', 'Aktier'], ['fonder', 'Fonder']];
   html += `<section class="card"><div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center"><label class="sr" for="q">Sök</label><input id="q" class="inp" type="search" placeholder="Sök namn, kortnamn eller bransch" value="${esc(S.ui.q)}" style="flex:1 1 240px;max-width:380px" autocomplete="off"><div class="chips">${F.map(([k, l]) => `<button class="chip" data-act="mfilter" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join('')}</div></div>
     <div class="rows"><div class="row mrow thead"><div></div><div>Namn</div><div class="scell">3 mån</div><div class="pcell" style="text-align:right">Kurs</div><div class="ccell" style="text-align:right">Senaste dagen</div><div class="ccell">Signal</div></div>
-    ${list.map(i => {
+    ${list.slice(0, S.ui.mlimit || 100).map(i => {
       const pr = priceOf(i), ch = dayChange(i), c = i.history?.close, s3 = c ? c.slice(-63) : null, up = s3 ? s3[s3.length - 1] >= s3[0] : true;
       return `<div class="row mrow"><button class="star" data-act="watch" data-inst="${esc(i.id)}" aria-pressed="${W.has(i.id)}" aria-label="${W.has(i.id) ? 'Sluta bevaka' : 'Bevaka'} ${esc(i.name)}">${ico('star', 'icon sm')}</button>
         <a href="#aktie-${esc(i.id)}" style="color:inherit;text-decoration:none;min-width:0"><div class="nm">${esc(i.name)}</div><div class="meta">${esc(i.ticker || '')} · ${esc(i.sector)}${held(i.id) ? ' · <b class="up">äger</b>' : ''}${i.custom ? ' · egen' : ''}</div></a>
@@ -1087,7 +1087,7 @@ VIEWS.marknad = () => {
         <div class="ccell">${sigPill(i)}</div>
         <a class="right mob" href="#aktie-${esc(i.id)}" style="color:inherit;text-decoration:none"><div class="num">${fmtCur(pr.price, i.currency)}</div><div class="small">${ch != null ? delta(ch, fmtPct(ch)) : ''}</div></a>
       </div>`;
-    }).join('') || '<p class="ink2" style="padding:12px 0">Inga träffar. Prova ett annat ord, eller lägg till aktien själv med "Lägg till egen".</p>'}</div></section>`;
+    }).join('') || '<p class="ink2" style="padding:12px 0">Inga träffar. Prova ett annat ord, eller lägg till aktien själv med "Lägg till egen".</p>'}</div>${list.length > (S.ui.mlimit || 100) ? `<p style="margin-top:12px"><button class="btn" data-act="mmore">Visa fler (${fmt(list.length - (S.ui.mlimit || 100), 0)} till)</button></p>` : ''}</section>`;
   return html;
 };
 
@@ -1560,7 +1560,8 @@ document.addEventListener('click', e => {
     case 'custom-del': confirmDialog('Ta bort från appen?', 'Den egna aktien eller fonden tas bort. Affärer du registrerat för den ligger kvar i dagboken.', 'Ta bort', () => { Store.settings({ custom: (S.settings.custom || []).filter(c => c.id !== d.inst), watch: (S.settings.watch || []).filter(x => x !== d.inst) }); location.hash = 'marknad'; }); break;
     case 'range': S.ui.range = d.r; render(); break;
     case 'prange': S.ui.prange = d.r; render(); break;
-    case 'mfilter': S.ui.mfilter = d.f; render(); break;
+    case 'mfilter': S.ui.mfilter = d.f; S.ui.mlimit = 0; render(); break;
+    case 'mmore': S.ui.mlimit = (S.ui.mlimit || 100) + 100; render(); break;
     case 'sim': S.ui.sim = d.ev; render(); break;
     case 'example-load': loadExample(); break;
     case 'example-clear': clearExample(); break;
@@ -1574,7 +1575,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('input', e => {
-  if (e.target.id === 'q') { S.ui.q = e.target.value; render(); }
+  if (e.target.id === 'q') { S.ui.q = e.target.value; S.ui.mlimit = 0; render(); }
   else if (e.target.id === 'gq') { S.ui.gq = e.target.value; render(); }
   else if (e.target.id === 'hq') { S.ui.hq = e.target.value; $('#hglist').innerHTML = glossList(S.ui.hq); }
 });
