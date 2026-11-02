@@ -34,11 +34,14 @@ jobs:
       - run: |
           /usr/bin/time -v python apps/borskompassen/update_data.py > explore-out/run/update.log 2> explore-out/run/update.err || true
           tail -n 5 explore-out/run/update.log; grep -c "^fel" explore-out/run/update.err || true
+          grep "^fel" explore-out/run/update.err | sed -E 's/^fel +[^ ]+ //; s/for [^ ]+ //' | sort | uniq -c | sort -rn | head -20
+          ls -la apps/borskompassen/data apps/borskompassen/universe.json
       - run: |
           cp apps/borskompassen/universe.json apps/borskompassen/data/quotes.json apps/borskompassen/data/meta.json explore-out/run/
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add explore-out/run
           git commit -m "Tillfälligt: provkörning av hämtningen"
+          git checkout -- apps/borskompassen/data
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push
