@@ -6,8 +6,9 @@
   "type": "module",
   "engines": { "node": ">=18" },
   "scripts": {
+    "universe": "python build_universe.py",
     "update": "python update_data.py",
     "start": "node server.mjs",
-    "test": "python -m pytest ../../tests/test_borskompassen.py"
+    "test": "python -m pytest ../../tests/test_borskompassen.py ../../tests/test_borskompassen_universe.py"
   }
 }
