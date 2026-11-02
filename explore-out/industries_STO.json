@@ -1,0 +1,944 @@
+{
+ "Basic Materials|Aluminum": [
+  "GRNG.ST"
+ ],
+ "Basic Materials|Building Materials": [
+  "KAKEL.ST"
+ ],
+ "Basic Materials|Chemicals": [
+  "SERT.ST",
+  "XPC.ST"
+ ],
+ "Basic Materials|Copper": [
+  "LUMI.ST"
+ ],
+ "Basic Materials|Gold": [
+  "BOTX.ST",
+  "LUG.ST"
+ ],
+ "Basic Materials|Other Industrial Metals & Mining": [
+  "ARCT.ST",
+  "BOL.ST",
+  "DMXSE-SDB.ST",
+  "LEMSE.ST",
+  "NIO.ST",
+  "VISC.ST"
+ ],
+ "Basic Materials|Other Precious Metals & Mining": [
+  "GRANGX.ST",
+  "GSKR-SDB.ST",
+  "LUC.ST"
+ ],
+ "Basic Materials|Paper & Paper Products": [
+  "ARP.ST",
+  "BILL.ST",
+  "HOLM-A.ST",
+  "HOLM-B.ST",
+  "RROS.ST",
+  "SCA-A.ST",
+  "SCA-B.ST"
+ ],
+ "Basic Materials|Specialty Chemicals": [
+  "AERO.ST",
+  "ARPL.ST",
+  "AXIC-A.ST",
+  "HPOL-B.ST",
+  "ITECH.ST",
+  "KBC.ST",
+  "NEXAM.ST",
+  "ORGC.ST",
+  "POLYG.ST",
+  "TRIBO-B.ST"
+ ],
+ "Basic Materials|Steel": [
+  "ALLEI.ST",
+  "BEGR.ST",
+  "SSAB-A.ST",
+  "SSAB-B.ST"
+ ],
+ "Communication Services|Advertising Agencies": [
+  "ADTR.ST",
+  "NYOR.ST",
+  "RAKE.ST"
+ ],
+ "Communication Services|Electronic Gaming & Multimedia": [
+  "BRAVE.ST",
+  "COFFEE-B.ST",
+  "EG7.ST",
+  "EMB.ST",
+  "EMBRAC-B.ST",
+  "ENVAR.ST",
+  "FLEXM.ST",
+  "FRAG.ST",
+  "FSPORT.ST",
+  "G5EN.ST",
+  "GIG-SDB.ST",
+  "HACK.ST",
+  "MAGI.ST",
+  "MAXENT-B.ST",
+  "MTG-A.ST",
+  "MTG-B.ST",
+  "NITRO.ST",
+  "PDX.ST",
+  "QIIWI.ST",
+  "SF.ST",
+  "STAR-A.ST",
+  "STAR-B.ST"
+ ],
+ "Communication Services|Entertainment": [
+  "ACAST.ST",
+  "GBK.ST",
+  "MOMENT.ST",
+  "VPLAY-A.ST",
+  "VPLAY-B.ST"
+ ],
+ "Communication Services|Internet Content & Information": [
+  "BRIGHT.ST",
+  "CTM.ST",
+  "ENRO.ST",
+  "HEM.ST",
+  "TOURN.ST"
+ ],
+ "Communication Services|Publishing": [
+  "AJA-B.ST",
+  "STORY-B.ST"
+ ],
+ "Communication Services|Telecom Services": [
+  "BAHN-B.ST",
+  "ELTEL.ST",
+  "OVZON.ST",
+  "SINCH.ST",
+  "TALK.ST",
+  "TEL2-A.ST",
+  "TEL2-B.ST",
+  "TELIA.ST",
+  "TRANS.ST"
+ ],
+ "Consumer Cyclical|Apparel Manufacturing": [
+  "BORG.ST",
+  "HM-B.ST"
+ ],
+ "Consumer Cyclical|Apparel Retail": [
+  "BOOZT.ST",
+  "NELLY.ST",
+  "RVRC.ST"
+ ],
+ "Consumer Cyclical|Auto & Truck Dealerships": [
+  "ARFA.ST",
+  "BILI-A.ST"
+ ],
+ "Consumer Cyclical|Auto Manufacturers": [
+  "CLEMO.ST",
+  "VOLCAR-B.ST"
+ ],
+ "Consumer Cyclical|Auto Parts": [
+  "ALIV-SDB.ST",
+  "BULTEN.ST",
+  "MEKO.ST",
+  "PIERCE.ST",
+  "VBG-B.ST"
+ ],
+ "Consumer Cyclical|Department Stores": [
+  "RUSTA.ST"
+ ],
+ "Consumer Cyclical|Furnishings, Fixtures & Appliances": [
+  "ELUX-A.ST",
+  "ELUX-B.ST",
+  "EMBELL.ST",
+  "LAMM-B.ST",
+  "NOBI.ST"
+ ],
+ "Consumer Cyclical|Gambling": [
+  "ACROUD.ST",
+  "BETS-B.ST",
+  "EVO.ST",
+  "G2M.ST",
+  "GCOR.ST",
+  "KAMBI.ST"
+ ],
+ "Consumer Cyclical|Home Improvement Retail": [
+  "BMAX.ST",
+  "RUG.ST"
+ ],
+ "Consumer Cyclical|Internet Retail": [
+  "BBROOM.ST",
+  "BHG.ST",
+  "BUY.ST",
+  "CDON.ST",
+  "DSNO.ST",
+  "ELLOS.ST",
+  "GULD.ST",
+  "MEDS.ST",
+  "OBAB.ST",
+  "VETT.ST",
+  "VUXEN.ST"
+ ],
+ "Consumer Cyclical|Leisure": [
+  "ASMDEE-B.ST",
+  "ATIC.ST",
+  "DOM.ST",
+  "MIPS.ST",
+  "PRFO.ST",
+  "SODER.ST",
+  "THULE.ST",
+  "USWE.ST",
+  "WSG.ST"
+ ],
+ "Consumer Cyclical|Lodging": [
+  "BOHO-PREF.ST",
+  "BOHO.ST",
+  "SHOT.ST"
+ ],
+ "Consumer Cyclical|Packaging & Containers": [
+  "BONG.ST",
+  "STE-A.ST",
+  "STE-R.ST"
+ ],
+ "Consumer Cyclical|Recreational Vehicles": [
+  "BOAT.ST",
+  "KABE-B.ST"
+ ],
+ "Consumer Cyclical|Residential Construction": [
+  "BALCO.ST",
+  "BONAV-A.ST",
+  "BONAV-B.ST",
+  "JM.ST",
+  "KFAST-B.ST"
+ ],
+ "Consumer Cyclical|Resorts & Casinos": [
+  "SKIS-B.ST"
+ ],
+ "Consumer Cyclical|Restaurants": [
+  "NREST.ST"
+ ],
+ "Consumer Cyclical|Specialty Retail": [
+  "BOKUS.ST",
+  "CLAS-B.ST",
+  "DORMY.ST",
+  "ELON.ST",
+  "FOI-B.ST",
+  "NEWA-B.ST"
+ ],
+ "Consumer Cyclical|Textile Manufacturing": [
+  "DUNI.ST",
+  "DURC-B.ST"
+ ],
+ "Consumer Cyclical|Travel Services": [
+  "UTG.ST"
+ ],
+ "Consumer Defensive|Beverages—Wineries & Distilleries": [
+  "ARCTIC.ST",
+  "HERNO-B.ST",
+  "HIGHCO-B.ST"
+ ],
+ "Consumer Defensive|Confectioners": [
+  "CLA-B.ST"
+ ],
+ "Consumer Defensive|Education & Training Services": [
+  "ACAD.ST",
+  "CEDER.ST",
+  "TELLUS.ST"
+ ],
+ "Consumer Defensive|Farm Products": [
+  "AGTIRA-B.ST"
+ ],
+ "Consumer Defensive|Food Distribution": [
+  "CHEF.ST"
+ ],
+ "Consumer Defensive|Grocery Stores": [
+  "AXFO.ST"
+ ],
+ "Consumer Defensive|Household & Personal Products": [
+  "CANDLE-B.ST",
+  "CLEM.ST",
+  "ESSITY-A.ST",
+  "ESSITY-B.ST",
+  "LYKO-A.ST"
+ ],
+ "Consumer Defensive|Packaged Foods": [
+  "AAK.ST",
+  "HUMBLE.ST",
+  "MSON-A.ST",
+  "MSON-B.ST",
+  "NNH.ST",
+  "SCST.ST",
+  "SECARE.ST",
+  "SKMO.ST",
+  "SNX.ST",
+  "ZZ-B.ST"
+ ],
+ "Consumer Defensive|Tobacco": [
+  "HAYPP.ST",
+  "NICO.ST"
+ ],
+ "Energy|Oil & Gas E&P": [
+  "AEC.ST",
+  "IPCO.ST",
+  "MER.ST",
+  "SNM-SDB.ST"
+ ],
+ "Financial Services|Asset Management": [
+  "ATIN.ST",
+  "BMC.ST",
+  "BURE.ST",
+  "CASE.ST",
+  "CAT-A.ST",
+  "CAT-B.ST",
+  "COLLAX.ST",
+  "CRED-A.ST",
+  "EFFH.ST",
+  "EQT.ST",
+  "FIRST-B.ST",
+  "FLAT-B.ST",
+  "HILB-B.ST",
+  "IDUN-B.ST",
+  "INDU-A.ST",
+  "INDU-C.ST",
+  "INVE-A.ST",
+  "INVE-B.ST",
+  "KINV-A.ST",
+  "KINV-B.ST",
+  "LARK.ST",
+  "LINC.ST",
+  "NANOC-B.ST",
+  "NAVIGO-PREF.ST",
+  "NAVIGO-STAM.ST",
+  "NAXS.ST",
+  "ORES.ST",
+  "ROKO-B.ST",
+  "SEAF.ST",
+  "SVOL-A.ST",
+  "SVOL-B.ST",
+  "TRAC-B.ST",
+  "VEFAB.ST",
+  "VH.ST",
+  "VNV.ST",
+  "VO2.ST",
+  "WRV.ST"
+ ],
+ "Financial Services|Banks—Diversified": [
+  "AVARDA.ST",
+  "NOBA.ST",
+  "SHB-A.ST",
+  "SHB-B.ST"
+ ],
+ "Financial Services|Banks—Regional": [
+  "ARION-SDB.ST",
+  "AZA.ST",
+  "LEA.ST",
+  "MORROW.ST",
+  "NDA-SE.ST",
+  "NORION.ST",
+  "SEB-A.ST",
+  "SEB-C.ST",
+  "SWED-A.ST"
+ ],
+ "Financial Services|Capital Markets": [
+  "HAV-B.ST",
+  "K33.ST",
+  "MANG.ST",
+  "SAVE.ST"
+ ],
+ "Financial Services|Credit Services": [
+  "HOFI.ST",
+  "INTRUM.ST",
+  "QLIRO.ST",
+  "YIELD.ST"
+ ],
+ "Financial Services|Insurance—Diversified": [
+  "SAMPO-SEK.ST"
+ ],
+ "Financial Services|Insurance—Specialty": [
+  "SFAB.ST"
+ ],
+ "Financial Services|Mortgage Finance": [
+  "ENITY.ST"
+ ],
+ "Healthcare|Biotechnology": [
+  "ACE.ST",
+  "ACOU.ST",
+  "ACTI.ST",
+  "ALZ.ST",
+  "ALZCUR.ST",
+  "ANNX.ST",
+  "ATORX.ST",
+  "BINV.ST",
+  "BIOA-B.ST",
+  "BIOVIC-B.ST",
+  "CAMX.ST",
+  "CANTA.ST",
+  "CLBIO.ST",
+  "DMYD-B.ST",
+  "EGTX.ST",
+  "ELIC.ST",
+  "EXPRS2.ST",
+  "FLERIE.ST",
+  "FLUI.ST",
+  "FLUO.ST",
+  "GENO.ST",
+  "HNSA.ST",
+  "IBT-B.ST",
+  "IMMU.ST",
+  "INIT.ST",
+  "IRLAB-A.ST",
+  "ISOFOL.ST",
+  "IVACC.ST",
+  "MAGLE.ST",
+  "MODTX.ST",
+  "MVIR.ST",
+  "NANOFS.ST",
+  "NEEMS-B.ST",
+  "NICA.ST",
+  "NXTCL.ST",
+  "ONCO.ST",
+  "ONCOZ.ST",
+  "PILA.ST",
+  "SANION.ST",
+  "SIMRIS-B.ST",
+  "SPAGO.ST",
+  "SPRINT.ST",
+  "SYNACT.ST",
+  "VICO.ST",
+  "XBRANE.ST",
+  "XINT.ST",
+  "XSPRAY.ST"
+ ],
+ "Healthcare|Diagnostics & Research": [
+  "IDLDX.ST",
+  "IMMNOV.ST",
+  "PROGEN.ST",
+  "SENZA.ST",
+  "VIMIAN.ST"
+ ],
+ "Healthcare|Drug Manufacturers—General": [
+  "AZN.ST",
+  "DPHA.ST"
+ ],
+ "Healthcare|Drug Manufacturers—Specialty & Generic": [
+  "ALVO-SDB.ST",
+  "BIOG-B.ST",
+  "CINPHA.ST",
+  "CRNO-B.ST",
+  "DICOT.ST",
+  "ENZY.ST",
+  "EQL.ST",
+  "ERMA.ST",
+  "GABA.ST",
+  "KLAR.ST",
+  "MOB.ST",
+  "NANEXA.ST",
+  "NEWBRY.ST",
+  "ORX.ST",
+  "SOBI.ST",
+  "VIVE.ST"
+ ],
+ "Healthcare|Health Information Services": [
+  "AINO.ST",
+  "CARA.ST",
+  "PTRK.ST",
+  "RAY-B.ST",
+  "SUS.ST"
+ ],
+ "Healthcare|Medical Care Facilities": [
+  "AMBEA.ST",
+  "ATT.ST",
+  "HUM.ST",
+  "MCOV-B.ST"
+ ],
+ "Healthcare|Medical Devices": [
+  "ACARIX.ST",
+  "ARCOMA.ST",
+  "BACTI-B.ST",
+  "BICO.ST",
+  "BOUL.ST",
+  "BRAIN.ST",
+  "CEVI.ST",
+  "CLS-B.ST",
+  "CRAD-B.ST",
+  "DVYSR.ST",
+  "EKTA-B.ST",
+  "EPIS-B.ST",
+  "GETI-B.ST",
+  "HEART.ST",
+  "ICO.ST",
+  "IMP-A-SDB.ST",
+  "INTEG-B.ST",
+  "LXB.ST",
+  "MCAP.ST",
+  "MNTC.ST",
+  "NEOLA.ST",
+  "NOLA-B.ST",
+  "NOSA.ST",
+  "ORT-B.ST",
+  "OSSD.ST",
+  "PAX.ST",
+  "PERP-B.ST",
+  "PRO.ST",
+  "QLIFE.ST",
+  "QLINEA.ST",
+  "SCIB.ST",
+  "SDOS.ST",
+  "SECT-B.ST",
+  "SEDANA.ST",
+  "SEZI.ST",
+  "SPEC.ST",
+  "VITR.ST",
+  "XVIVO.ST"
+ ],
+ "Healthcare|Medical Distribution": [
+  "ARJO-B.ST",
+  "ASKER.ST"
+ ],
+ "Healthcare|Medical Instruments & Supplies": [
+  "ALIF-B.ST",
+  "BONEX.ST",
+  "DYVOX.ST",
+  "IZAFE-B.ST",
+  "ORTI-A.ST",
+  "ORTI-B.ST",
+  "S2M.ST",
+  "STIL.ST",
+  "SYNSAM.ST"
+ ],
+ "Healthcare|Pharmaceutical Retailers": [
+  "APOTEA.ST"
+ ],
+ "Industrials|Aerospace & Defense": [
+  "AAC.ST",
+  "AVT-B.ST",
+  "AXVIK.ST",
+  "CTT.ST",
+  "GOMX.ST",
+  "KEBNI-B.ST",
+  "MILDEF.ST",
+  "OXE.ST",
+  "SAAB-B.ST",
+  "SUMMAS.ST",
+  "W5.ST"
+ ],
+ "Industrials|Building Products & Equipment": [
+  "CNCJO-B.ST",
+  "ESGR-B.ST",
+  "FIRE.ST",
+  "FMM-B.ST",
+  "INWI.ST",
+  "LIAB.ST",
+  "NIBE-B.ST",
+  "SVED-B.ST",
+  "SYSR.ST"
+ ],
+ "Industrials|Business Equipment & Supplies": [
+  "ITAB.ST",
+  "PRIC-B.ST"
+ ],
+ "Industrials|Conglomerates": [
+  "BERG-B.ST",
+  "KARNEL-B.ST",
+  "LAGR-B.ST",
+  "LATO-B.ST",
+  "LIFCO-B.ST",
+  "LUND-B.ST",
+  "SDIP-B.ST",
+  "STOR-B.ST",
+  "STWK.ST",
+  "SVEVIK.ST",
+  "TEQ.ST",
+  "VOLO-PREF.ST",
+  "VOLO.ST"
+ ],
+ "Industrials|Consulting Services": [
+  "BRILL.ST",
+  "BTS-B.ST",
+  "REJL-B.ST",
+  "VIMAB.ST"
+ ],
+ "Industrials|Electrical Equipment & Parts": [
+  "ABB.ST",
+  "AQ.ST",
+  "CTEK.ST",
+  "FAG.ST",
+  "FERRO.ST",
+  "GARO.ST",
+  "PCELL.ST"
+ ],
+ "Industrials|Engineering & Construction": [
+  "AFRY.ST",
+  "BRAV.ST",
+  "BYGGP.ST",
+  "CYNCA.ST",
+  "FG.ST",
+  "HEXI.ST",
+  "INFREA.ST",
+  "INSTAL.ST",
+  "LMGAB.ST",
+  "NCC-A.ST",
+  "NCC-B.ST",
+  "NETEL.ST",
+  "NORB-B.ST",
+  "NYAB.ST",
+  "PADEL.ST",
+  "PEAB-B.ST",
+  "QBEN.ST",
+  "RATO-A.ST",
+  "RATO-B.ST",
+  "SKA-B.ST",
+  "SPACEN-B.ST",
+  "SWEC-A.ST",
+  "SWEC-B.ST",
+  "TERNOR.ST",
+  "TRAIN-B.ST",
+  "WBGR-B.ST",
+  "WTW-A.ST"
+ ],
+ "Industrials|Farm & Heavy Construction Machinery": [
+  "8TRA.ST",
+  "ENGCON-B.ST",
+  "EPI-A.ST",
+  "EPI-B.ST",
+  "LYGRD.ST",
+  "VOLV-A.ST",
+  "VOLV-B.ST"
+ ],
+ "Industrials|Industrial Distribution": [
+  "ADDT-B.ST",
+  "ALLIGO-B.ST",
+  "BEIJ-B.ST",
+  "BUFAB.ST",
+  "FNM.ST",
+  "INDT.ST",
+  "MMGR-B.ST",
+  "OEM-B.ST",
+  "SALIX.ST"
+ ],
+ "Industrials|Integrated Freight & Logistics": [
+  "ELAN-B.ST"
+ ],
+ "Industrials|Marine Shipping": [
+  "GOTL-A.ST",
+  "GOTL-B.ST",
+  "VSSAB-B.ST"
+ ],
+ "Industrials|Metal Fabrication": [
+  "AGES-B.ST",
+  "CI.ST",
+  "HAKI-A.ST",
+  "HAKI-B.ST",
+  "NFGAB.ST",
+  "PCOM-B.ST",
+  "PROF-B.ST",
+  "TROAX.ST"
+ ],
+ "Industrials|Pollution & Treatment Controls": [
+  "ABSO.ST",
+  "BAWAT.ST",
+  "MTRS.ST",
+  "QAIR.ST",
+  "SAXG.ST"
+ ],
+ "Industrials|Railroads": [
+  "RAIL.ST"
+ ],
+ "Industrials|Security & Protection Services": [
+  "ASSA-B.ST",
+  "CARE.ST",
+  "IRIS.ST",
+  "LEVEL.ST",
+  "LOOMIS.ST",
+  "PREC.ST",
+  "SECU-B.ST",
+  "SIBEK.ST",
+  "TSEC.ST",
+  "VSURE.ST"
+ ],
+ "Industrials|Specialty Business Services": [
+  "COOR.ST",
+  "DRIL.ST",
+  "GREEN.ST",
+  "KAR.ST",
+  "NEPA.ST",
+  "SBOK-B.ST",
+  "TANGEN-B.ST"
+ ],
+ "Industrials|Specialty Industrial Machinery": [
+  "ALFA.ST",
+  "ALIG.ST",
+  "ARENIT-SDB.ST",
+  "ATCO-A.ST",
+  "ATCO-B.ST",
+  "BEIA-B.ST",
+  "BERNER-B.ST",
+  "BOMILL.ST",
+  "CCC.ST",
+  "EPRO-B.ST",
+  "FLEXQ.ST",
+  "FREEM.ST",
+  "GGEO.ST",
+  "IMPC.ST",
+  "MANTEX.ST",
+  "META.ST",
+  "MYCR.ST",
+  "NMAN.ST",
+  "OPTI.ST",
+  "SALT-B.ST",
+  "SAND.ST",
+  "SINT.ST",
+  "STW.ST",
+  "TREL-B.ST",
+  "XANO-B.ST"
+ ],
+ "Industrials|Staffing & Employment Services": [
+  "CALVIK.ST",
+  "DEDI.ST",
+  "EWRK.ST",
+  "HEGR.ST",
+  "OGUN-B.ST",
+  "PION-B.ST",
+  "WISE.ST"
+ ],
+ "Industrials|Tools & Accessories": [
+  "HUSQ-A.ST",
+  "HUSQ-B.ST",
+  "SKF-A.ST",
+  "SKF-B.ST"
+ ],
+ "Industrials|Waste Management": [
+  "AXOLOT.ST",
+  "BIOEX.ST",
+  "CIRCHE.ST",
+  "NOTEK.ST",
+  "SES.ST",
+  "SVIK.ST"
+ ],
+ "Real Estate|Real Estate Services": [
+  "ALTRA.ST",
+  "ANNE-B.ST",
+  "BONAS.ST",
+  "BRIN-B.ST",
+  "EAST.ST",
+  "EMIL-B.ST",
+  "EMIL-PREF.ST",
+  "FABG.ST",
+  "FASTAT.ST",
+  "FNOVA-B.ST",
+  "GPG.ST",
+  "HEBA-B.ST",
+  "HEIM-PREF.ST",
+  "HUFV-A.ST",
+  "INTEA-B.ST",
+  "INTEA-D.ST",
+  "K2A-B.ST",
+  "K2A-PREF.ST",
+  "KAPIAB.ST",
+  "LOGI-B.ST",
+  "NEOBO.ST",
+  "NIVI-B.ST",
+  "NP3-PREF.ST",
+  "NP3.ST",
+  "PLAZ-B.ST",
+  "PNDX-B.ST",
+  "PUBLI.ST",
+  "SAGA-A.ST",
+  "SAGA-B.ST",
+  "SAGA-D.ST",
+  "SBB-B.ST",
+  "SBB-D.ST",
+  "SFAST.ST",
+  "SLP-B.ST",
+  "SOLNA.ST",
+  "STUDBO.ST",
+  "SVEAF-B.ST",
+  "TINGS-A.ST",
+  "TINGS-B.ST",
+  "TINGS-PREF.ST",
+  "WALL-B.ST",
+  "WIHL.ST"
+ ],
+ "Real Estate|Real Estate—Development": [
+  "AGROUP.ST",
+  "ATRLJ-B.ST",
+  "BESQAB-PREF-B.ST",
+  "BESQAB.ST",
+  "CAST.ST",
+  "DOXA.ST",
+  "PRISMA.ST",
+  "TITA-B.ST"
+ ],
+ "Real Estate|Real Estate—Diversified": [
+  "ACRI-A.ST",
+  "ACRI-B.ST",
+  "ALM-PREF.ST",
+  "ALM.ST",
+  "BALD-B.ST",
+  "CATE.ST",
+  "CIBUS.ST",
+  "CORE-A.ST",
+  "CORE-B.ST",
+  "CORE-D.ST",
+  "CORE-PREF.ST",
+  "DIOS.ST",
+  "FPAR-A.ST",
+  "FPAR-D.ST",
+  "JOMA.ST",
+  "STEF-B.ST",
+  "TRIAN-B.ST"
+ ],
+ "Technology|Communication Equipment": [
+  "ALCA.ST",
+  "EPEN.ST",
+  "ERIC-A.ST",
+  "ERIC-B.ST",
+  "GAPW-B.ST",
+  "HMS.ST",
+  "HTRO.ST",
+  "INCOAX.ST",
+  "IVSO.ST",
+  "LUMEN.ST",
+  "MAVEN.ST",
+  "NETI-B.ST",
+  "NOKIA-SEK.ST",
+  "TAGM-B.ST",
+  "WAYS.ST"
+ ],
+ "Technology|Computer Hardware": [
+  "FRACTL.ST",
+  "JLT.ST",
+  "REALFI.ST",
+  "TOBII.ST"
+ ],
+ "Technology|Consumer Electronics": [
+  "IS.ST",
+  "KJELL.ST"
+ ],
+ "Technology|Electronic Components": [
+  "ACCON.ST",
+  "ACUVI.ST",
+  "BLINC-B.ST",
+  "HANZA.ST",
+  "INISS-B.ST",
+  "NCAB.ST",
+  "NOTE.ST",
+  "UNIBAP.ST"
+ ],
+ "Technology|Electronics & Computer Distribution": [
+  "DIST.ST",
+  "MEAB-B.ST"
+ ],
+ "Technology|Information Technology Services": [
+  "ANOD-B.ST",
+  "AVEN.ST",
+  "B3.ST",
+  "CAG.ST",
+  "CX.ST",
+  "DUST.ST",
+  "EXS.ST",
+  "FRAM-B.ST",
+  "KNOW.ST",
+  "NTEK-B.ST",
+  "OBSE.ST",
+  "ORTIN.ST",
+  "PACT.ST",
+  "PRCO-B.ST",
+  "PREV-B.ST",
+  "SAFETY-B.ST",
+  "SOF-B.ST",
+  "TIETOS.ST",
+  "VERT-B.ST",
+  "WPTG-B.ST",
+  "WYLD.ST"
+ ],
+ "Technology|Scientific & Technical Instruments": [
+  "GPX.ST",
+  "HEXA-B.ST",
+  "QSYS.ST",
+  "SGG.ST"
+ ],
+ "Technology|Semiconductor Equipment & Materials": [
+  "SILEX.ST"
+ ],
+ "Technology|Semiconductors": [
+  "BEAMMW-B.ST",
+  "NRDAMP.ST",
+  "SIVE.ST"
+ ],
+ "Technology|Software—Application": [
+  "AIRA.ST",
+  "ALBERT.ST",
+  "BETCO.ST",
+  "BIM.ST",
+  "BUSER.ST",
+  "CDMIL.ST",
+  "CFISH.ST",
+  "CHARGE.ST",
+  "CHECK.ST",
+  "COMPDM.ST",
+  "DEVP-B.ST",
+  "DIVIO-B.ST",
+  "DONE.ST",
+  "ENERS.ST",
+  "FLOWS.ST",
+  "GENI.ST",
+  "GREAT.ST",
+  "KENH.ST",
+  "KEOC.ST",
+  "KLIMAT.ST",
+  "LIME.ST",
+  "LITI.ST",
+  "LOYAL.ST",
+  "MOBA.ST",
+  "MODEL.ST",
+  "MSAB-B.ST",
+  "NEO-B.ST",
+  "OCTV-SDB.ST",
+  "ONEF.ST",
+  "OODA.ST",
+  "OPTER.ST",
+  "QBIM.ST",
+  "QCORE.ST",
+  "RPLAN.ST",
+  "SEYE.ST",
+  "SFL.ST",
+  "SFTR.ST",
+  "SKOLON.ST",
+  "SLEEP.ST",
+  "SMCRT.ST",
+  "SPEONE.ST",
+  "TRUE-B.ST",
+  "UPSALE.ST",
+  "VER.ST",
+  "VIT-B.ST",
+  "XMR.ST"
+ ],
+ "Technology|Software—Infrastructure": [
+  "4C.ST",
+  "ADVE.ST",
+  "ALPCOT-B.ST",
+  "BINERO.ST",
+  "CLAV.ST",
+  "ENEA.ST",
+  "FREJA.ST",
+  "INQ.ST",
+  "NTECH.ST",
+  "PJ.ST",
+  "SONE.ST",
+  "SUBGEN-TO-6.ST",
+  "SUBGEN.ST",
+  "TENEO.ST",
+  "WPAY.ST",
+  "YUBICO.ST"
+ ],
+ "Technology|Solar": [
+  "GIGA.ST",
+  "MIDS.ST",
+  "SOLT.ST"
+ ],
+ "Utilities|Utilities—Regulated Electric": [
+  "SIVI.ST"
+ ],
+ "Utilities|Utilities—Renewable": [
+  "CLIME-B.ST",
+  "DLAB.ST",
+  "EOLU-B.ST",
+  "MINEST.ST",
+  "ORRON.ST"
+ ]
+}
