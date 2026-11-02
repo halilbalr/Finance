@@ -1,12 +1,12 @@
 {
   "pricesDemo": false,
-  "pricesUpdatedAt": "2026-11-02T17:30:34Z",
+  "pricesUpdatedAt": "2026-11-02T18:29:14Z",
   "pricesNote": "Exempelkurser tills npm run update eller GitHub-automatiken har hämtat riktiga kurser.",
   "fx": {
     "SEK": 1,
-    "USD": 9.7748,
-    "NOK": 1.0529,
-    "EUR": 10.9541
+    "USD": 9.7808,
+    "NOK": 1.0519,
+    "EUR": 10.9466
   },
   "fxDemo": false,
   "source": "Yahoo Finance"
