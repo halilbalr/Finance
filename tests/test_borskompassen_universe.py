@@ -103,6 +103,7 @@ def test_selection_and_labels():
     assert found["EQNR.OL"]["sector"] == "Annat"  # no industry answer for Oslo here
     assert (found["MSFT"]["sector"], found["MSFT"]["name"]) == ("Teknik", "MSFT AB")
     assert found["XACT-OMXS30.ST"]["sector"] == "Sverigefond"
+    assert found["XACT-OMXS30.ST"]["about"] == "Börshandlad fond på Stockholmsbörsen."
     assert found["^GSPC"]["id"] == "idx-sp500" and found["GC=F"]["sector"] == "Gruvor & metaller"
     assert len({i["id"] for i in universe["instruments"]}) == len(universe["instruments"])
 
@@ -113,7 +114,7 @@ def test_funds_keep_one_share_class_and_skip_inactive():
     assert names == ["Avanza Global", "Handelsbanken Långränta (A1 SEK)"]  # largest class kept
     long_rate = next(i for i in found.values() if i["name"].startswith("Handelsbanken"))
     assert long_rate["sector"] == "Räntor"
-    assert long_rate["about"] == "Fond som handlas i Stockholm. Förvaltar cirka 9 miljarder SEK."
+    assert long_rate["about"] == "Fond. Förvaltar cirka 9 miljarder SEK."
 
 
 def test_fundamentals_cover_curated_symbols_and_use_yahoo_yield():

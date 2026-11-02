@@ -243,11 +243,15 @@ def build(config, previous, screen, sp500, industries, today):
             if assets >= 1e9
             else ""
         )
-        kind = "Fond" if row.get("quoteType") == "MUTUALFUND" else "Börshandlad fond"
+        kind = (
+            "Fond."
+            if row.get("quoteType") == "MUTUALFUND"
+            else "Börshandlad fond på Stockholmsbörsen."
+        )
         add({
             "id": slug(row["symbol"]), "symbol": row["symbol"],
             "ticker": row["symbol"].removesuffix(".ST"), "name": row["longName"], "type": "fond",
-            "sector": fund_sector(row["longName"]), "about": f"{kind} som handlas i Stockholm.{billions}",
+            "sector": fund_sector(row["longName"]), "about": kind + billions,
         })  # fmt: skip
 
     for extra in EXTRAS:

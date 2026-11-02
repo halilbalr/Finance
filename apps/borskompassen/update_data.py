@@ -23,6 +23,7 @@ from finance.data import ProviderError, YahooFinance
 
 APP = Path(__file__).resolve().parent
 PAUSE = 60  # sekunder att vänta när Yahoo stryper anropen
+REJECTED = ("inconsistent ohlc bounds", "missing or nonfinite")  # repots kontroll av OHLCV
 
 
 def _round(value, digits=None):
@@ -45,26 +46,67 @@ def _read(path, default):
         return default
 
 
-def _history(provider, symbol, start, end):
-    """Kurshistorik. Stryper Yahoo antalet anrop väntar vi en stund och försöker en gång till."""
+def yahoo_closes(symbol, start, end):
+    """Reserv när repots kontroll avvisar Yahoos rader: bara dagar med giltig stängningskurs.
+
+    Yahoo har ibland dagar där högsta eller lägsta kurs inte rymmer stängningen, och index
+    saknar ofta volym. Appen behöver bara stängningen och årets högsta och lägsta kurs, så
+    dagar utan stängningskurs hoppas över (inget fylls i) och högsta och lägsta kurs vidgas
+    till att alltid rymma stängningen.
+    """
+    import yfinance as yf
+
     try:
-        return provider.history(symbol, start, end)
-    except ProviderError as exc:
-        if not any(word in str(exc).lower() for word in ("rate limit", "too many requests")):
+        handle = yf.Ticker(symbol)
+        raw = handle.history(start=start, end=end, auto_adjust=False, actions=False, timeout=15)
+        close = pd.to_numeric(raw["Close"], errors="coerce")
+        close = close[close.gt(0) & close.map(math.isfinite)]
+        if close.empty:
+            raise ValueError("no valid closing prices")
+        positive = raw.loc[close.index, ["High", "Low"]].apply(pd.to_numeric, errors="coerce")
+        positive = positive.where(positive.gt(0))
+        result = pd.DataFrame(
+            {
+                "close": close,
+                "high": pd.concat([positive["High"], close], axis=1).max(axis=1),
+                "low": pd.concat([positive["Low"], close], axis=1).min(axis=1),
+            }
+        )
+        result = result[~result.index.duplicated(keep="last")].sort_index()
+        result.attrs["currency"] = (handle.history_metadata or {}).get("currency")
+        return result
+    except Exception as exc:  # yfinance har flera felfamiljer; samma gräns som repots adapter
+        raise ProviderError(f"Yahoo closes failed for {symbol}: {exc}") from exc
+
+
+def _history(provider, symbol, start, end, lenient=None):
+    """Kurshistorik via repots YahooFinance.
+
+    Stryper Yahoo antalet anrop väntar vi en stund och försöker en gång till. Avvisar repots
+    kontroll Yahoos rader används lenient (yahoo_closes) om den finns.
+    """
+    for attempt in (1, 2):
+        try:
+            return provider.history(symbol, start, end)
+        except ProviderError as exc:
+            message = str(exc).lower()
+            if attempt == 1 and ("rate limit" in message or "too many requests" in message):
+                print(f"     Yahoo stryper anropen, väntar {PAUSE} s", file=sys.stderr)
+                time.sleep(PAUSE)
+                continue
+            if lenient and any(text in message for text in REJECTED):
+                return lenient(symbol, start, end)
             raise
-        print(f"     Yahoo stryper anropen, väntar {PAUSE} s", file=sys.stderr)
-        time.sleep(PAUSE)
-        return provider.history(symbol, start, end)
 
 
-def quote(instrument, provider, start, end, stamp, fundamentals):
+def quote(instrument, provider, start, end, stamp, fundamentals, lenient=None):
     """En post i quotes.json: ett års dagliga stängningar, senaste kurs och nyckeltal.
 
     fundamentals[symbol] = {pe, dividendYield, price} från build_universe.py. Vinst och
     utdelning per aktie ändras sällan, så båda räknas om mot dagens kurs.
     """
     symbol = instrument["symbol"]
-    prices = _history(provider, symbol, start, end)
+    prices = _history(provider, symbol, start, end, lenient)
     dates = [day.strftime("%Y-%m-%d") for day in prices.index]
     closes = [_round(value) for value in prices["close"]]
     known = fundamentals.get(symbol) or {}
@@ -110,7 +152,7 @@ def instruments(app):
     return config, config["instruments"] + extra, universe.get("fundamentals", {})
 
 
-def update(app, provider, now):
+def update(app, provider, now, lenient=None):
     config, followed, fundamentals = instruments(app)
     data = app / "data"
     previous = {q["id"]: q for q in _read(data / "quotes.json", {}).get("quotes", [])}
@@ -125,7 +167,7 @@ def update(app, provider, now):
     for instrument in followed:
         symbol = instrument["symbol"]
         try:
-            quotes.append(quote(instrument, provider, year_ago, end, stamp, fundamentals))
+            quotes.append(quote(instrument, provider, year_ago, end, stamp, fundamentals, lenient))
             print(f"ok   {symbol}")
         except (ProviderError, ValueError) as exc:
             errors.append({"id": instrument["id"], "symbol": symbol, "error": str(exc)})
@@ -140,7 +182,9 @@ def update(app, provider, now):
     fx_ok = True
     for currency, symbol in config.get("fx", {}).items():
         try:
-            fx[currency] = _round(_history(provider, symbol, week_ago, end)["close"].iloc[-1], 4)
+            fx[currency] = _round(
+                _history(provider, symbol, week_ago, end, lenient)["close"].iloc[-1], 4
+            )
         except (ProviderError, ValueError) as exc:
             fx_ok = False
             errors.append({"id": f"fx-{currency}", "symbol": symbol, "error": str(exc)})
@@ -165,4 +209,4 @@ def update(app, provider, now):
 
 
 if __name__ == "__main__":
-    update(APP, YahooFinance(adjusted=False), pd.Timestamp.now(tz="UTC"))
+    update(APP, YahooFinance(adjusted=False), pd.Timestamp.now(tz="UTC"), yahoo_closes)
