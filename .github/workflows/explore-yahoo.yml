@@ -1,15 +1,15 @@
-name: Undersök Yahoo (tillfällig)
+name: Provkör Börskompassens hämtning (tillfällig)
 
 on:
   push:
     branches: [claude/integrate-borskompassen-app-h83c12]
-    paths: ['.github/explore/*.py', '.github/workflows/explore-yahoo.yml']
+    paths: ['.github/workflows/explore-yahoo.yml']
 
 permissions:
   contents: write
 
 jobs:
-  explore:
+  trial:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -18,12 +18,27 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - run: python -m pip install '.[data]'
-      - run: python .github/explore/explore_yahoo.py explore-out
+      - run: python -m pip install '.[data]' pytest
+      - run: python -m pytest tests/test_borskompassen.py tests/test_borskompassen_universe.py
+      - name: Hämta förra publicerade kurser
+        working-directory: apps/borskompassen
+        run: |
+          for file in data/quotes.json data/meta.json universe.json; do
+            curl -fsSL --retry 3 "https://halilbalr.github.io/Finance/$file" -o "$file.new" \
+              && mv "$file.new" "$file" || rm -f "$file.new"
+          done
       - run: |
+          mkdir -p explore-out/run
+          /usr/bin/time -v python apps/borskompassen/build_universe.py 2> explore-out/run/universe.time
+          tail -n 25 explore-out/run/universe.time
+      - run: |
+          /usr/bin/time -v python apps/borskompassen/update_data.py > explore-out/run/update.log 2> explore-out/run/update.err || true
+          tail -n 5 explore-out/run/update.log; grep -c "^fel" explore-out/run/update.err || true
+      - run: |
+          cp apps/borskompassen/universe.json apps/borskompassen/data/quotes.json apps/borskompassen/data/meta.json explore-out/run/
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add explore-out
-          git commit -m "Tillfälligt: resultat från Yahoo-undersökning"
+          git add explore-out/run
+          git commit -m "Tillfälligt: provkörning av hämtningen"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push
