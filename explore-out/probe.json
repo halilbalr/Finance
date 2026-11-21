@@ -28,7 +28,7 @@
  "yahoo_news": {
   "VOLV-B.ST": {
    "n": 10,
-   "seconds": 0.8,
+   "seconds": 0.9,
    "sample": [
     {
      "title": "CAT Standardizes Construction Equipment Safety: Will It Set It Apart?",
@@ -49,7 +49,7 @@
   },
   "SAAB-B.ST": {
    "n": 10,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "sample": [
     {
      "title": "Melrose offers 72% upside after positive trading update, says RBC",
@@ -91,8 +91,13 @@
   },
   "EQNR.OL": {
    "n": 10,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "sample": [
+    {
+     "title": "Shell (LSE:SHEL) Gets Bay Du Nord Plan Approval As FID Moves Closer",
+     "published": "2026-11-21T21:09:26Z",
+     "url": "https://finance.yahoo.com/energy/articles/shell-lse-shel-gets-bay-210926195.html"
+    },
     {
      "title": "Equinor (OB:EQNR) Contains Cyberattack As Security Authorities Join Response",
      "published": "2026-11-21T08:16:43Z",
@@ -102,11 +107,6 @@
      "title": "Ottawa, Newfoundland and Labrador approve $14-billion Bay du Nord offshore oil project",
      "published": "2026-11-20T22:15:12Z",
      "url": "https://financialpost.com/energy/oil-gas/ottawa-nl-approve-14-billion-bay-du-nord-offshore-oil-project/"
-    },
-    {
-     "title": "Bay du Nord development plan approved, but what happens next?",
-     "published": "2026-11-20T21:50:18Z",
-     "url": "https://financialpost.com/energy/oil-gas/bay-du-nord-development-plan-approved-but-what-happens-next/"
     }
    ]
   },
@@ -114,6 +114,11 @@
    "n": 10,
    "seconds": 0.2,
    "sample": [
+    {
+     "title": "Novo Nordisk's Wegovy Pill Is Capturing 80% of New Oral Obesity Prescriptions. Is NVO Stock a Buy?",
+     "published": "2026-11-21T22:35:02Z",
+     "url": "https://www.fool.com/investing/2026/11/21/novo-nordisks-wegovy-pill-is-capturing-80-of-new-oral-obesity-prescriptions-is-nvo-stock-a-buy/"
+    },
     {
      "title": "Eli Lilly Is Near Its High. Bank of America Sees Another 19%",
      "published": "2026-11-21T14:09:54Z",
@@ -123,11 +128,6 @@
      "title": "Novo Gets FDA Approval For First-Of-Its-Kind Weekly Growth Hormone Treatment For Children With Turner Syndrome",
      "published": "2026-11-20T18:06:17Z",
      "url": "https://stocktwits.com/news-articles/markets/equity/novo-gets-fda-approval-for-first-of-its-kind-weekly-growth-hormone-treatment-for-children-with-turner-syndrome/cNbS8XhR91I"
-    },
-    {
-     "title": "Lilly vs. Pfizer: Which Drugmaker Has Stronger Growth Prospects?",
-     "published": "2026-11-20T14:39:00Z",
-     "url": "https://finance.yahoo.com/healthcare/articles/lilly-vs-pfizer-drugmaker-stronger-143900789.html"
     }
    ]
   },
