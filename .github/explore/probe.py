@@ -25,14 +25,18 @@ def call(url, body=None):
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             headers = {k: v for k, v in response.headers.items() if "ratelimit" in k.lower()}
-            return response.status, headers, json.loads(response.read())
+            raw = response.read().decode("utf-8", "replace")
+            try:
+                return response.status, headers, json.loads(raw)
+            except ValueError:
+                return response.status, headers, raw[:600]
     except urllib.error.HTTPError as exc:
         return exc.code, dict(exc.headers), exc.read().decode()[:600]
 
 
 status, headers, catalog = call("https://models.github.ai/catalog/models")
 log["catalog_status"] = status
-if status == 200:
+if status == 200 and isinstance(catalog, list):
     log["models"] = [{k: m.get(k) for k in ("id", "rate_limit_tier", "publisher")} for m in catalog]
 else:
     log["catalog_error"] = catalog
@@ -43,7 +47,10 @@ for model in ["openai/gpt-4.1-mini", "openai/gpt-4.1", "openai/gpt-4o-mini", "de
     status, headers, body = call("https://models.github.ai/inference/chat/completions",
                                  {"model": model, "messages": prompt, "max_tokens": 200,
                                   "response_format": {"type": "json_object"}})
-    text = body["choices"][0]["message"]["content"] if status == 200 else body
+    try:
+        text = body["choices"][0]["message"]["content"]
+    except (TypeError, KeyError, IndexError):
+        text = body
     log[f"call {model}"] = {"status": status, "seconds": round(time.time() - t, 1), "rate": headers, "text": text}
 
 provider = YahooFinance()
