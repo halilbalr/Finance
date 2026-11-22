@@ -9,6 +9,6 @@
     "universe": "python build_universe.py",
     "update": "python update_data.py",
     "start": "node server.mjs",
-    "test": "python -m pytest ../../tests/test_borskompassen.py ../../tests/test_borskompassen_universe.py"
+    "test": "cd ../.. && python -m pytest tests/test_borskompassen*.py"
   }
 }

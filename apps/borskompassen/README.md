@@ -76,9 +76,28 @@ Analyserna ligger i `data/briefs.json`. Varje analys har ett datum, en sammanfat
 - vilka branscher som påverkas, åt vilket håll och varför (`impacts`)
 - länkar till källorna (`sources`)
 
-Kopiera den befintliga analysen som mall när du lägger in en ny. Appen visar den nyaste och låter dig bläddra bland de äldre.
+Appen visar den nyaste och låter dig bläddra bland de äldre. Under **Senaste rubrikerna** i Omvärld syns de senaste nyheterna från SVT Ekonomi, DI, Riksbanken, BBC och CNBC. De hämtas automatiskt (`data/headlines.json`).
 
-Hämtskriptet rör inte den här filen. Den uppdateras bara när du själv, eller någon du ber om hjälp, lägger in en ny analys.
+En ny analys skrivs automatiskt varje morgon av Googles AI Gemini (`ai.py`), utifrån dagens rubriker. Gemini får bara använda rubrikerna, källänkarna kommer från rubrikerna och branscherna kontrolleras innan något sparas. Texten kan ändå innehålla fel, och det står i appen. Du kan fortfarande lägga in en egen analys i filen; den nyaste för varje datum visas.
+
+### Slå på Gemini (gratis)
+
+1. Logga in på [aistudio.google.com/apikey](https://aistudio.google.com/apikey) med ett Google-konto och skapa en API-nyckel. Gratisnivån räcker.
+2. Gå till repots **Settings → Secrets and variables → Actions → New repository secret**. Döp den till `GEMINI_API_KEY` och klistra in nyckeln.
+
+Nyckeln ligger bara i GitHub och syns aldrig i appen. Utan nyckel hoppas AI-delen över och resten fungerar som vanligt.
+
+## Analyser per aktie
+
+På varje aktiesida finns, när det finns underlag:
+
+- **Teknisk analys**: trend, gyllene kors och dödskors, MACD, Bollingerband, RSI och svängningar, räknade med repots egna indikatorer och förklarade på svenska.
+- **Nyckeltal**: börsvärde, analytikernas snittbetyg och (i läget Avancerat) P/E framåt, P/B och vinst per aktie från Yahoo.
+- **Nyheter** från Yahoo Finance, för de handplockade och de 150 största aktierna. Rubrikerna är oftast på engelska.
+- **AI-prognos** med den öppna modellen Kronos för de handplockade och de 100 största aktierna, en gång per dygn. Den visas som ett spann eftersom den är mycket osäker.
+- **AI-analys** skriven av Gemini för de handplockade och de 40 största aktierna, en gång per dag, om nyckeln finns.
+
+Allt räknas fram av den automatiska körningen och sparas i en liten fil per aktie (`data/detail/<id>.json`), som appen hämtar först när du öppnar aktiesidan. Alla delar är gratis.
 
 ## Var sparas mina affärer?
 
@@ -103,7 +122,10 @@ I webbläsaren, på den enhet du använder. Inget skickas till någon server. Vi
 | `build_universe.py` | Bygger `universe.json`: alla övriga aktier, fonder och annat från Yahoos listor |
 | `universe.json` | Skapas av `build_universe.py`, finns inte i repot utan på den publicerade sidan |
 | `update_data.py` | Hämtar kurser via repots `finance`-paket och skriver `data/quotes.json` och `data/meta.json` |
+| `details.py` | Skriver `data/detail/<id>.json` (tekniska signaler, nyckeltal, nyheter) och `data/headlines.json` |
+| `forecast.py` | Kronos-prognoser i `data/forecasts.json`, en gång per dygn |
+| `ai.py` | Geminis omvärldsanalys i `data/briefs.json` och aktieanalyser i `data/analyses.json` |
 | `data/` | Kurser, valutakurser, omvärldsanalyser och kalender |
 | `server.mjs` | Enkel webbserver för att köra appen lokalt |
-| `tests/test_borskompassen*.py` (i repots rot) | Tester för hämtningen och listan, med påhittade kurser |
+| `tests/test_borskompassen*.py` (i repots rot) | Tester för hämtningen, listan, detaljerna, prognoserna och AI-delen, med påhittade data |
 | `.github/workflows/update-data.yml` (i repots rot) | Hämtar kurser enligt schema och publicerar på GitHub Pages |

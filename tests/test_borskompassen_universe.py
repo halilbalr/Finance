@@ -53,7 +53,11 @@ FUNDS = [
 ]
 SCREENS = {
     ("equity", "STO"): [
-        row("VOLV-B.ST", trailingPE=16.2, dividendYield=2.74, regularMarketPrice=309.0),
+        row(
+            "VOLV-B.ST", trailingPE=16.2, dividendYield=2.74, regularMarketPrice=309.0,
+            forwardPE=14.0, priceToBook=3.1, epsTrailingTwelveMonths=19.1,
+            averageAnalystRating="2.2 - Buy", bid=308.9,
+        ),
         row("LATO-B.ST", longName="Investment AB Latour"),
         row("SHB-A.ST", dividendYield=5.14, trailingAnnualDividendRate=999),
         row("ALZ-TO5.ST", marketCap=None),  # warrant
@@ -106,6 +110,7 @@ def test_selection_and_labels():
     assert found["XACT-OMXS30.ST"]["about"] == "Börshandlad fond på Stockholmsbörsen."
     assert found["^GSPC"]["id"] == "idx-sp500" and found["GC=F"]["sector"] == "Gruvor & metaller"
     assert len({i["id"] for i in universe["instruments"]}) == len(universe["instruments"])
+    assert universe["version"] == bu.VERSION
 
 
 def test_funds_keep_one_share_class_and_skip_inactive():
@@ -119,11 +124,16 @@ def test_funds_keep_one_share_class_and_skip_inactive():
 
 def test_fundamentals_cover_curated_symbols_and_use_yahoo_yield():
     fundamentals = build()["fundamentals"]
-    assert fundamentals["VOLV-B.ST"] == {"pe": 16.2, "dividendYield": 2.74, "price": 309.0}
+    assert fundamentals["VOLV-B.ST"] == {
+        "pe": 16.2, "dividendYield": 2.74, "marketCap": 1e9, "forwardPE": 14.0,
+        "priceToBook": 3.1, "eps": 19.1, "analystRating": "2.2 - Buy", "price": 309.0,
+    }  # fmt: skip
     assert fundamentals["AAPL"]["pe"] == 30.0
     # dividendYield, not trailingAnnualDividendRate, which may be in another currency
     assert fundamentals["SHB-A.ST"]["dividendYield"] == 5.14
     assert "ALZ-TO5.ST" not in fundamentals and "QUIET.ST" not in fundamentals
+    avanza = next(f for f in FUNDS if f["longName"] == "Avanza Global")
+    assert fundamentals[avanza["symbol"]] == {"netAssets": 60e9, "price": 100.0}
 
 
 def test_vanished_instruments_keep_ids_for_a_grace_period():
