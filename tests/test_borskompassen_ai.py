@@ -115,7 +115,7 @@ def test_build_writes_brief_and_analyses_once_a_day(app, monkeypatch):
     assert "Börsras på Wall Street" in ask.prompts[0]
 
     analyses = json.loads((app / "data/analyses.json").read_text())
-    assert analyses["date"] == "2026-11-21" and list(analyses["analyses"]) == [
+    assert analyses["updatedAt"] == "2026-11-21T07:30:00Z" and list(analyses["analyses"]) == [
         "eric-b"
     ]  # Big failed
     entry = analyses["analyses"]["eric-b"]
@@ -129,6 +129,31 @@ def test_build_writes_brief_and_analyses_once_a_day(app, monkeypatch):
     ai.build(app, again, NOW + pd.Timedelta(hours=9), top=1)
     assert len(again.prompts) == 1 and "Big" in again.prompts[0]
     assert len(json.loads((app / "data/briefs.json").read_text())["briefs"]) == 2
+
+
+def test_analyses_last_a_week_and_the_oldest_are_rewritten_first(app, monkeypatch):
+    monkeypatch.setattr(ai, "PAUSE", 0)
+    stamp = lambda days: (NOW - pd.Timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")  # noqa: E731
+    old = {"summary": "Gammal.", "plus": [], "minus": [], "model": "m"}
+    (app / "data/analyses.json").write_text(json.dumps({"analyses": {
+        "eric-b": {**old, "createdAt": stamp(1)}, "big": {**old, "createdAt": stamp(3)},
+        "small": {**old, "createdAt": stamp(8)},  # older than a week: dropped
+    }}))  # fmt: skip
+
+    class OneLeft(FakeGemini):  # the daily quota runs out after one stock
+        def __call__(self, prompt):
+            if "omvärldsanalys" not in prompt and len(self.prompts) > 1:
+                raise ai.QuotaExhausted("dagens gratiskvot hos Gemini är slut")
+            return super().__call__(prompt)
+
+    ask = OneLeft()
+    ai.build(app, ask, NOW, top=1)
+    assert len(ask.prompts) == 2 and "Big" in ask.prompts[1]  # oldest first, then stop
+    saved = json.loads((app / "data/analyses.json").read_text())["analyses"]
+    assert set(saved) == {"eric-b", "big"} and saved["big"]["createdAt"] == stamp(0)
+    assert saved["eric-b"]["summary"] == "Gammal."  # kept until a later run has quota
+    detail = json.loads((app / "data/detail/eric-b.json").read_text())
+    assert detail["analysis"]["summary"] == "Gammal."
 
 
 class Response(io.BytesIO):
@@ -154,11 +179,37 @@ def test_gemini_tries_next_model_and_waits_when_rate_limited(monkeypatch):
 
     monkeypatch.setattr(ai.urllib.request, "urlopen", urlopen)
     monkeypatch.setattr(ai.time, "sleep", waits.append)
-    monkeypatch.setattr(ai, "MODELS", ["saknas", "gemini-2.5-flash"])
-    assert ai.gemini("hej", "nyckel") == ({"summary": "ok"}, "gemini-2.5-flash")
+    monkeypatch.setattr(ai, "MODELS", ["saknas", "gemini-flash-lite-latest"])
+    monkeypatch.setattr(ai, "SPENT", set())
+    assert ai.gemini("hej", "nyckel") == ({"summary": "ok"}, "gemini-flash-lite-latest")
     assert calls == [
         "saknas:generateContent",
-        "gemini-2.5-flash:generateContent",
-        "gemini-2.5-flash:generateContent",
+        "gemini-flash-lite-latest:generateContent",
+        "gemini-flash-lite-latest:generateContent",
     ]
     assert waits == [60]
+
+
+def test_gemini_skips_models_whose_daily_quota_is_spent(monkeypatch):
+    calls, waits = [], []
+    answer = {"candidates": [{"content": {"parts": [{"text": '{"summary": "ok"}'}]}}]}
+    per_day = b'{"error": {"details": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}]}}'
+    lite_left = [True]
+
+    def urlopen(request, timeout):
+        model = request.full_url.split("/models/")[1].split(":")[0]
+        calls.append(model)
+        if model == "flash" or not lite_left[0]:
+            raise urllib.error.HTTPError(request.full_url, 429, "quota", {}, io.BytesIO(per_day))
+        return Response(json.dumps(answer).encode())
+
+    monkeypatch.setattr(ai.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(ai.time, "sleep", waits.append)
+    monkeypatch.setattr(ai, "MODELS", ["flash", "lite"])
+    monkeypatch.setattr(ai, "SPENT", set())
+    assert ai.gemini("a", "k") == ({"summary": "ok"}, "lite")
+    assert ai.gemini("b", "k") == ({"summary": "ok"}, "lite")
+    assert calls == ["flash", "lite", "lite"] and waits == []  # no waiting, flash not asked again
+    lite_left[0] = False
+    with pytest.raises(ai.QuotaExhausted):
+        ai.gemini("c", "k")

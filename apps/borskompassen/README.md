@@ -95,7 +95,7 @@ På varje aktiesida finns, när det finns underlag:
 - **Nyckeltal**: börsvärde, analytikernas snittbetyg och (i läget Avancerat) P/E framåt, P/B och vinst per aktie från Yahoo.
 - **Nyheter** från Yahoo Finance, för de handplockade och de 150 största aktierna. Rubrikerna är oftast på engelska.
 - **AI-prognos** med den öppna modellen Kronos för de handplockade och de 100 största aktierna, en gång per dygn. Den visas som ett spann eftersom den är mycket osäker.
-- **AI-analys** skriven av Gemini för de handplockade och de 40 största aktierna, en gång per dag, om nyckeln finns.
+- **AI-analys** skriven av Gemini för de handplockade och de 40 största aktierna, om nyckeln finns. Gratisnivån ger 20 anrop per modell och dag, och appen använder två modeller (Gemini Flash och Flash-Lite). Analyserna skrivs därför om efter hand, de äldsta först, och kan vara upp till en vecka gamla. Datumet står under analysen.
 
 Allt räknas fram av den automatiska körningen och sparas i en liten fil per aktie (`data/detail/<id>.json`), som appen hämtar först när du öppnar aktiesidan. Alla delar är gratis.
 

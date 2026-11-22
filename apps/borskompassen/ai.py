@@ -6,7 +6,9 @@ GEMINI_API_KEY:
 
 Utan nyckel görs ingenting. Analysen bygger bara på dagens rubriker i data/headlines.json; källorna
 i appen kommer från rubrikerna, aldrig från modellen. Branscher, riktningar och längder kontrolleras
-innan något sparas. Körs högst en gång per dag; aktieanalyserna läggs också in i detaljfilerna.
+innan något sparas. Omvärldsanalysen skrivs högst en gång per dag. Aktieanalyserna sparas i upp
+till en vecka; varje körning skriver först de som saknas och sedan de äldsta, tills gratiskvoten
+(20 anrop per modell och dag) är slut. De läggs också in i detaljfilerna.
 """
 
 import json
@@ -25,9 +27,11 @@ sys.path.insert(0, str(APP))
 
 from details import _largest  # noqa: E402
 
-MODELS = [os.environ.get("GEMINI_MODEL") or "gemini-flash-latest", "gemini-2.5-flash"]
+MODELS = [os.environ.get("GEMINI_MODEL") or "gemini-flash-latest", "gemini-flash-lite-latest"]
+SPENT = set()  # modeller vars dagskvot är slut i den här körningen
 ANALYSES_TOP = 40  # de största aktierna som får en AI-analys, utöver de handplockade
 MAX_BRIEFS, PAUSE = 30, 7  # sparade analyser; sekunder mellan anrop (gratisnivåns takt)
+ANALYSIS_DAYS = 7  # så länge en aktieanalys får visas
 SECTORS = [
     "Bank", "Industri", "Försvar", "Teknik", "Handel", "Läkemedel", "Gruvor & metaller",
     "Energi", "Spel", "Investmentbolag", "Fastigheter", "Globalfond", "Sverigefond", "Räntor",
@@ -40,14 +44,22 @@ SOURCE_NOTE = (
 )
 
 
+class QuotaExhausted(RuntimeError):
+    """Dagens gratiskvot är slut för alla modeller."""
+
+
 def gemini(prompt, key, timeout=120):
-    """Svar från Gemini som JSON. Provar MODELS i tur och ordning; väntar en gång vid strypning."""
+    """Svar från Gemini som JSON. Provar MODELS i tur och ordning; väntar en gång vid strypning.
+
+    En modell vars dagskvot är slut hoppas över resten av körningen."""
     body = json.dumps({
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3},
     }).encode()  # fmt: skip
     last = None
     for model in MODELS:
+        if model in SPENT:
+            continue
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         for attempt in (1, 2):
             request = urllib.request.Request(
@@ -60,6 +72,9 @@ def gemini(prompt, key, timeout=120):
                 return json.loads("".join(p.get("text", "") for p in parts)), model
             except urllib.error.HTTPError as exc:
                 last = f"{model}: HTTP {exc.code}"
+                if exc.code == 429 and "PerDay" in _error_body(exc):
+                    SPENT.add(model)
+                    break
                 if exc.code == 429 and attempt == 1:
                     time.sleep(60)
                     continue
@@ -67,7 +82,16 @@ def gemini(prompt, key, timeout=120):
             except (KeyError, IndexError, ValueError, OSError) as exc:
                 last = f"{model}: {exc}"
                 break
+    if all(model in SPENT for model in MODELS):
+        raise QuotaExhausted("dagens gratiskvot hos Gemini är slut")
     raise RuntimeError(f"Gemini svarade inte: {last}")
+
+
+def _error_body(exc):
+    try:
+        return exc.read().decode("utf-8", "replace")
+    except (OSError, AttributeError):
+        return ""
 
 
 def _text(value, limit):
@@ -193,8 +217,12 @@ def build(app, ask, now, top=None):
                 print(f"fel  omvärldsanalys: {exc}", file=sys.stderr)
     latest = next((b for b in briefs if b.get("date") == today), briefs[0] if briefs else None)
 
-    stored = _read(data / "analyses.json")
-    analyses = stored.get("analyses", {}) if stored.get("date") == today else {}
+    oldest = (now - pd.Timedelta(days=ANALYSIS_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    analyses = {
+        id: a
+        for id, a in _read(data / "analyses.json").get("analyses", {}).items()
+        if a.get("createdAt", "") >= oldest
+    }
     quotes = {q["id"]: q for q in json.loads((data / "quotes.json").read_text("utf-8"))["quotes"]}
     fundamentals = _read(app / "universe.json").get("fundamentals", {})
     curated = [
@@ -204,15 +232,19 @@ def build(app, ask, now, top=None):
     chosen = _largest(stocks, fundamentals, _read(data / "meta.json").get("fx", {}), curated,
                       ANALYSES_TOP if top is None else top)  # fmt: skip
     made = 0
-    for id in chosen:
+    age = lambda id: analyses.get(id, {}).get("createdAt", "")  # noqa: E731
+    for id in sorted(chosen, key=age):  # saknade först, sedan de äldsta
         path = data / "detail" / f"{id}.json"
-        if id in analyses or id not in quotes or not path.exists():
+        if age(id).startswith(today) or id not in quotes or not path.exists():
             continue
         detail = _read(path)
         try:
             answer, model = ask(analysis_prompt(quotes[id], detail, latest))
             analyses[id] = make_analysis(answer, model, stamp)
             made += 1
+        except QuotaExhausted as exc:
+            print(f"Stoppar: {exc}. Resten skrivs i en senare körning.")
+            break
         except (RuntimeError, ValueError) as exc:
             print(f"fel  analys {id}: {exc}", file=sys.stderr)
             continue
@@ -221,8 +253,8 @@ def build(app, ask, now, top=None):
         path = data / "detail" / f"{id}.json"
         if path.exists():
             _write(path, {**_read(path), "analysis": entry})
-    _write(data / "analyses.json", {"date": today, "analyses": analyses})
-    print(f"Klart: {made} nya aktieanalyser, {len(analyses)} för i dag.")
+    _write(data / "analyses.json", {"updatedAt": stamp, "analyses": analyses})
+    print(f"Klart: {made} nya aktieanalyser, {len(analyses)} sparade.")
 
 
 def _read(path):
