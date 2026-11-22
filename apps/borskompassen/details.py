@@ -11,7 +11,9 @@ handplockade och de största instrumenten, samt Kronos-prognos och AI-analys nä
 
 import json
 import math
+import re
 import sys
+from itertools import zip_longest
 from pathlib import Path
 
 import numpy as np
@@ -209,17 +211,34 @@ def _largest(quotes, fundamentals, fx, curated, top):
     return list(dict.fromkeys(list(curated) + ranked))
 
 
-def news_for(provider, symbol, limit=6):
-    frame = provider.news(symbol).head(limit)
-    return [
-        {"title": r["title"], "url": r["url"], "published": str(r["published"] or "")[:10]}
-        for r in frame.to_dict("records")
-        if r.get("url")
-    ]
+GENERIC = {"ab", "the", "inc", "investment", "aktiebolaget", "aktiebolag", "group", "holding",
+           "corporation", "company", "co", "asa", "oyj", "a/s", "plc", "ltd", "sa", "se", "nv"}  # fmt: skip
+
+
+def name_words(quote):
+    """Ord som en relevant rubrik bör innehålla: bolagsnamnets första egna ord och kortnamnet."""
+    words = [w.strip("(),.").lower() for w in (quote.get("name") or "").split()]
+    first = next((w for w in words if len(w) >= 3 and w not in GENERIC), None)
+    ticker = (quote.get("ticker") or "").split()[0].lower() if quote.get("ticker") else ""
+    return {w for w in (first, ticker) if w and len(w) >= 3}
+
+
+def news_for(provider, quote, limit=6):
+    """Yahoos rubriker om bolaget. Rubriker som inte nämner bolaget sorteras bort,
+    eftersom Yahoo ofta blandar in artiklar om konkurrenter och allmänna listor."""
+    words = name_words(quote)
+    rows = []
+    for r in provider.news(quote["symbol"]).to_dict("records"):
+        title = r.get("title") or ""
+        if r.get("url") and any(re.search(rf"\b{re.escape(w)}", title.lower()) for w in words):
+            rows.append(
+                {"title": title, "url": r["url"], "published": str(r["published"] or "")[:10]}
+            )
+    return rows[:limit]
 
 
 def headlines(fetch=rss_news, limit=15):
-    """De senaste rubrikerna från FEEDS: [{source, title, url, published}], nyast först."""
+    """De senaste rubrikerna från FEEDS: [{source, title, url, published}], källorna varvade."""
     rows, errors = [], []
     for source, url in FEEDS:
         try:
@@ -236,8 +255,12 @@ def headlines(fetch=rss_news, limit=15):
                     "published": pd.Timestamp(r["published"]).isoformat(),
                 }
             )
-    rows.sort(key=lambda r: r["published"], reverse=True)
-    return rows, errors
+    # Varva källorna (nyast först inom varje), så att en flitig källa inte tränger undan de andra.
+    by_source = {}
+    for row in sorted(rows, key=lambda r: r["published"], reverse=True):
+        by_source.setdefault(row["source"], []).append(row)
+    mixed = [r for group in zip_longest(*by_source.values()) for r in group if r]
+    return mixed, errors
 
 
 def build(app, provider, now, fetch_feed=rss_news):
@@ -269,7 +292,7 @@ def build(app, provider, now, fetch_feed=rss_news):
         }
         if q["id"] in with_news and q.get("type") == "aktie":
             try:
-                detail["news"] = news_for(provider, q["symbol"])
+                detail["news"] = news_for(provider, q)
             except (ProviderError, ValueError) as exc:
                 failures += 1
                 print(f"fel  nyheter {q['symbol']}: {exc}", file=sys.stderr)

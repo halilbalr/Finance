@@ -68,8 +68,11 @@ class FakeYahoo:
         self.asked.append(symbol)
         if symbol == "BAD.ST":
             raise ProviderError("empty news response")
-        return pd.DataFrame([{"title": f"{symbol} nyhet", "url": f"https://x/{symbol}",
-                              "published": "2026-11-20T10:00:00Z"}])  # fmt: skip
+        name = symbol.split("-")[0].split(".")[0].title()
+        return pd.DataFrame([
+            {"title": f"{name} raises outlook", "url": f"https://x/{symbol}", "published": "2026-11-20T10:00:00Z"},
+            {"title": "New Strong Sell Stocks for November", "url": "https://x/list", "published": "2026-11-19"},
+        ])  # fmt: skip
 
 
 def feed(url):
@@ -84,8 +87,9 @@ def feed(url):
 def app(tmp_path):
     def quote(id, symbol, kind="aktie", currency="SEK"):
         closes = list(np.linspace(100, 120, 250))
-        return {"id": id, "symbol": symbol, "type": kind, "currency": currency, "price": closes[-1],
-                "history": {"dates": [], "close": closes}}  # fmt: skip
+        name = symbol.split("-")[0].split(".")[0].title() + " AB"
+        return {"id": id, "symbol": symbol, "name": name, "type": kind, "currency": currency,
+                "price": closes[-1], "history": {"dates": [], "close": closes}}  # fmt: skip
 
     quotes = [quote("volv-b", "VOLV-B.ST"), quote("big-st", "BIG.ST"), quote("bad-st", "BAD.ST"),
               quote("small-st", "SMALL.ST"), quote("fond", "0P1.ST", "fond")]  # fmt: skip
@@ -114,7 +118,7 @@ def test_build_writes_detail_files_news_and_headlines(app, monkeypatch):
     # News for curated + the two largest stocks; funds never take a place.
     assert provider.asked == ["VOLV-B.ST", "BIG.ST", "BAD.ST"]
     assert read("volv-b")["news"] == [
-        {"title": "VOLV-B.ST nyhet", "url": "https://x/VOLV-B.ST", "published": "2026-11-20"}
+        {"title": "Volv raises outlook", "url": "https://x/VOLV-B.ST", "published": "2026-11-20"}
     ]
     assert "news" not in read("small-st") and "news" not in read("fond")
     big = read("big-st")
@@ -137,3 +141,30 @@ def test_news_failure_is_reported_and_other_files_still_written(app, monkeypatch
     assert "news" not in json.loads((app / "data/detail/bad-st.json").read_text())
     assert "fel  nyheter BAD.ST" in capsys.readouterr().err
     assert len(list((app / "data/detail").glob("*.json"))) == 5
+
+
+@pytest.mark.parametrize(
+    "name,ticker,words",
+    [
+        ("Volvo B", "VOLV B", {"volvo", "volv"}),
+        ("Investment AB Latour (publ)", "LATO B", {"latour", "lato"}),
+        ("Apple Inc.", "AAPL", {"apple", "aapl"}),
+        ("H&M B", "HM B", {"h&m"}),
+    ],
+)
+def test_name_words(name, ticker, words):
+    assert details.name_words({"name": name, "ticker": ticker}) == words
+
+
+def test_headlines_alternate_sources():
+    def busy(url):
+        many = 5 if "di.se" in url else 1
+        return pd.DataFrame([{"title": f"{url[-8:]} {n}", "url": f"{url}/{n}",
+                              "published": pd.Timestamp("2026-11-21 12:00", tz="UTC") - pd.Timedelta(minutes=n)}
+                             for n in range(many)])  # fmt: skip
+
+    rows, errors = details.headlines(busy)
+    sources = [r["source"] for r in rows]
+    assert errors == [] and len(rows) == 5 + len(details.FEEDS) - 1
+    assert len(set(sources[: len(details.FEEDS)])) == len(details.FEEDS)  # one of each first
+    assert sources[-4:] == ["Dagens industri"] * 4

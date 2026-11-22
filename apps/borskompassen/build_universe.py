@@ -28,6 +28,7 @@ from pathlib import Path
 APP = Path(__file__).resolve().parent
 FUNDS = 300
 GRACE_DAYS = 30
+VERSION = 2  # höj när innehållet i universe.json ändras, så att listan byggs om direkt
 EXCHANGES = {  # Yahoos börskod -> (symbolsuffix, namn i appen)
     "STO": ("ST", "Stockholmsbörsen"),
     "OSL": ("OL", "Oslobörsen"),
@@ -295,6 +296,7 @@ def _merge(curated, previous, found, fundamentals, today):
     keep = {i["symbol"] for i in instruments} | {i["symbol"] for i in curated}
     return {
         "generatedAt": today.isoformat(),
+        "version": VERSION,
         "instruments": sorted(instruments, key=lambda i: i["id"]),
         "fundamentals": {s: f for s, f in sorted(fundamentals.items()) if f and s in keep},
     }
@@ -343,7 +345,12 @@ def main():
         previous = json.loads(path.read_text("utf-8"))
     except (OSError, ValueError):
         previous = {}
-    if args.max_age_days is not None and previous.get("generatedAt"):
+    # En lista i ett äldre format byggs om direkt, oavsett ålder.
+    if (
+        args.max_age_days is not None
+        and previous.get("generatedAt")
+        and previous.get("version") == VERSION
+    ):
         if date.fromisoformat(previous["generatedAt"]) > today - timedelta(days=args.max_age_days):
             print(f"Listan från {previous['generatedAt']} är aktuell, bygger inte om.")
             return

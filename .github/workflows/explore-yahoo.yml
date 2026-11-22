@@ -26,6 +26,8 @@ jobs:
           for file in data/quotes.json data/meta.json universe.json data/briefs.json; do
             curl -fsSL --retry 3 "https://halilbalr.github.io/Finance/$file" -o "$file"
           done
+      - name: Lista (ska byggas om på grund av ny version)
+        run: python apps/borskompassen/build_universe.py --max-age-days 7
       - name: Kronos
         run: |
           python apps/borskompassen/forecast.py --due && echo due
@@ -39,7 +41,7 @@ jobs:
           mkdir -p explore-out/trial
           D=apps/borskompassen/data
           cp $D/forecasts.json $D/headlines.json explore-out/trial/
-          cp $D/detail/volv-b.json $D/detail/nvda.json $D/detail/saab-b.json explore-out/trial/
+          cp $D/detail/volv-b.json $D/detail/nvda.json $D/detail/saab-b.json $D/detail/eric-b.json explore-out/trial/
           ls $D/detail | wc -l > explore-out/trial/count.txt; du -sh $D/detail >> explore-out/trial/count.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"

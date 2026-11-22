@@ -110,6 +110,7 @@ def test_selection_and_labels():
     assert found["XACT-OMXS30.ST"]["about"] == "Börshandlad fond på Stockholmsbörsen."
     assert found["^GSPC"]["id"] == "idx-sp500" and found["GC=F"]["sector"] == "Gruvor & metaller"
     assert len({i["id"] for i in universe["instruments"]}) == len(universe["instruments"])
+    assert universe["version"] == bu.VERSION
 
 
 def test_funds_keep_one_share_class_and_skip_inactive():
