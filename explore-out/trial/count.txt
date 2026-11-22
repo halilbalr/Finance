@@ -1,2 +1,0 @@
-2228
-8.8M	apps/borskompassen/data/detail
