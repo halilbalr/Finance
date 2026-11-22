@@ -617,7 +617,7 @@ const S = {
   ready: { market: false, user: false }, marketSlow: false, marketErr: false,
   route: { view: 'hem', param: null },
   ui: { range: '6M', prange: '6M', mfilter: 'alla', q: '', sim: 'olja-upp', brief: 0, gq: '', helpTab: 'sida', hq: '', wopen: null },
-  sample: null, sampleOff: false, chat: [], chatCtl: null,
+  sample: null, sampleOff: false, chat: [], chatCtl: null, detail: {}, headlines: [],
   P: null, N: [],
 };
 const adv = () => S.settings.mode === 'avancerat';
@@ -642,7 +642,8 @@ const Store = {
     if (q && Array.isArray(q.quotes)) {
       S.quotes = Object.fromEntries(q.quotes.map(x => [x.id, x]));
       S.meta = m || {}; S.briefs = (b?.briefs || []).slice().sort((x, y) => (y.date || '').localeCompare(x.date || ''));
-      S.calendar = c?.events || []; S.marketErr = false; this.loadedAt = Date.now();
+      S.calendar = c?.events || []; S.marketErr = false; this.loadedAt = Date.now(); S.detail = {};
+      get('headlines').then(h => { S.headlines = h?.headlines || []; schedRender(); });
     } else S.marketErr = true;
     S.ready.market = true; invalidate(); schedRender();
   },
@@ -1138,17 +1139,69 @@ VIEWS.aktie = () => {
   // sensitivities
   const sens = EVENTS.map(ev => ({ ev, e: effectOf(ev, i) })).filter(x => x.e && x.e[0] !== 0 && !ev_isCompany(x.ev)).sort((a, b) => Math.abs(b.e[0]) - Math.abs(a.e[0])).slice(0, 6);
   const sensCard = `<section class="card"><h2>Så brukar ${esc(i.name)} påverkas</h2><p class="small ink2" style="margin-bottom:6px">Vad som brukar hända med ${esc(i.sector.toLowerCase())} när något av det här inträffar.</p>${sens.length ? sens.map(({ ev, e }) => `<div class="factor"><span class="fi ${e[0] > 0 ? 'p' : 'n'}" aria-hidden="true">${e[0] > 0 ? '▲' : '▼'}</span><div><b>${esc(ev.name)}: ${e[0] > 0 ? 'brukar gynnas' : 'brukar missgynnas'}${Math.abs(e[0]) >= 2 ? ' tydligt' : ''}</b><p>${esc(e[1])}</p></div></div>`).join('') : '<p class="ink2 small">Ingen tydlig koppling i appens händelsebibliotek.</p>'}<p style="margin-top:10px"><a href="#lar">Prova fler händelser i "Vad händer om …?"</a></p></section>`;
+  // details: technical signals, key figures, news, forecast and AI analysis, loaded per stock
+  const D = detailFor(i), X = detailCards(i, D), K = D?.keyFigures || {};
   // about
   const kv = [];
   if (i.high52 != null) kv.push(['Högsta 52 veckor', fmtCur(i.high52, i.currency)], ['Lägsta 52 veckor', fmtCur(i.low52, i.currency)]);
   if (i.dividendYield != null) kv.push([term('direktavkastning', 'Direktavkastning'), fmtPct(i.dividendYield, 1, false)]);
   if (adv() && i.pe != null) kv.push([term('pe', 'P/E-tal'), fmt(i.pe, 1)]);
   if (adv() && sg.rsi != null) kv.push([term('rsi', 'RSI (14 dagar)'), fmt(sg.rsi, 0)]);
+  if (K.marketCap != null) kv.push(['Börsvärde', fmtBig(K.marketCap, i.currency)]);
+  if (K.netAssets != null) kv.push(['Förvaltat kapital', fmtBig(K.netAssets, i.currency)]);
+  if (K.analystRating) kv.push(['Analytikernas snitt (1 = starkt köp, 5 = sälj)', ratingText(K.analystRating)]);
+  if (adv() && K.forwardPE != null) kv.push(['P/E-tal framåt', fmt(K.forwardPE, 1)]);
+  if (adv() && K.priceToBook != null) kv.push(['P/B-tal', fmt(K.priceToBook, 1)]);
+  if (adv() && K.eps != null) kv.push(['Vinst per aktie, 12 mån', fmtCur(K.eps, i.currency)]);
   const about = `<section class="card"><h2>Om ${esc(i.name)}</h2>${i.about ? `<p class="ink2">${esc(i.about)}</p>` : '<p class="ink2">Egen aktie eller fond som du har lagt till.</p>'}${kv.length ? `<div class="rows" style="margin-top:10px">${kv.map(([k, v]) => `<div class="row"><span class="ink2">${k}</span><span class="num">${v}</span></div>`).join('')}</div>` : ''}${!adv() && (i.pe != null) ? '<p class="xs muted" style="margin-top:8px">Fler nyckeltal visas i läget Avancerat.</p>' : ''}${i.custom ? `<p style="margin-top:12px"><button class="btn danger sm" data-act="custom-del" data-inst="${esc(i.id)}">${ico('trash', 'icon sm')}Ta bort från appen</button></p>` : ''}</section>`;
   const o = (h, n) => h.replace('<section class="card"', `<section style="order:${n}" class="card"`);
-  html += `<div class="grid2 reflow"><div class="stack">${o(chartCard, 1)}${o(hold, 3)}${o(world, 4)}${o(sensCard, 5)}</div><div class="stack">${o(sigCard, 2)}${o(about, 6)}</div></div>`;
+  html += `<div class="grid2 reflow"><div class="stack">${o(chartCard, 1)}${o(X.forecast, 3)}${o(hold, 5)}${o(X.tech, 6)}${o(world, 7)}${o(sensCard, 9)}</div><div class="stack">${o(sigCard, 2)}${o(X.ai, 4)}${o(X.news, 8)}${o(about, 10)}</div></div>`;
   return html;
 };
+function detailFor(i) {
+  if (i.custom) return false;
+  const id = i.id;
+  if (!(id in S.detail)) {
+    S.detail[id] = null;
+    fetch(`data/detail/${encodeURIComponent(id)}.json`, { cache: 'no-cache' }).then(r => r.ok ? r.json() : false).catch(() => false)
+      .then(d => { S.detail[id] = d; if (S.route.view === 'aktie' && S.route.param === id) schedRender(); });
+  }
+  return S.detail[id];
+}
+const RATING = { 'strong buy': 'Starkt köp', buy: 'Köp', hold: 'Behåll', underperform: 'Sälj', sell: 'Sälj', 'strong sell': 'Starkt sälj' };
+function ratingText(r) { const m = String(r).match(/^([\d.]+)\s*-\s*(.+)$/); return m ? `${RATING[m[2].trim().toLowerCase()] || esc(m[2])} (${fmt(+m[1], 1)})` : esc(r); }
+function fmtBig(v, cur) { const a = Math.abs(v), [d, u] = a >= 1e9 ? [1e9, ' mdr'] : a >= 1e6 ? [1e6, ' mn'] : [1, '']; return fmt(v / d, d > 1 && a / d < 100 ? 1 : 0) + u + ' ' + (cur === 'SEK' ? 'kr' : esc(cur || '')); }
+function detailCards(i, D) {
+  const none = { forecast: '', ai: '', tech: '', news: '' };
+  if (D === null) return { ...none, tech: '<section class="card"><h2>Teknisk analys</h2><div class="skel"></div><div class="skel"></div></section>' };
+  if (!D) return none;
+  const out = { ...none }, mark = t => t > 0 ? ['p', '+'] : t < 0 ? ['n', '−'] : ['z', '•'];
+  const row = (t, title, text) => { const [k, sym] = mark(t); return `<div class="factor"><span class="fi ${k}" aria-hidden="true">${sym}</span><div>${title ? `<b>${title}</b>` : ''}<p>${esc(text)}</p></div></div>`; };
+  if (D.technical?.length) {
+    const ch = Object.entries(D.changes || {}).map(([k, v]) => `<span class="pill ${v > 0 ? 'up' : v < 0 ? 'down' : 'flat'}">${esc(k)} ${fmtPct(v)}</span>`).join('');
+    out.tech = `<section class="card"><h2>Teknisk analys</h2>${ch ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px">${ch}</div>` : ''}${D.technical.map(s => row(s.tone, esc(s.title) + (s.value != null ? ` <span class="num muted">${fmt(s.value, 0)}${s.key === 'vol' ? ' %' : ''}</span>` : ''), s.text)).join('')}<p class="disclaimer">Tekniska signaler bygger bara på kurshistoriken. De säger inget om bolagets framtid och slår ofta fel.</p></section>`;
+  }
+  const f = D.forecast;
+  if (f?.median?.length && f.base) {
+    const n = f.median.length, m = f.median[n - 1], c = (m / f.base - 1) * 100, yf = v => fmt(v, decFor(v));
+    const series = [{ name: 'Mittvärde', values: f.median, color: 'var(--series-1)' }, { name: 'Högsta bana', values: f.high, color: 'var(--series-2)', w: 1.4, dash: '4 4' }, { name: 'Lägsta bana', values: f.low, color: 'var(--series-3)', w: 1.4, dash: '4 4' }];
+    out.forecast = `<section class="card"><div class="card-head"><h2>AI-prognos</h2><span class="pill flat">Kronos</span></div>
+      <p class="ink2">Om ${n} handelsdagar (${esc(fmtDateY(f.dates[n - 1]))}) gissar modellen på cirka <b class="num">${fmtCur(m, i.currency)}</b>, ${delta(c, fmtPct(c))} mot ${fmtCur(f.base, i.currency)}. Modellens banor spretar mellan ${fmtCur(f.low[n - 1], i.currency)} och ${fmtCur(f.high[n - 1], i.currency)}.</p>
+      ${chartBox('fc', { dates: f.dates, series, h: 170, fmtY: yf, fmtTip: v => fmtCur(v, i.currency), label: 'AI-prognos för ' + i.name })}
+      <div class="legend">${series.map(s => `<span><i style="background:${s.color}"></i>${s.name}</span>`).join('')}</div>
+      <p class="disclaimer">Kronos är en öppen AI-modell som gissar utifrån kursmönster i historiken till och med ${esc(fmtDateY(f.baseDate))}. Den vet inget om nyheter eller bolagets affärer. Prognoser som den här slår ofta fel och är inget råd.</p></section>`;
+  }
+  const a = D.analysis;
+  if (a?.summary) out.ai = `<section class="card"><div class="card-head"><h2>AI-analys</h2><span class="pill flat">Gemini</span></div><p class="ink2">${esc(a.summary)}</p>
+    ${a.plus?.length ? `<h3 style="margin:12px 0 4px">Styrkor</h3>${a.plus.map(t => row(1, '', t)).join('')}` : ''}${a.minus?.length ? `<h3 style="margin:12px 0 4px">Risker</h3>${a.minus.map(t => row(-1, '', t)).join('')}` : ''}
+    <p class="disclaimer">Skriven automatiskt av AI (${esc(a.model || 'Gemini')}) ${esc(fmtDateY((a.createdAt || '').slice(0, 10)))} utifrån siffrorna och rubrikerna på den här sidan. Den kan innehålla fel och är inget råd.</p></section>`;
+  if (D.news?.length) out.news = `<section class="card"><h2>Nyheter om ${esc(i.name)}</h2><div class="rows">${D.news.map(n => `<div class="row"><a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a><span class="xs muted">${n.published ? esc(fmtDateY(n.published)) : ''}</span></div>`).join('')}</div><p class="xs muted" style="margin-top:8px">Rubriker från Yahoo Finance, oftast på engelska. Alla handlar inte alltid om just den här aktien.</p></section>`;
+  return out;
+}
+function headlinesCard() {
+  if (!S.headlines?.length) return '';
+  return `<section class="card"><h2>Senaste rubrikerna</h2><div class="rows">${S.headlines.slice(0, 12).map(h => `<div class="row"><a href="${esc(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.title)}</a><span class="xs muted">${esc(h.source)}</span></div>`).join('')}</div><p class="xs muted" style="margin-top:8px">Hämtas automatiskt från SVT, DI, Riksbanken, BBC och CNBC flera gånger per dag.</p></section>`;
+}
 function factorRow(f) {
   const k = f.v > 0 ? 'p' : f.v < 0 ? 'n' : 'z';
   return `<div class="factor"><span class="fi ${k}" aria-hidden="true">${f.v > 0 ? '+' : f.v < 0 ? '−' : '•'}</span><div><b>${f.term ? term(f.term, f.title) : esc(f.title)}</b><p>${esc(f.text)}${f.link ? ` <a href="#${f.link}">Läs mer</a>` : ''}</p>${adv() && f.det ? `<div class="det">${esc(f.det)}</div>` : ''}</div></div>`;
@@ -1164,7 +1217,7 @@ function effectOf(ev, i) {
 VIEWS.omvarld = () => {
   let html = phead('Omvärlden', 'Viktiga händelser i världen och hur de kan påverka aktier.');
   if (!S.ready.market) return html + marketState();
-  const B = S.briefs; if (!B.length) return html + `<section class="card empty"><h2>Ingen analys ännu</h2><p>Lägg in en analys i filen data/briefs.json så visas den här.</p></section>`;
+  const B = S.briefs; if (!B.length) return html + `<section class="card empty"><h2>Ingen analys ännu</h2><p>Lägg in en analys i filen data/briefs.json så visas den här.</p></section>` + headlinesCard();
   const k = Math.min(S.ui.brief, B.length - 1), b = B[k];
   html += `<section class="card" style="margin-bottom:16px"><div class="card-head"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="eyebrow">${esc(cap(fmtDateLong(b.date)))}</span>${moodPill(b)}</div>${B.length > 1 ? `<label class="small" style="display:flex;gap:8px;align-items:center">Tidigare <select id="briefsel" class="inp" style="min-height:36px;padding:4px 8px;width:auto">${B.map((x, j) => `<option value="${j}" ${j === k ? 'selected' : ''}>${esc(fmtDateY(x.date))}</option>`).join('')}</select></label>` : ''}</div>
     <h2 style="font-size:var(--t-xl)">${esc(b.title)}</h2><p class="ink2" style="margin-top:8px;max-width:72ch">${esc(b.summary)}</p>
@@ -1179,7 +1232,7 @@ VIEWS.omvarld = () => {
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between"><div class="srcs"><span class="muted">Källor:</span>${(it.sources || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>`).join('')}</div>
       <button class="btn sm" data-act="ask" data-q="${esc('Vad betyder händelsen "' + it.title + '" för mig och mina innehav? Förklara enkelt.')}">${ico('chat', 'icon sm')}Vad betyder det för mig?</button></div></div></details>`;
   }).join('')}</section>
-  <div class="stack"><section class="card"><h2>Kommande händelser</h2>${calRows()}</section><section class="card"><h2>Så läser du analysen</h2><p class="small ink2">Varje händelse visar en kedja från det som hände till hur det kan påverka aktiekurser. ▲ betyder att branschen kan gynnas, ▼ att den kan missgynnas. Det är bedömningar av hur det brukar fungera, inga garantier.</p><p class="small ink2" style="margin-top:8px">Vill du förstå mer om hur olika händelser påverkar börsen? Prova <a href="#lar">"Vad händer om …?"</a>.</p></section></div></div>`;
+  <div class="stack">${headlinesCard()}<section class="card"><h2>Kommande händelser</h2>${calRows()}</section><section class="card"><h2>Så läser du analysen</h2><p class="small ink2">Varje händelse visar en kedja från det som hände till hur det kan påverka aktiekurser. ▲ betyder att branschen kan gynnas, ▼ att den kan missgynnas. Det är bedömningar av hur det brukar fungera, inga garantier.</p><p class="small ink2" style="margin-top:8px">Vill du förstå mer om hur olika händelser påverkar börsen? Prova <a href="#lar">"Vad händer om …?"</a>.</p></section></div></div>`;
   return html;
 };
 

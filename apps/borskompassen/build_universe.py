@@ -157,14 +157,25 @@ def _active(row, today, days=14):
     return bool(stamp) and date.fromtimestamp(stamp) >= today - timedelta(days=days)
 
 
+FIGURES = {  # Yahoos screenerfält -> nyckeltal som sparas tillsammans med kursen
+    "trailingPE": "pe", "dividendYield": "dividendYield", "marketCap": "marketCap",
+    "forwardPE": "forwardPE", "priceToBook": "priceToBook", "epsTrailingTwelveMonths": "eps",
+    "averageAnalystRating": "analystRating", "netAssets": "netAssets",
+    "netExpenseRatio": "expenseRatio",
+}  # fmt: skip
+
+
 def _fundamentals(row):
-    """P/E och direktavkastning (procent) vid kursen i samma rad, eller None."""
+    """Nyckeltal vid kursen i samma rad (saknade utelämnas), eller None utan kurs.
+
+    dividendYield är redan i procent och i handelsvalutan; trailingAnnualDividendRate kan vara
+    i rapportvalutan (AstraZeneca i dollar mot kurs i kronor) och ger då fel avkastning.
+    """
     price = row.get("regularMarketPrice")
     if not price:
         return None
-    # dividendYield är redan i procent och i handelsvalutan; trailingAnnualDividendRate kan vara
-    # i rapportvalutan (AstraZeneca i dollar mot kurs i kronor) och ger då fel avkastning.
-    return {"pe": row.get("trailingPE"), "dividendYield": row.get("dividendYield"), "price": price}
+    figures = {name: row[field] for field, name in FIGURES.items() if row.get(field) is not None}
+    return {**figures, "price": price}
 
 
 def fund_base(name):
@@ -248,6 +259,7 @@ def build(config, previous, screen, sp500, industries, today):
             if row.get("quoteType") == "MUTUALFUND"
             else "Börshandlad fond på Stockholmsbörsen."
         )
+        fundamentals[row["symbol"]] = _fundamentals(row)
         add({
             "id": slug(row["symbol"]), "symbol": row["symbol"],
             "ticker": row["symbol"].removesuffix(".ST"), "name": row["longName"], "type": "fond",

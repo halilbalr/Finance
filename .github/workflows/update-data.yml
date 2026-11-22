@@ -34,16 +34,17 @@ jobs:
           cache: pip
       - run: python -m pip install '.[data]' pytest
       - name: Kör testerna
-        run: python -m pytest tests/test_borskompassen.py tests/test_borskompassen_universe.py
+        run: python -m pytest tests/test_borskompassen*.py
       - id: pages
         uses: actions/configure-pages@v5
-      - name: Hämta förra publicerade kurser och listan över instrument
+      - name: Hämta förra publicerade kurser, analyser och listan över instrument
         # Med flera tusen instrument är kursfilen för stor för att sparas i repot vid varje
         # körning. Förra publicerade versionen är utgångsläget; saknas den används repots kopia.
         continue-on-error: true
         working-directory: apps/borskompassen
         run: |
-          for file in data/quotes.json data/meta.json universe.json; do
+          for file in data/quotes.json data/meta.json universe.json data/briefs.json \
+                      data/headlines.json data/forecasts.json data/analyses.json; do
             curl -fsSL --retry 3 "${{ steps.pages.outputs.base_url }}/$file" -o "$file.new" \
               && mv "$file.new" "$file" || rm -f "$file.new"
           done
@@ -53,6 +54,27 @@ jobs:
       - name: Hämta kurser från Yahoo Finance
         continue-on-error: true
         run: python apps/borskompassen/update_data.py
+      - name: Kronos-prognoser (en gång per dygn)
+        # Kronos är en öppen modell för kursprognoser som körs gratis på maskinen, utan nyckel.
+        continue-on-error: true
+        run: |
+          if python apps/borskompassen/forecast.py --due; then
+            git clone --depth 1 https://github.com/halilbalr/Kronos kronos-src
+            python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+            python -m pip install einops huggingface_hub safetensors tqdm
+            python apps/borskompassen/forecast.py
+          else
+            echo "Dagens prognoser finns redan."
+          fi
+      - name: Detaljer per aktie, nyheter och rubriker
+        continue-on-error: true
+        run: python apps/borskompassen/details.py
+      - name: AI-analyser med Gemini (en gång per dag, om nyckeln finns)
+        # Nyckeln är en gratis nyckel från Google AI Studio, sparad som hemlighet i repot.
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python apps/borskompassen/ai.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/borskompassen

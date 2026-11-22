@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 *.log
 universe.json
+data/detail/
+data/forecasts.json
+data/analyses.json
+data/headlines.json
